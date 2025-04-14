@@ -1,37 +1,76 @@
 import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import LogoutIcon from "@mui/icons-material/Logout";
-import PersonIcon from "@mui/icons-material/Person";
+import {
+  FaUserCircle,
+  FaSignOutAlt,
+  FaClipboardList,
+  FaChartBar,
+} from "react-icons/fa";
 import UserContext from "../context/UserContext";
 
 const UserNavbar = () => {
   const { user, logout } = useContext(UserContext);
   const navigate = useNavigate();
 
-  if (!user) return null; // Masquez la navbar si l'utilisateur n'est pas connecté
+  if (!user) return null;
+
+  const profilePath = `/${user.role}/profile`;
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-gray-900 text-white shadow-md z-50 h-auto">
-      <div className="w-full max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
-        <Link to="/" className="text-2xl font-extrabold text-green-500 hover:text-green-400 transition">
+    <nav className="fixed top-0 left-0 w-full bg-white border-b border-gray-200 shadow z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+        {/* Logo */}
+        <Link
+          to="/"
+          className="text-2xl font-extrabold text-green-600 hover:text-green-500 transition duration-200"
+        >
           MarketPlace
         </Link>
 
-        <div className="flex items-center space-x-4">
-          <PersonIcon fontSize="large" />
-          <div>
-            <p className="text-sm text-gray-300">{user.name}</p>
-            <p className="text-xs text-green-400">{user.role}</p>
+        {/* Centre (boutons vendeurs si rôle = vendeur) */}
+        {user.role === "vendeur" && (
+          <div className="hidden md:flex space-x-4">
+            <button
+              onClick={() => navigate("/vendeur-commandes")}
+              className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-green-600 transition"
+            >
+              <FaClipboardList className="text-lg" />
+              Commandes
+            </button>
+            <button
+              onClick={() => navigate("/vendeur-dashboard")}
+              className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-green-600 transition"
+            >
+              <FaChartBar className="text-lg" />
+              Dashboard
+            </button>
           </div>
-        </div>
+        )}
 
-        <button
-          onClick={() => { logout(); navigate("/login"); }}
-          className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg flex items-center space-x-2"
-        >
-          <LogoutIcon />
-          <span>Déconnecter</span>
-        </button>
+        {/* Utilisateur & déconnexion */}
+        <div className="flex items-center space-x-4">
+          <div
+            onClick={() => navigate(profilePath)}
+            className="cursor-pointer flex items-center space-x-2 group"
+          >
+            <FaUserCircle className="text-3xl text-gray-600 group-hover:text-green-500 transition" />
+            <div className="text-sm text-left">
+              <p className="font-semibold text-gray-800">{user.name}</p>
+              <p className="text-xs text-green-500 capitalize">{user.role}</p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              logout();
+              navigate("/login");
+            }}
+            className="flex items-center space-x-2 bg-red-500 hover:bg-red-600 transition px-3 py-2 rounded-lg text-white text-sm font-medium"
+          >
+            <FaSignOutAlt />
+            <span>Déconnecter</span>
+          </button>
+        </div>
       </div>
     </nav>
   );

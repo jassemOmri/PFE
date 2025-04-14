@@ -18,6 +18,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // 📌 **Routes des produits**
+
 router.get("/products", getProducts); // ✅ Récupérer tous les produits
 router.get("/products/vendeur/:vendeurId", getProductsByVendeur); // ✅ Récupérer les produits d'un vendeur spécifique
 router.post("/products", upload.single("image"), addProduct); // ✅ Ajouter un produit avec `vendeurId`

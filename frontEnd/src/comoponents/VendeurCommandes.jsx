@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
+import UserNavbar from "./UserNavbar";
 
 // 🔌 Connexion WebSocket
 const socket = io("http://localhost:5000");
@@ -56,6 +57,7 @@ const VendeurCommandes = () => {
 
   return (
     <div className="p-6">
+      <UserNavbar />
       <h2 className="text-2xl font-bold mb-6 text-gray-800">
         Commandes reçues
       </h2>

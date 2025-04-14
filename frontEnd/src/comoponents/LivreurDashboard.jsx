@@ -2,21 +2,41 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import UserNavbar from "./UserNavbar";
 
-const LivreurDashboard = ({ livreurId }) => {
+const LivreurDashboard = () => {
   const [orders, setOrders] = useState([]);
-  const [confirmedOrder, setConfirmedOrder] = useState(null); // Commande confirmée
+  const [confirmedOrder, setConfirmedOrder] = useState(null);
+  const [disponible, setDisponible] = useState(true);
 
-  // Charger les commandes disponibles
+  const livreurId = localStorage.getItem("livreurId");
+
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/livreur/orders", { params: { livreurId } })
-      .then((response) => {
-        setOrders(response.data);
-      })
-      .catch((error) => console.error("Erreur lors du chargement des commandes:", error));
+    if (livreurId) {
+      checkDisponibilite();
+      fetchOrders();
+    }
   }, [livreurId]);
 
-  // Confirmer la commande
+  const checkDisponibilite = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/livreur/profile/${livreurId}`);
+      setDisponible(res.data.livreur.disponible);
+    } catch (err) {
+      console.error("Erreur disponibilité :", err);
+    }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/orders");
+      const filtered = res.data.filter(
+        (order) => order.status === "en cours" && !order.livreur
+      );
+      setOrders(filtered);
+    } catch (err) {
+      console.error("Erreur chargement commandes :", err);
+    }
+  };
+
   const confirmOrder = async (orderId) => {
     try {
       const response = await axios.put("http://localhost:5000/api/livreur/confirm-order", {
@@ -26,7 +46,7 @@ const LivreurDashboard = ({ livreurId }) => {
 
       if (response.data.success) {
         setConfirmedOrder(response.data.order);
-        setOrders([]); // Retirer toutes les autres commandes
+        setOrders([]); // vider les autres
       } else {
         alert(response.data.message);
       }
@@ -40,29 +60,31 @@ const LivreurDashboard = ({ livreurId }) => {
     <div>
       <UserNavbar />
       <div className="container mx-auto p-6 min-h-screen">
-        <h2 className="text-2xl font-bold text-green-600 mb-6 text-center">Tableau de Bord Livreur</h2>
+        <h2 className="text-2xl font-bold text-green-600 mb-6 text-center">
+          Tableau de Bord Livreur
+        </h2>
 
-        {/* Affichage de la commande confirmée */}
-        {confirmedOrder ? (
+        {!disponible ? (
+          <div className="text-red-500 text-center font-medium">
+            Vous êtes actuellement marqué comme indisponible. Activez votre disponibilité pour recevoir des commandes.
+          </div>
+        ) : confirmedOrder ? (
           <div className="bg-white p-4 shadow-md rounded-lg">
             <h3 className="text-xl font-semibold text-gray-800">Commande confirmée</h3>
             <p>Client: {confirmedOrder.clientName}</p>
-            <p>Produit: {confirmedOrder.productName}</p>
-            <p>Quantité: {confirmedOrder.quantity}</p>
-            <p className="text-green-500 font-bold">Statut: {confirmedOrder.status}</p>
+            <p>Statut: <span className="text-green-500 font-bold">{confirmedOrder.status}</span></p>
           </div>
         ) : (
           <>
             <h3 className="text-xl font-semibold text-gray-800 mb-4">Commandes disponibles</h3>
             {orders.length === 0 ? (
-              <p className="text-gray-500 text-center">Aucune commande à livrer.</p>
+              <p className="text-gray-500 text-center">Aucune commande disponible.</p>
             ) : (
               <table className="w-full text-left border-collapse border border-gray-200">
                 <thead className="bg-gray-100">
                   <tr>
                     <th className="p-3 border">Client</th>
-                    <th className="p-3 border">Produit</th>
-                    <th className="p-3 border">Quantité</th>
+                    <th className="p-3 border">Produits</th>
                     <th className="p-3 border">Actions</th>
                   </tr>
                 </thead>
@@ -70,8 +92,13 @@ const LivreurDashboard = ({ livreurId }) => {
                   {orders.map((order) => (
                     <tr key={order._id} className="hover:bg-gray-50">
                       <td className="p-3 border">{order.clientName}</td>
-                      <td className="p-3 border">{order.productName}</td>
-                      <td className="p-3 border">{order.quantity}</td>
+                      <td className="p-3 border">
+                        {order.products.map((prod, i) => (
+                          <div key={i}>
+                            {prod.productName} x {prod.quantity}
+                          </div>
+                        ))}
+                      </td>
                       <td className="p-3 border">
                         <button
                           onClick={() => confirmOrder(order._id)}
@@ -86,8 +113,6 @@ const LivreurDashboard = ({ livreurId }) => {
               </table>
             )}
           </>
-
-            
         )}
       </div>
     </div>

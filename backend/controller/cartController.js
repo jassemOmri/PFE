@@ -2,6 +2,7 @@ const Cart = require("../models/Cart");
 const Product = require("../models/product");
 const User = require("../models/User");
 const Order = require("../models/order");
+const { notifyClient } = require("../socketServer");
 
 exports.addToCart = async (req, res) => {
   try {
@@ -42,6 +43,13 @@ exports.addToCart = async (req, res) => {
     }
 
     await cart.save();
+   
+   
+notifyClient(acheteurId, {
+  type: "cart_updated",
+  data: { updated: true },
+});
+
     res.json({ success: true, message: "Produit ajouté au panier", cart });
   } catch (error) {
     console.error("Erreur dans addToCart:", error);

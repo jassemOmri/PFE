@@ -1,4 +1,6 @@
+const mongoose = require("mongoose");
 const Order = require("../models/order");
+const { notifyClient } = require("../socketServer"); // ✅ Import WebSocket
 
 exports.getOrders = async (req, res) => {
   try {
@@ -14,16 +16,13 @@ exports.confirmOrder = async (req, res) => {
   const { orderId } = req.params;
 
   try {
-    // Vérifier si la commande existe
     const order = await Order.findById(orderId);
     if (!order) return res.status(404).json({ message: "Commande non trouvée" });
 
-    // Associer la commande au livreur et mettre à jour le statut
     order.livreur = livreurId;
     order.status = "en cours de livraison";
     await order.save();
 
-    // Supprimer la commande pour les autres livreurs
     await Order.deleteMany({ _id: { $ne: orderId }, clientName: order.clientName });
 
     res.json({ message: "Commande assignée avec succès", order });
@@ -32,13 +31,9 @@ exports.confirmOrder = async (req, res) => {
   }
 };
 
-const mongoose = require("mongoose");
-
 exports.getOrdersByVendeur = async (req, res) => {
   try {
     const { vendeurId } = req.params;
-
-    // ⚠️ Transformation string -> ObjectId
     const vendeurObjectId = new mongoose.Types.ObjectId(vendeurId);
 
     const orders = await Order.find({ "products.vendeurId": vendeurObjectId });
@@ -70,14 +65,18 @@ exports.confirmOrderByVendeur = async (req, res) => {
     order.status = "confirmée";
     await order.save();
 
-    // ✅ Retourner le clientId pour la notification WebSocket
+    // ✅ Envoi d'une notification au client
+    notifyClient(order.acheteurId.toString(), {
+      type: "confirmation",
+      message: `Votre commande a été confirmée par le vendeur.`,
+      orderId: order._id,
+    });
+
     res.json({
       success: true,
       message: "Commande confirmée",
       clientId: order.acheteurId,
-      clientName: order.clientName,
     });
-
   } catch (error) {
     console.error("Erreur lors de la confirmation :", error);
     res.status(500).json({ message: "Erreur serveur" });
@@ -92,14 +91,18 @@ exports.cancelOrderByVendeur = async (req, res) => {
     order.status = "annulée";
     await order.save();
 
-    // ✅ Retourner le clientId pour la notification WebSocket
+    // ❌ Envoi d'une notification au client
+    notifyClient(order.acheteurId.toString(), {
+      type: "annulation",
+      message: `Votre commande a été annulée par le vendeur.`,
+      orderId: order._id,
+    });
+
     res.json({
       success: true,
       message: "Commande annulée",
       clientId: order.acheteurId,
-      clientName: order.clientName,
     });
-
   } catch (error) {
     console.error("Erreur lors de l'annulation :", error);
     res.status(500).json({ message: "Erreur serveur" });

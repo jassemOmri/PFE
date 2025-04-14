@@ -140,15 +140,6 @@ const navigate = useNavigate();
         <div className="flex flex-col lg:flex-row-reverse gap-6">
           {/* Formulaire */}
           <div className="lg:w-1/3 p-6 bg-white rounded-lg shadow-lg">
-
-
-
-             <button
-                onClick={() => navigate("/vendeur-commandes")}
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-500 transition"
-              >
-                Voir les commandes
-              </button>
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Ajouter un produit</h2>
 
             <form onSubmit={handleSubmit}>

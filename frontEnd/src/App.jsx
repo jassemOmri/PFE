@@ -14,6 +14,13 @@ import UserContext, { UserProvider } from "./context/UserContext";
 import Payment from "./pages/Payment"; 
 import AdminDashboard from "./comoponents/AdminDashboard"; // Importez le composant AdminDashboard
 import VendeurCommandes from "./comoponents/VendeurCommandes";
+import VendeurProfil from "./pages/VendeurProfil";
+import AcheteurProfil from "./pages/AcheteurProfil";
+import LivreurProfil from "./pages/LivreurProfil";
+
+import EditVendeurProfile from "./comoponents/EditVendeurProfile";
+
+
 
 const App = () => {
   const { user } = useContext(UserContext);
@@ -45,6 +52,11 @@ const App = () => {
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="*" element={<Navigate to="/" />} />
          <Route path="/payment" element={<Payment />} />
+         <Route path="/vendeur/:id" element={<VendeurProfil />} />
+          <Route path="/livreur/:id" element={<LivreurProfil />} />
+          <Route path="/acheteur/:id" element={<AcheteurProfil />} />
+          <Route path="/vendeur/profile/edit" element={<EditVendeurProfile />} />
+
                  <Route path="/admin" element={<AdminDashboard />} /> {/* Route pour le tableau de bord admin */}
 
       </Routes>
