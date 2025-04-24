@@ -4,17 +4,39 @@ import UserContext from "../context/UserContext";
 
 const EditVendeurProfile = () => {
   const { user } = useContext(UserContext);
-  const [formData, setFormData] = useState({
-    numTele: "",
-    dateNaissance: "",
-    addPostale: {
-      rue: "",
-      ville: "",
-      region: "",
-      pays: "",
-      codePostal: "",
-    },
-  });
+const [formData, setFormData] = useState({
+  numTele: "",
+  dateNaissance: "",
+  lat: null,
+  lng: null,
+  addPostale: {
+    rue: "",
+    ville: "",
+    region: "",
+    pays: "",
+    codePostal: "",
+  },
+});
+const getMyLocation = () => {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        console.log("📍 Vendeur position:", lat, lng);
+        setFormData((prev) => ({ ...prev, lat, lng }));
+      },
+      (error) => {
+        alert("❌ Impossible de récupérer la position.");
+        console.error(error);
+      }
+    );
+  } else {
+    alert("⚠️ La géolocalisation n'est pas supportée.");
+  }
+};
+
+
 
   const [imProfile, setImProfile] = useState(null);
   const [imCin, setImCin] = useState(null);
@@ -79,6 +101,8 @@ const EditVendeurProfile = () => {
       formDataToSend.append("dateNaissance", formData.dateNaissance);
 
       formDataToSend.append("addPostale", JSON.stringify(formData.addPostale));
+        formDataToSend.append("lat", formData.lat);
+        formDataToSend.append("lng", formData.lng);
 
       if (imProfile) formDataToSend.append("imProfile", imProfile);
       if (imCin) formDataToSend.append("imCin", imCin);
@@ -176,6 +200,22 @@ const EditVendeurProfile = () => {
             />
           ))}
         </div>
+
+
+                  <button
+            type="button"
+            onClick={getMyLocation}
+            className="bg-blue-600 text-white px-4 py-2 rounded mt-2 hover:bg-blue-500 transition"
+          >
+            📍 Définir ma position actuelle
+          </button>
+
+          {formData.lat && formData.lng && (
+            <p className="text-sm text-gray-600 mt-2">
+              Position actuelle: {formData.lat.toFixed(5)} / {formData.lng.toFixed(5)}
+            </p>
+          )}
+
 
         <button
           type="submit"

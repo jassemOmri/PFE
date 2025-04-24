@@ -28,6 +28,11 @@ const orderRoutes = require("./routes/orderRouter");
 const adminRoutes = require("./routes/adminRoutes"); // Importer les routes de l'administrateur
 const vendeurRoutes = require("./routes/vendeurRoutes");
 const livreurRoutes = require("./routes/livreurRoutes");
+const acheteurRoutes = require("./routes/acheteurRoutes");
+
+
+
+app.use("/acheteur", acheteurRoutes);
 
 app.use("/vendeur", require("./routes/vendeurRoutes"));
 
@@ -47,7 +52,7 @@ app.use("/api", productRoutes);
 
 app.use("/api/admin", adminRoutes); // Utiliser les routes de l'administrateur
 
-app.use("/api/livreur", orderRoutes);
+app.use("/api/livreurs", require("./routes/livreurRoutes"));
 app.use("/api/orders", orderRoutes);
 app.use("/api", livreurRoutes);
 

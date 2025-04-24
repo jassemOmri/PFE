@@ -29,7 +29,7 @@ exports.signup = async (req, res) => {
     
     await newUser.save();
 
-    res.json("saye wslit")
+    
     //jwt.sign(payload, secret, options)
     const token = jwt.sign({ userId: newUser._id, role: newUser.role }, SECRET_KEY, { expiresIn: "1h" });
 

@@ -33,6 +33,8 @@ const Login = () => {
       if (role === "vendeur") {
         localStorage.setItem("vendeurId", userId); // ✅ AJOUT IMPORTANT
       }
+       
+
 
       window.dispatchEvent(new Event("storage")); // ✅ maj navbar
       login(userData); // ✅ maj contexte utilisateur

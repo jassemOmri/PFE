@@ -1,77 +1,78 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import { BadgeCheck, MapPin, Phone, ShoppingBag } from "lucide-react";
+import { CgProfile } from "react-icons/cg";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../comoponents/Navbar";
+import Footer from "../comoponents/Footer";
+import UserContext from "../context/UserContext";
 
-const AcheteurProfile = () => {
-  const { id } = useParams();
-  const [vendeur, setVendeur] = useState(null);
-  const [produits, setProduits] = useState([]);
+const AcheteurProfil = () => {
+  const { user } = useContext(UserContext);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchProfile = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/vendeur/${id}`);
-        setVendeur(res.data.vendeur);
-        setProduits(res.data.produits);
-      } catch (err) {
-        console.error("Erreur de chargement vendeur:", err);
+        const res = await axios.get(`http://localhost:5000/acheteur/profile/${user.userId}`);
+        setProfile(res.data.user);
+        setLoading(false);
+      } catch (error) {
+        console.error("Erreur profil acheteur:", error);
+        setLoading(false);
       }
     };
-    fetchData();
-  }, [id]);
+    if (user?.userId) {
+      fetchProfile();
+    }
+  }, [user]);
 
-  if (!vendeur) return <div className="text-center py-20 text-gray-500">Chargement...</div>;
+  if (loading) return <p className="text-center mt-10">Chargement...</p>;
+  if (!profile) return <p className="text-center mt-10 text-red-500">Profil introuvable.</p>;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="bg-white shadow-xl rounded-2xl p-6 flex flex-col md:flex-row gap-8 items-center">
-        <img
-          src={`http://localhost:5000/uploads/${vendeur.photo}`}
-          alt="Vendeur"
-          className="w-32 h-32 rounded-full object-cover border-4 border-green-500 shadow-md"
-        />
-        <div className="text-center md:text-left">
-          <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-            {vendeur.name} <BadgeCheck className="text-green-500" size={24} />
-          </h1>
-          <p className="text-gray-600 mt-2 flex items-center gap-2">
-            <Phone size={16} /> {vendeur.phone}
-          </p>
-          <p className="text-gray-600 flex items-center gap-2">
-            <MapPin size={16} /> {vendeur.region}, {vendeur.country}
-          </p>
-          <p className="text-sm text-gray-400 mt-1">Membre depuis 2023</p>
-        </div>
-      </div>
+    <div className="bg-gray-50 flex flex-col min-h-screen">
+      <Navbar />
 
-      <h2 className="text-2xl font-semibold mt-10 mb-4 flex items-center gap-2">
-        <ShoppingBag /> Produits de {vendeur.name}
-      </h2>
-      {produits.length === 0 ? (
-        <p className="text-gray-500">Aucun produit disponible.</p>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-          {produits.map((p) => (
-            <div
-              key={p._id}
-              className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition"
-            >
-              <img
-                src={`http://localhost:5000/uploads/${p.image}`}
-                alt={p.name}
-                className="h-48 w-full object-cover"
-              />
-              <div className="p-4">
-                <h3 className="text-md font-bold text-gray-800 truncate">{p.name}</h3>
-                <p className="text-green-600 font-semibold mt-1">${p.regularPrice}</p>
-              </div>
+      <main className="flex-grow pt-16 pb-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+        <div className="bg-white shadow-lg rounded-2xl p-8 mb-10 w-full flex flex-col md:flex-row items-center gap-8">
+          {profile.imProfile ? (
+            <img
+              src={`http://localhost:5000/uploads/${profile.imProfile}`}
+              alt="Profil"
+              className="w-32 h-32 rounded-full object-cover border border-gray-300 shadow"
+            />
+          ) : (
+            <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border border-gray-300 shadow">
+              <CgProfile className="text-5xl text-gray-500" />
             </div>
-          ))}
+          )}
+
+          <div className="flex-1">
+            <div className="flex justify-between items-center flex-wrap gap-2">
+              <h2 className="text-3xl font-bold text-gray-800">{profile.name}</h2>
+              <button
+                onClick={() => navigate("/acheteur/profile/edit")}
+                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-400 transition"
+              >
+                Modifier mon profil
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-1 text-gray-600">
+              <p>📧 {profile.email}</p>
+              <p>📞 {profile.numTele || "Téléphone non défini"}</p>
+              <p>🎂 {profile.dateNaissance ? profile.dateNaissance.substring(0, 10) : "Date non définie"}</p>
+              <p>📍 Adresse : {profile.addPostale.rue}, {profile.addPostale.ville}, {profile.addPostale.region}, {profile.addPostale.pays} {profile.addPostale.codePostal}</p>
+            </div>
+          </div>
         </div>
-      )}
+      </main>
+
+      <Footer />
     </div>
   );
 };
 
-export default AcheteurProfile;
+export default AcheteurProfil;

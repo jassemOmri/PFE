@@ -10,6 +10,7 @@ const cartSchema = new mongoose.Schema({
       image: String,
       vendeurId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
       quantity: { type: Number, default: 1 },
+          status: { type: String, default: "en attente" }, 
     },
   ],
 });

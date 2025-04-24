@@ -3,6 +3,7 @@ const Product = require("../models/product");
 const User = require("../models/User");
 const Order = require("../models/order");
 const { notifyClient } = require("../socketServer");
+const Vendeur = require("../models/vendeur");
 
 exports.addToCart = async (req, res) => {
   try {
@@ -39,6 +40,7 @@ exports.addToCart = async (req, res) => {
         image: product.image,
         vendeurId: product.vendeurId,
         quantity,
+        status: "en attente",
       });
     }
 
@@ -51,6 +53,7 @@ notifyClient(acheteurId, {
 });
 
     res.json({ success: true, message: "Produit ajouté au panier", cart });
+
   } catch (error) {
     console.error("Erreur dans addToCart:", error);
     res.status(500).json({ success: false, message: "Erreur serveur" });
@@ -120,18 +123,42 @@ exports.getCart = async (req, res) => {
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
+//Création de la commande
+
 
 exports.confirmOrder = async (req, res) => {
   try {
     console.log("Données reçues :", req.body);
 
     const { acheteurId, paymentMethod, clientLng, clientLat, clientName, products } = req.body;
+   
+    console.log("Coordonnées client:", req.body.clientLat, req.body.clientLng);
+
 
     if (!acheteurId || clientLng == null || clientLat == null || !clientName || !products?.length) {
       return res.status(400).json({ success: false, message: "Données manquantes" });
     }
 
-    // ✅ Créer une seule commande avec tous les produits
+    // ✅ جلب السعر الحقيقي من DB
+    const detailedProducts = await Promise.all(
+      products.map(async (product) => {
+        const dbProduct = await Product.findById(product.productId);
+        const vendeur = await Vendeur.findById(dbProduct.vendeurId);
+
+        return {
+          productId: product.productId,
+          productName: dbProduct.name,
+          quantity: product.quantity,
+          price: dbProduct.salePrice || dbProduct.regularPrice || 0, // ✅ السعر الصحيح
+          vendeurId: dbProduct.vendeurId,
+             vendeurLat: vendeur?.lat || 0,
+           vendeurLng: vendeur?.lng || 0,
+          status: "en attente",
+        };
+      })
+    );
+
+    // ✅ إنشاء commande واحدة بكل المنتجات
     const newOrder = new Order({
       acheteurId,
       clientName,
@@ -139,13 +166,7 @@ exports.confirmOrder = async (req, res) => {
       clientLat,
       paymentMethod,
       status: "en attente",
-      products: products.map((product) => ({
-        productId: product.productId,
-        productName: product.productName,
-        quantity: product.quantity,
-        price: product.price, // utilise price déjà calculé dans panier
-        vendeurId: product.vendeurId,
-      })),
+      products: detailedProducts,
     });
 
     await newOrder.save();

@@ -21,5 +21,9 @@ const VendeurSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  lat: { type: Number, default: null },
+  lng: { type: Number, default: null },
+
+  status: { type: String, default: "confirmée" }, 
 });
 module.exports = mongoose.model("Vendeur", VendeurSchema);

@@ -1,120 +1,131 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import UserNavbar from "./UserNavbar";
+import { MapPin, PackageCheck, LayoutDashboard, Menu } from "lucide-react";
+import { Button } from "./ui/button";
+import MapComponent from "../comoponents/ui/MapComponent"
+import MapTest from "../comoponents/ui/MapTest"
 
 const LivreurDashboard = () => {
-  const [orders, setOrders] = useState([]);
-  const [confirmedOrder, setConfirmedOrder] = useState(null);
-  const [disponible, setDisponible] = useState(true);
+  const [disponible, setDisponible] = useState(false);
+  const [commandesDisponibles, setCommandesDisponibles] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const livreurId = localStorage.getItem("livreurId");
+  const user = JSON.parse(localStorage.getItem("user"));
+  const livreurId = user?.role === "livreur" ? user.userId : null;
 
   useEffect(() => {
-    if (livreurId) {
-      checkDisponibilite();
-      fetchOrders();
-    }
+    const fetchDisponibilite = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/livreurs/${livreurId}`);
+        setDisponible(res.data?.disponible || false);
+      } catch (err) {
+        console.error("Erreur lors de la récupération de la disponibilité", err);
+      }
+    };
+    if (livreurId) fetchDisponibilite();
   }, [livreurId]);
 
-  const checkDisponibilite = async () => {
-    try {
-      const res = await axios.get(`http://localhost:5000/livreur/profile/${livreurId}`);
-      setDisponible(res.data.livreur.disponible);
-    } catch (err) {
-      console.error("Erreur disponibilité :", err);
+  useEffect(() => {
+    if (disponible && livreurId) {
+      fetchCommandesDisponibles();
     }
-  };
+  }, [disponible, livreurId]);
 
-  const fetchOrders = async () => {
+  const fetchCommandesDisponibles = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/orders");
-      const filtered = res.data.filter(
-        (order) => order.status === "en cours" && !order.livreur
-      );
-      setOrders(filtered);
-    } catch (err) {
-      console.error("Erreur chargement commandes :", err);
-    }
-  };
-
-  const confirmOrder = async (orderId) => {
-    try {
-      const response = await axios.put("http://localhost:5000/api/livreur/confirm-order", {
-        livreurId,
-        orderId,
-      });
-
-      if (response.data.success) {
-        setConfirmedOrder(response.data.order);
-        setOrders([]); // vider les autres
-      } else {
-        alert(response.data.message);
-      }
+      const res = await axios.get(`http://localhost:5000/api/orders/livreur/${livreurId}`);
+      setCommandesDisponibles(res.data);
     } catch (error) {
-      console.error("Erreur lors de la confirmation:", error);
-      alert("Impossible de confirmer la commande");
+      console.error("Erreur lors de la récupération des commandes disponibles:", error);
+    }
+  };
+
+  const toggleDisponibilite = async () => {
+    try {
+      const res = await axios.put(`http://localhost:5000/api/livreurs/disponible/${livreurId}`, {
+        disponible: !disponible,
+      });
+      setDisponible(res.data?.disponible || false);
+    } catch (err) {
+      console.error("Erreur lors du changement de disponibilité", err);
     }
   };
 
   return (
-    <div>
-      <UserNavbar />
-      <div className="container mx-auto p-6 min-h-screen">
-        <h2 className="text-2xl font-bold text-green-600 mb-6 text-center">
-          Tableau de Bord Livreur
-        </h2>
-
-        {!disponible ? (
-          <div className="text-red-500 text-center font-medium">
-            Vous êtes actuellement marqué comme indisponible. Activez votre disponibilité pour recevoir des commandes.
-          </div>
-        ) : confirmedOrder ? (
-          <div className="bg-white p-4 shadow-md rounded-lg">
-            <h3 className="text-xl font-semibold text-gray-800">Commande confirmée</h3>
-            <p>Client: {confirmedOrder.clientName}</p>
-            <p>Statut: <span className="text-green-500 font-bold">{confirmedOrder.status}</span></p>
-          </div>
-        ) : (
-          <>
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Commandes disponibles</h3>
-            {orders.length === 0 ? (
-              <p className="text-gray-500 text-center">Aucune commande disponible.</p>
-            ) : (
-              <table className="w-full text-left border-collapse border border-gray-200">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="p-3 border">Client</th>
-                    <th className="p-3 border">Produits</th>
-                    <th className="p-3 border">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((order) => (
-                    <tr key={order._id} className="hover:bg-gray-50">
-                      <td className="p-3 border">{order.clientName}</td>
-                      <td className="p-3 border">
-                        {order.products.map((prod, i) => (
-                          <div key={i}>
-                            {prod.productName} x {prod.quantity}
-                          </div>
-                        ))}
-                      </td>
-                      <td className="p-3 border">
-                        <button
-                          onClick={() => confirmOrder(order._id)}
-                          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-400"
-                        >
-                          Prendre la commande
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </>
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Sidebar dynamique */}
+      <aside
+        className={`transition-all duration-300 ${
+          sidebarOpen ? "w-64" : "w-16"
+        } bg-white shadow-lg p-4 border-r flex flex-col items-center`}
+      >
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="mb-6 text-gray-600 hover:text-gray-900"
+        >
+          <Menu size={24} />
+        </button>
+        {sidebarOpen && (
+          <h2 className="text-xl font-bold text-green-600 mb-8">MarketPlace</h2>
         )}
-      </div>
+        <ul className="space-y-4 w-full">
+          <li className="flex items-center space-x-2 text-gray-700 font-medium">
+            <LayoutDashboard size={20} /> {sidebarOpen && <span>Dashboard</span>}
+          </li>
+          <li className="flex items-center space-x-2 text-gray-700 font-medium">
+            <PackageCheck size={20} /> {sidebarOpen && <span>Commandes</span>}
+          </li>
+          <li className="flex items-center space-x-2 text-gray-700 font-medium">
+            <MapPin size={20} /> {sidebarOpen && <span>Carte</span>}
+          </li>
+        </ul>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 p-8 overflow-auto">
+        <div className="text-center mb-6">
+          <Button
+            onClick={toggleDisponibilite}
+            className={`px-6 py-2 rounded-full text-white font-semibold shadow-md transition duration-300 ease-in-out transform hover:scale-105 ${
+              disponible ? "bg-green-600 hover:bg-green-700" : "bg-red-500 hover:bg-red-600"
+            }`}
+          >
+            {disponible ? "✅ Disponible pour livraison" : "🚫 Indisponible"}
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-6">
+          {/* Liste des commandes */}
+          <div className="col-span-1">
+            <h3 className="text-xl font-semibold mb-4">Commandes Disponibles</h3>
+            <div className="space-y-4">
+              {commandesDisponibles.length === 0 ? (
+                <p className="text-gray-500">Aucune commande disponible pour l’instant.</p>
+              ) : (
+                commandesDisponibles.map((cmd) => (
+                  <div key={cmd._id} className="bg-white rounded shadow p-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium text-gray-800">Commande de {cmd.clientName}</p>
+                        <p className="text-sm text-gray-500">État: {cmd.status}</p>
+                      </div>
+                      <Button>Voir</Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Carte */}
+          <div className="col-span-2 bg-white rounded shadow p-6">
+            <h3 className="text-xl font-semibold mb-4">Carte de Livraison</h3>
+            <div className="h-[400px] bg-gray-200 rounded flex items-center justify-center">
+              <span className="text-gray-500"><MapTest /></span>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };

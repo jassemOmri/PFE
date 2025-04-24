@@ -118,9 +118,24 @@ const Home = () => {
                     <h4 className="text-lg font-semibold mb-1 text-gray-900">
                       {product.name}
                     </h4>
-                    <p className="text-gray-600 mb-2 text-lg font-medium">
-                      ${product.price}
-                    </p>
+                    <div className="font-semibold text-gray-900">
+                              {product.salePrice
+                                ? (
+                                  <>
+                                    <span className="line-through text-sm text-gray-400 mr-2">
+                                      {product.regularPrice} DT
+                                    </span>
+                                    <span className="text-green-600 font-bold">
+                                      {product.salePrice} DT
+                                    </span>
+                                  </>
+                                )
+                                : (
+                                  <span>{product.regularPrice || 0} DT</span>
+                                )
+                              }
+                                  </div>
+
                   </div>
 
                   {/* 🛒 Bouton pour acheteur uniquement */}

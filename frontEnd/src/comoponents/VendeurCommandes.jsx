@@ -3,7 +3,6 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import UserNavbar from "./UserNavbar";
 
-// 🔌 Connexion WebSocket
 const socket = io("http://localhost:5000");
 
 const VendeurCommandes = () => {
@@ -11,17 +10,14 @@ const VendeurCommandes = () => {
   const vendeurId = localStorage.getItem("vendeurId");
 
   useEffect(() => {
-    if (vendeurId) {
-      fetchCommandes();
-    }
+    if (vendeurId) fetchCommandes();
   }, [vendeurId]);
 
   const fetchCommandes = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/orders/by-vendeur/${vendeurId}`
-      );
-      setCommandes(res.data);
+      const res = await axios.get(`http://localhost:5000/api/orders/by-vendeur/${vendeurId}`);
+      const sorted = [...res.data].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setCommandes(sorted);
     } catch (err) {
       console.error("Erreur lors du chargement des commandes :", err);
     }
@@ -29,16 +25,17 @@ const VendeurCommandes = () => {
 
   const handleAction = async (orderId, action) => {
     try {
-      const url = `http://localhost:5000/api/orders/${action}/${orderId}`;
-      const response = await axios.put(url);
+      const url = action === "confirm"
+        ? `http://localhost:5000/api/orders/confirm-product/${orderId}/${vendeurId}`
+        : `http://localhost:5000/api/orders/cancel/${orderId}/${vendeurId}`;
 
-      // ✅ Émettre la notification WebSocket (si le clientId est retourné)
-      const { clientId, clientName } = response.data;
+      const response = await axios.put(url);
+      const { clientId } = response.data;
+
       if (clientId) {
-        const message =
-          action === "confirm"
-            ? "Votre commande a été confirmée ✅"
-            : "Votre commande a été annulée ❌";
+        const message = action === "confirm"
+          ? "Votre commande a été confirmée ✅"
+          : "Votre commande a été annulée ❌";
 
         socket.emit("notification", {
           to: clientId,
@@ -48,60 +45,95 @@ const VendeurCommandes = () => {
         });
       }
 
-      fetchCommandes(); // 🔄 Mettre à jour la liste
+      fetchCommandes();
     } catch (error) {
       console.error("Erreur lors de l'action vendeur :", error);
       alert("Une erreur est survenue lors de l'action.");
     }
   };
 
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "en attente": return "bg-yellow-400 text-white";
+      case "confirmée": return "bg-blue-500 text-white";
+      case "annulée": return "bg-red-500 text-white";
+      case "livrée": return "bg-green-600 text-white";
+      default: return "bg-gray-300 text-black";
+    }
+  };
+
+  const getCommandeTitle = (status) => {
+    if (status === "confirmée") return "Commande : Confirmée";
+    if (status === "annulée") return "Commande : Annulée";
+    return "Commande en attente";
+  };
+
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-gray-100">
       <UserNavbar />
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">
-        Commandes reçues
-      </h2>
+      <div className="max-w-5xl mx-auto p-6">
+        <h2 className="text-3xl font-bold mb-8 text-gray-800 text-center">📦 Commandes Reçues</h2>
 
-      {commandes.length === 0 ? (
-        <p className="text-gray-500">Aucune commande reçue pour vos produits.</p>
-      ) : (
-        <div className="space-y-4">
-          {commandes.map((cmd) => (
-            <div key={cmd._id} className="bg-white shadow p-4 rounded-lg">
-              <h4 className="font-semibold text-lg mb-2">
-                Commande #{cmd._id}
-              </h4>
-
-              {cmd.products.map((prod, index) => (
-                <div key={index} className="text-sm text-gray-700 mb-1">
-                  <strong>{prod.productName}</strong> x {prod.quantity} — {prod.price} €
+        {commandes.length === 0 ? (
+          <p className="text-center text-gray-500">Aucune commande reçue pour vos produits.</p>
+        ) : (
+          <div className="space-y-6">
+            {commandes.map((cmd) => (
+              <div key={cmd._id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition duration-300">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-xl font-semibold text-gray-800">{getCommandeTitle(cmd.status)}</h4>
+                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusStyle(cmd.status)}`}>
+                    {cmd.status}
+                  </span>
                 </div>
-              ))}
 
-              <p className="text-sm text-gray-500">Client : {cmd.clientName}</p>
-              <p className="text-sm text-gray-500 mb-3">
-                Statut : {cmd.status}
-              </p>
+                <div className="space-y-4">
+                  {cmd.products.map((prod, index) => (
+                    <div key={index} className="flex items-center justify-between gap-4 border-b pb-3">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={`http://localhost:5000/uploads/${prod.productId?.image || 'no-image.png'}`}
+                          alt={prod.productName}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                        <div>
+                          <p className="font-semibold text-gray-700">{prod.productName}</p>
+                          <p className="text-sm text-gray-500">{prod.quantity} x {prod.price} DT</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs px-2 py-1 rounded-full ${getStatusStyle(prod.status)}`}>
+                          {prod.status}
+                        </span>
+                        {prod.status === "en attente" && (
+                          <>
+                            <button
+                              onClick={() => handleAction(cmd._id, "confirm")}
+                              className="bg-green-500 text-white text-xs px-3 py-1 rounded hover:bg-green-600 transition"
+                            >
+                              Confirmer
+                            </button>
+                            <button
+                              onClick={() => handleAction(cmd._id, "cancel")}
+                              className="bg-red-500 text-white text-xs px-3 py-1 rounded hover:bg-red-600 transition"
+                            >
+                              Annuler
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
-              {/* Actions */}
-              <div className="space-x-3">
-                <button
-                  onClick={() => handleAction(cmd._id, "confirm")}
-                  className="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-400"
-                >
-                  Confirmer
-                </button>
-                <button
-                  onClick={() => handleAction(cmd._id, "cancel")}
-                  className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-400"
-                >
-                  Annuler
-                </button>
+                <div className="mt-4 text-sm text-gray-600">
+                  <p><strong>Client :</strong> {cmd.clientName}</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

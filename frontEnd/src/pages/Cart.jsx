@@ -2,11 +2,48 @@ import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import UserContext from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
+import { LocateFixed } from "lucide-react";
+
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet-defaulticon-compatibility";
+import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 
 const Cart = () => {
   const [cart, setCart] = useState([]);
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
+const [clientLat, setClientLat] = useState(null);
+const [clientLng, setClientLng] = useState(null);
+const [gpsStatus, setGpsStatus] = useState("");
+
+const getMyLocation = () => {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        console.log("Coordonnées détectées :", lat, lng);
+        setClientLat(lat);
+        setClientLng(lng);
+        setGpsStatus(" Position détectée !");
+      },
+      (error) => {
+        setGpsStatus(" Impossible de récupérer la position.");
+        console.error("Erreur de géolocalisation :", error);
+      },
+      {
+        enableHighAccuracy: true, 
+        timeout: 10000,           
+        maximumAge: 0   
+      }
+    );
+  } else {
+    setGpsStatus("La géolocalisation n'est pas supportée.");
+  }
+};
+
+
 
   // 🔄 Charger le panier
   useEffect(() => {
@@ -27,7 +64,7 @@ const Cart = () => {
     }, 0);
   };
 
-  // ❌ Supprimer un produit du panier
+  //  Supprimer un produit du panier
   const handleRemoveProduct = async (productId) => {
     try {
       await axios.delete(`http://localhost:5000/api/cart/remove/${user.userId}/${productId}`);
@@ -38,13 +75,11 @@ const Cart = () => {
     }
   };
 
-  // 💳 Paiement en ligne
   const handleOnlinePayment = () => {
     const cartTotal = calculateTotal();
     navigate("/payment", { state: { cartTotal, source: "cart" } });
   };
 
-  // 🚚 Paiement à la livraison
   const handleDeliveryPayment = async () => {
     if (!cart.length) {
       alert("Votre panier est vide !");
@@ -54,15 +89,18 @@ const Cart = () => {
     const orderData = {
       acheteurId: user.userId?.trim(),
       paymentMethod: "à la livraison",
-      clientLng: user?.location?.lng ?? 0,
-      clientLat: user?.location?.lat ?? 0,
+
+      clientLat,
+      clientLng,
+
       clientName: user?.name || "Nom inconnu",
       products: cart.map((product) => ({
         productId: product.productId?.trim(),
         productName: product.name,
         quantity: Number(product.quantity) || 1,
-        price: Number(product.reguler) || 0,
+        price: Number(product.salePrice || product.regularPrice || product.price) || 0,
         vendeurId: product.vendeurId?.trim() || "",
+        status: { type: String, default: "en attente" },
       })),
     };
 
@@ -70,7 +108,7 @@ const Cart = () => {
       await axios.post("http://localhost:5000/api/cart/confirm", orderData);
       await axios.delete(`http://localhost:5000/api/cart/clear/${user.userId}`);
       setCart([]);
-      alert("Commande confirmée !");
+      alert("Commande confirmée !");  
     } catch (error) {
       console.error("Erreur confirmation:", error);
       alert(error.response?.data?.message || "Erreur lors de la confirmation.");
@@ -109,6 +147,37 @@ const Cart = () => {
           </div>
 
           <div className="mt-6 space-x-4">
+                    <div className="mb-4">
+<div className="mb-6">
+  <button
+    onClick={getMyLocation}
+    className="flex items-center gap-2 px-5 py-2 rounded-full bg-green-600 text-white font-semibold shadow hover:bg-green-700 transition"
+  >
+    <LocateFixed size={18} /> Détecter ma position
+  </button>
+  <p className="text-sm text-gray-600 mt-2">{gpsStatus}</p>
+</div>
+
+  <p className="text-sm mt-2 text-gray-600">{gpsStatus}</p>
+</div>
+{clientLat && clientLng && (
+  <MapContainer
+    center={[clientLat, clientLng]}
+    zoom={12}
+    className="rounded-md w-full h-[250px] mt-4"
+  >
+    <TileLayer
+      attribution='&copy; OpenStreetMap contributors'
+      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    />
+    <Marker position={[clientLat, clientLng]}>
+      <Popup>Votre position</Popup>
+    </Marker>
+  </MapContainer>
+)}
+<p className="text-sm text-red-500">
+  Latitude: {clientLat} | Longitude: {clientLng}
+</p>
             <button
               onClick={handleOnlinePayment}
               className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-400 transition"

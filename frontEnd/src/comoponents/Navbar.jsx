@@ -18,9 +18,8 @@ const Navbar = ({ onSearch }) => {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  const socketRef = useRef(null); // 🔁 garde le même socket entre renders
+  const socketRef = useRef(null);
 
-  // 🔁 Requête pour récupérer le nombre d’articles du panier
   const fetchCartCount = async () => {
     try {
       const acheteurId = localStorage.getItem("acheteurId");
@@ -32,7 +31,6 @@ const Navbar = ({ onSearch }) => {
     }
   };
 
-  // 📡 WebSocket - écouter les notifications temps réel
   useEffect(() => {
     if (user?.role === "acheteur") {
       const socket = io("http://localhost:5000", {
@@ -42,27 +40,33 @@ const Navbar = ({ onSearch }) => {
 
       socket.emit("register_client", user.userId);
 
-         socket.on("order_update", (data) => {
-  console.log("🔔 Notification reçue :", data);
-  
-  // Ne pas ajouter si c’est juste une mise à jour du panier
-  if (data?.type === "confirmation" || data?.type === "annulation") {
-    setNotifications((prev) => [...prev, data]);
-  }
+      socket.on("order_update", (data) => {
+        console.log("Order update:", data);
 
-  // Mais toujours mettre à jour le panier si besoin
-  if (data?.type === "cart_updated") {
-    fetchCartCount();
-  }
-});
+        if (data?.type === "confirmation" || data?.type === "annulation") {
+          setNotifications((prev) => [...prev, data]);
+        }
 
-      return () => {
-        socket.disconnect();
-      };
+        if (data?.type === "cart_updated") {
+          fetchCartCount();
+        }
+      });
+
+      return () => socket.disconnect();
     }
   }, [user]);
 
-  // 🔄 Initialiser le panier au chargement ou changement d’utilisateur
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    socketRef.current.on("notification", (data) => {
+      console.log("🔔 Notification WebSocket:", data);
+      setNotifications((prev) => [...prev, data]);
+    });
+
+    return () => socketRef.current.off("notification");
+  }, []);
+
   useEffect(() => {
     fetchCartCount();
   }, [user]);
@@ -111,8 +115,6 @@ const Navbar = ({ onSearch }) => {
                   </Link>
                 )}
 
-                {/* 🔔 Cloche notification */}
-              
                 <div className="relative text-gray-700 hover:text-green-500">
                   <button onClick={() => setShowNotifications(!showNotifications)}>
                     <Bell size={26} />
@@ -123,7 +125,6 @@ const Navbar = ({ onSearch }) => {
                     )}
                   </button>
 
-                  {/* 🔽 Menu déroulant de notifications */}
                   {showNotifications && (
                     <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-lg z-50 max-h-96 overflow-y-auto">
                       {notifications.length === 0 ? (
@@ -139,28 +140,25 @@ const Navbar = ({ onSearch }) => {
                   )}
                 </div>
 
-                {/* Profil / Déconnexion */}
                 <div className="relative">
                   <button onClick={() => setShowMenu(!showMenu)} className="flex items-center">
                     <span className="text-sm text-gray-700">{user.name}</span>
                   </button>
                   {showMenu && (
                     <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-48 py-2">
-                      
-
-                                                <Link
-                      to={
-                        user.role === "vendeur"
-                          ? `/vendeur/${user.userId}`
-                          : user.role === "livreur"
-                          ? `/livreur/${user.userId}`
-                          : `/acheteur/${user.userId}`
-                      }
-                      className="block px-4 py-2 hover:bg-gray-100"
-                    >
-                      Profil
-                    </Link>
-
+                      <Link
+                        to={
+                          user.role === "vendeur"
+                            ? `/vendeur/${user.userId}`
+                            : user.role === "livreur"
+                            ? `/livreur/${user.userId}`
+                            : `/acheteur/${user.userId}`
+                        }
+                        className="block px-4 py-2 hover:bg-gray-100"
+                      >
+                        Profil
+                      </Link>
+                      <Link to="/MesCommandes" className="block px-4 py-2 hover:bg-gray-100">Mes Commandes</Link>
                       <Link to="/settings" className="block px-4 py-2 hover:bg-gray-100">Paramètres</Link>
                       <button onClick={logout} className="w-full text-left px-4 py-2 hover:bg-gray-100">Déconnecter</button>
                     </div>

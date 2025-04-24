@@ -19,6 +19,8 @@ import AcheteurProfil from "./pages/AcheteurProfil";
 import LivreurProfil from "./pages/LivreurProfil";
 
 import EditVendeurProfile from "./comoponents/EditVendeurProfile";
+import MesCommandes from "./comoponents/MesCommandes";
+import EditAcheteurProfile from "./comoponents/EditAcheteurProfile";
 
 
 
@@ -56,7 +58,9 @@ const App = () => {
           <Route path="/livreur/:id" element={<LivreurProfil />} />
           <Route path="/acheteur/:id" element={<AcheteurProfil />} />
           <Route path="/vendeur/profile/edit" element={<EditVendeurProfile />} />
+                    <Route path="/acheteur/profile/edit" element={<EditAcheteurProfile />} />
 
+          <Route path="MesCommandes" element={<MesCommandes/>}/>
                  <Route path="/admin" element={<AdminDashboard />} /> {/* Route pour le tableau de bord admin */}
 
       </Routes>

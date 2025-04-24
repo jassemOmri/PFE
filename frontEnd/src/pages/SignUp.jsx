@@ -20,23 +20,33 @@ const SignUp = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    if (!formData.role) {
-      setError("Veuillez sélectionner un rôle !");
-      return;
-    }
+  if (!formData.role) {
+    setError("Veuillez sélectionner un rôle !");
+    return;
+  }
 
-    try {
-      await axios.post("http://localhost:5000/auth/signup", formData);
-      navigate("/login");
-    } catch (error) {
-      console.error("Erreur lors de l'inscription:", error);
-      setError("Erreur d'inscription. Veuillez réessayer.");
-    }
-  };
+  const password = formData.password;
+  const hasAtLeast4Digits = (password.match(/\d/g) || []).length >= 4;
+  const hasAtLeast4Letters = (password.match(/[a-zA-Z]/g) || []).length >= 4;
+
+  if (!hasAtLeast4Digits || !hasAtLeast4Letters) {
+    setError("Le mot de passe doit contenir au moins 4 chiffres et 4 lettres.");
+    return;
+  }
+
+  try {
+    await axios.post("http://localhost:5000/auth/signup", formData);
+    navigate("/login");
+  } catch (error) {
+    console.error("Erreur lors de l'inscription:", error);
+    setError("Erreur d'inscription. Veuillez réessayer.");
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50">
