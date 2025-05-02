@@ -17,6 +17,8 @@ exports.login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ success: false, message: "Mot de passe incorrect" });
     }
+    
+  
 
     const token = jwt.sign({ userId: user._id, role: user.role }, SECRET_KEY, { expiresIn: "2h" });
  
@@ -27,7 +29,8 @@ exports.login = async (req, res) => {
       redirectUrl = "/acheteur-dashboard";
     } else if (user.role === "vendeur") {
       redirectUrl = "/vendeur-dashboard";
-    }
+    } 
+
     res.json({
       success: true,
       message: "Connexion réussie",
@@ -35,7 +38,7 @@ exports.login = async (req, res) => {
         userId: user._id, //  //  إرسال `vendeurId`
        userName: user.name,
       role: user.role,
-    
+    isActive: user.isActive,
       redirectUrl, 
     });
    } catch (error) {

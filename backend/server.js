@@ -25,19 +25,16 @@ const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const orderRoutes = require("./routes/orderRouter");
-const adminRoutes = require("./routes/adminRoutes"); // Importer les routes de l'administrateur
 const vendeurRoutes = require("./routes/vendeurRoutes");
 const livreurRoutes = require("./routes/livreurRoutes");
 const acheteurRoutes = require("./routes/acheteurRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 
-
+app.use("/api/admin", adminRoutes);
 app.use("/acheteur", acheteurRoutes);
-
 app.use("/vendeur", require("./routes/vendeurRoutes"));
-
 app.use("/api/cart", cartRoutes); 
-
 app.use("/api", vendeurRoutes);
 
 
@@ -50,7 +47,6 @@ app.use("/auth", authRoutes);
 
 app.use("/api", productRoutes);
 
-app.use("/api/admin", adminRoutes); // Utiliser les routes de l'administrateur
 
 app.use("/api/livreurs", require("./routes/livreurRoutes"));
 app.use("/api/orders", orderRoutes);

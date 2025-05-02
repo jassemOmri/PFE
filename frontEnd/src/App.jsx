@@ -12,7 +12,6 @@ import UserNavbar from "./comoponents/UserNavbar";
 import Navbar from "./comoponents/Navbar";
 import UserContext, { UserProvider } from "./context/UserContext";
 import Payment from "./pages/Payment"; 
-import AdminDashboard from "./comoponents/AdminDashboard"; // Importez le composant AdminDashboard
 import VendeurCommandes from "./comoponents/VendeurCommandes";
 import VendeurProfil from "./pages/VendeurProfil";
 import AcheteurProfil from "./pages/AcheteurProfil";
@@ -21,8 +20,12 @@ import LivreurProfil from "./pages/LivreurProfil";
 import EditVendeurProfile from "./comoponents/EditVendeurProfile";
 import MesCommandes from "./comoponents/MesCommandes";
 import EditAcheteurProfile from "./comoponents/EditAcheteurProfile";
-
-
+import AdminDashboard from "./comoponents/Admin/AdminDashboard";
+import CompteBloque from "./pages/CompteBloque";
+import AdminProducts from "./comoponents/Admin/AdminProducts";
+import AdminStats from "./comoponents/Admin/AdminStats";
+import AdminReports from "./comoponents/Admin/AdminReports";
+import AdminLayout from "./comoponents/Admin/AdminLayout";
 
 const App = () => {
   const { user } = useContext(UserContext);
@@ -61,7 +64,19 @@ const App = () => {
                     <Route path="/acheteur/profile/edit" element={<EditAcheteurProfile />} />
 
           <Route path="MesCommandes" element={<MesCommandes/>}/>
-                 <Route path="/admin" element={<AdminDashboard />} /> {/* Route pour le tableau de bord admin */}
+
+          <Route path="/compte-bloque" element={<CompteBloque />} />
+
+
+
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="stats" element={<AdminStats />} />
+          <Route path="reports" element={<AdminReports />} />
+        </Route>
+
+        
 
       </Routes>
       

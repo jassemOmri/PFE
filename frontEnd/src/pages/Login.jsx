@@ -22,25 +22,47 @@ const Login = () => {
 
   try {
     const response = await axios.post("http://localhost:5000/auth/login", formData);
-    const { success, token, role, userName, userId, redirectUrl } = response.data;
+const { success, token, role, userName, userId, redirectUrl, isActive } = response.data;
+    
 
     if (success) {
       const userData = { userId, role, name: userName };
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(userData));
-
+       
       if (role === "vendeur") {
         localStorage.setItem("vendeurId", userId); // ✅ AJOUT IMPORTANT
       }
-       
+       if (!isActive) {
+        localStorage.setItem("blockedUser", JSON.stringify({ userName, role }));
+        navigate("/compte-bloque");
+        console.log("🔴 Compte désactivé — redirection vers /compte-bloque");
+
+        return;
+      }
+
 
 
       window.dispatchEvent(new Event("storage")); // ✅ maj navbar
       login(userData); // ✅ maj contexte utilisateur
+        if (role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
+            if (role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
 
-      alert("Connexion réussie !");
-      navigate(redirectUrl || "/home");
+        // ❗ ننفذ التنقل ثم نعمل alert
+        setTimeout(() => {
+          alert("Connexion réussie !");
+        }, 300); // بعد 300ms
+          
+
     } else {
       setError("Email ou mot de passe incorrect !");
     }

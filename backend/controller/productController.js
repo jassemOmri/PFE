@@ -25,7 +25,8 @@ exports.getProductById = async (req, res) => {
 // Obtenir tous les produits
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find().populate("vendeurId", "name");
+
     res.json(products);
   } catch (error) {
     res.status(500).json({ success: false, message: "Erreur serveur" });
@@ -97,6 +98,30 @@ exports.deleteProduct = async (req, res) => {
 
     res.json({ success: true, message: "Produit supprimé avec succès", productId });
   } catch (error) {
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+};
+
+exports.updateProduct = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ success: false, message: "Produit introuvable" });
+
+    product.name = req.body.name || product.name;
+    product.description = req.body.description || product.description;
+    product.regularPrice = req.body.regularPrice || product.regularPrice;
+    product.salePrice = req.body.salePrice || product.salePrice;
+    product.category = req.body.category || product.category;
+
+    // Gestion image
+    if (req.file) {
+      product.image = req.file.filename; // ou req.file.path si cloud
+    }
+
+    await product.save();
+    res.json({ success: true, product });
+  } catch (err) {
+    console.error("Erreur update product:", err);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };

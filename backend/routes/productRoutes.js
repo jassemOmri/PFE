@@ -1,6 +1,12 @@
 const express = require("express");
 const multer = require("multer");
-const { getProducts, addProduct, getProductsByVendeur, deleteProduct,getProductById } = require("../controller/productController"); // ✅ Importation correcte
+
+
+
+
+const { getProducts, addProduct, getProductsByVendeur, deleteProduct,getProductById ,updateProduct
+
+} = require("../controller/productController"); // ✅ Importation correcte
 
 const router = express.Router();
 
@@ -24,5 +30,6 @@ router.get("/products/vendeur/:vendeurId", getProductsByVendeur); // ✅ Récup�
 router.post("/products", upload.single("image"), addProduct); // ✅ Ajouter un produit avec `vendeurId`
 router.delete("/products/:productId", deleteProduct); // ✅ Supprimer un produit spécifique
 router.get("/products/:id", getProductById); // ✅ Récupérer un produit spécifique
+router.put("/products/:id", upload.single("image"), updateProduct);
 
 module.exports = router;

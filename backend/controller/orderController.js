@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const Order = require("../models/order");
 const { notifyClient } = require("../socketServer"); // ✅ Import WebSocket
+const Product = require("../models/product");
+const Vendeur = require("../models/vendeur");
 
 exports.getOrders = async (req, res) => {
   try {

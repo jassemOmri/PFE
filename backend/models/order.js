@@ -24,7 +24,7 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    default: "en attente", // statut global de la commande
+    default: "en attente",
     enum: ["en attente", "confirmée", "en cours de livraison", "livrée", "annulée"]
   },
   livreur: {
@@ -32,30 +32,19 @@ const orderSchema = new mongoose.Schema({
     ref: "Livreur",
     default: null,
   },
-
-  // ✅ Produits inclus dans la commande
   products: [
-  {
-    productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
-    productName: String,
-    quantity: Number,
-    price: Number,
-    vendeurId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    vendeurLat: Number,
-    vendeurLng: Number,
-    status: { type: String, default: "en attente" },
-  }
-]
-,
- 
-clientLat: { type: Number, required: true },
-clientLng: { type: Number, required: true },
-},
-
-
-
-
-{
+    {
+      productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+      productName: String,
+      quantity: Number,
+      price: Number,
+      vendeurId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      vendeurLat: Number,
+      vendeurLng: Number,
+      status: { type: String, default: "en attente" },
+    }
+  ]
+}, {
   timestamps: true
 });
 
