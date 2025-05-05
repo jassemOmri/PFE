@@ -99,7 +99,7 @@ const AdminDashboard = () => {
             <h2 className="text-xl font-semibold">Utilisateurs</h2>
             <button
                   onClick={() => setShowAddModal(true)}
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                  className="bg-zinc-400 text-white px-4 py-2 rounded hover:bg-green-700"
             >
                   Ajouter utilisateur
             </button>
@@ -133,7 +133,7 @@ const AdminDashboard = () => {
           <td className="px-6 py-4 whitespace-nowrap text-sm text-center space-x-2">
             <button
               onClick={() => toggleActivation(user._id)}
-              className="inline-flex items-center px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-medium rounded shadow"
+              className="inline-flex items-center px-3 py-1 bg-teal-700 hover:bg-teal-950 text-white text-xs font-medium rounded shadow"
             >
               {user.isActive ? "Bloquer" : "Activer"}
             </button>

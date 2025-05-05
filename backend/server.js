@@ -50,7 +50,6 @@ app.use("/api", productRoutes);
 
 app.use("/api/livreurs", require("./routes/livreurRoutes"));
 app.use("/api/orders", orderRoutes);
-app.use("/api", livreurRoutes);
 
 const { initSocket } = require("./socketServer");
 mongoose.connect("mongodb://127.0.0.1:27017/employee")

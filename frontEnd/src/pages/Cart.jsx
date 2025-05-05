@@ -17,31 +17,42 @@ const [clientLat, setClientLat] = useState(null);
 const [clientLng, setClientLng] = useState(null);
 const [gpsStatus, setGpsStatus] = useState("");
 
-const getMyLocation = () => {
+useEffect(() => {
+  let watcherId;
+
   if ("geolocation" in navigator) {
-    navigator.geolocation.getCurrentPosition(
+    watcherId = navigator.geolocation.watchPosition(
       (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        console.log("Coordonnées détectées :", lat, lng);
-        setClientLat(lat);
-        setClientLng(lng);
-        setGpsStatus(" Position détectée !");
+        const { latitude, longitude } = position.coords;
+        setClientLat(latitude);
+        setClientLng(longitude);
+        setGpsStatus("📡 Position en direct activée");
       },
-      (error) => {
-        setGpsStatus(" Impossible de récupérer la position.");
-        console.error("Erreur de géolocalisation :", error);
+      async (error) => {
+        console.warn("Erreur GPS :", error);
+        setGpsStatus("⚠️ Erreur GPS, tentative avec IP...");
+
+        // ⛑ fallback vers IP
+        const res = await fetch("https://ipapi.co/json");
+        const data = await res.json();
+        setClientLat(data.latitude);
+        setClientLng(data.longitude);
+        setGpsStatus("🌐 Position IP approximative utilisée");
       },
       {
-        enableHighAccuracy: true, 
-        timeout: 10000,           
-        maximumAge: 0   
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
       }
     );
   } else {
-    setGpsStatus("La géolocalisation n'est pas supportée.");
+    setGpsStatus("🚫 La géolocalisation n'est pas supportée.");
   }
-};
+
+  return () => {
+    if (watcherId) navigator.geolocation.clearWatch(watcherId);
+  };
+}, []);
 
 
 
@@ -149,13 +160,9 @@ const getMyLocation = () => {
           <div className="mt-6 space-x-4">
                     <div className="mb-4">
 <div className="mb-6">
-  <button
-    onClick={getMyLocation}
-    className="flex items-center gap-2 px-5 py-2 rounded-full bg-green-600 text-white font-semibold shadow hover:bg-green-700 transition"
-  >
-    <LocateFixed size={18} /> Détecter ma position
-  </button>
-  <p className="text-sm text-gray-600 mt-2">{gpsStatus}</p>
+ <p className="text-sm text-gray-600 mt-2">{gpsStatus}</p>
+
+ 
 </div>
 
   <p className="text-sm mt-2 text-gray-600">{gpsStatus}</p>

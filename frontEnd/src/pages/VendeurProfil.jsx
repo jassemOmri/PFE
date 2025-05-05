@@ -13,22 +13,26 @@ const VendeurProfile = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await axios.get(`http://localhost:5000/vendeur/profile/${user.userId}`);
-        setProfile(res.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Erreur chargement du profil vendeur:", error);
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  const fetchProfile = async () => {
+    try {
+      const userId = user?.userId;
+      if (!userId) throw new Error("Aucun userId trouvé !");
+      
+      console.log("🔍 userId vendeur:", userId); // debug
 
-    if (user?.userId) {
-      fetchProfile();
+      const res = await axios.get(`http://localhost:5000/vendeur/profile/${userId}`);
+      setProfile(res.data);
+    } catch (error) {
+      console.error("Erreur chargement du profil vendeur:", error);
+    } finally {
+      setLoading(false);
     }
-  }, [user]);
+  };
+
+  if (user?.userId) fetchProfile();
+}, [user]);
+
 
   if (loading) return <p className="text-center mt-10">Chargement...</p>;
   if (!profile) return <p className="text-center mt-10 text-red-500">Profil introuvable.</p>;
@@ -87,7 +91,7 @@ const VendeurProfile = () => {
     {/* Section Produits */}
     <section>
       <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-        🛒 Mes Produits
+        Mes Produits
       </h2>
       {products.length === 0 ? (
         <p className="text-gray-500 italic">Aucun produit trouvé.</p>

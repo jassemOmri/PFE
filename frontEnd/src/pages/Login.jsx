@@ -16,53 +16,43 @@ const Login = () => {
     setFormData({ ...formData, [name]: value });
   };
 
- const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   setError("");
 
   try {
     const response = await axios.post("http://localhost:5000/auth/login", formData);
-const { success, token, role, userName, userId, redirectUrl, isActive } = response.data;
-    
+    const { success, token, role, userName, userId, redirectUrl, isActive } = response.data;
 
     if (success) {
       const userData = { userId, role, name: userName };
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(userData));
-       
       if (role === "vendeur") {
-        localStorage.setItem("vendeurId", userId); // ✅ AJOUT IMPORTANT
+        localStorage.setItem("vendeurId", userId);
       }
-       if (!isActive) {
+
+      if (!isActive) {
         localStorage.setItem("blockedUser", JSON.stringify({ userName, role }));
         navigate("/compte-bloque");
         console.log("🔴 Compte désactivé — redirection vers /compte-bloque");
-
         return;
       }
 
+      window.dispatchEvent(new Event("storage")); // met à jour la Navbar
+      login(userData); // met à jour le contexte utilisateur
 
+      // ✅ Navigation propre selon rôle
+      if (role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate(redirectUrl);
+      }
 
-      window.dispatchEvent(new Event("storage")); // ✅ maj navbar
-      login(userData); // ✅ maj contexte utilisateur
-        if (role === "admin") {
-          navigate("/admin/dashboard");
-        } else {
-          navigate("/");
-        }
-            if (role === "admin") {
-          navigate("/admin/dashboard");
-        } else {
-          navigate("/");
-        }
-
-        // ❗ ننفذ التنقل ثم نعمل alert
-        setTimeout(() => {
-          alert("Connexion réussie !");
-        }, 300); // بعد 300ms
-          
-
+      setTimeout(() => {
+        alert("Connexion réussie !");
+      }, 300);
     } else {
       setError("Email ou mot de passe incorrect !");
     }
@@ -76,6 +66,7 @@ const { success, token, role, userName, userId, redirectUrl, isActive } = respon
     }
   }
 };
+
 
   return (
     <div className="min-h-screen bg-gray-50">

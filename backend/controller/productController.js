@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const Product = require("../models/product");
 const SECRET_KEY = "mysecretkey"
 
+const User = require("../models/User");
 
 
 
@@ -25,10 +26,10 @@ exports.getProductById = async (req, res) => {
 // Obtenir tous les produits
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate("vendeurId", "name");
-
-    res.json(products);
-  } catch (error) {
+    const products = await Product.find().populate("vendeurId", "name email"); // on récupère le nom du vendeur
+    res.json(products); // ✅ doit retourner un tableau
+  } catch (err) {
+    console.error("Erreur getProducts:", err);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
@@ -89,15 +90,10 @@ exports.addProduct = async (req, res) => {
 // Supprimer un produit
 exports.deleteProduct = async (req, res) => {
   try {
-    const { productId } = req.params;
-    const deletedProduct = await Product.findByIdAndDelete(productId);
-
-    if (!deletedProduct) {
-      return res.status(404).json({ success: false, message: "Produit non trouvé" });
-    }
-
-    res.json({ success: true, message: "Produit supprimé avec succès", productId });
-  } catch (error) {
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: "Produit supprimé" });
+  } catch (err) {
+    console.error("Erreur suppression produit:", err);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
@@ -122,6 +118,48 @@ exports.updateProduct = async (req, res) => {
     res.json({ success: true, product });
   } catch (err) {
     console.error("Erreur update product:", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+};
+// Utilisée uniquement par l'admin pour ajouter un produit à un vendeur donné via son email
+
+exports.adminAddProduct = async (req, res) => {
+  try {
+        const {
+        name,
+        description,
+        regularPrice,
+        salePrice,
+        category,
+        email, // correspond à ce que le frontend envoie
+      } = req.body;
+
+    const image = req.file ? req.file.filename : null;
+
+    if (!image) {
+      return res.status(400).json({ success: false, message: "Image requise" });
+    }
+
+    // 🔍 Recherche du vendeur par son email
+    const vendeur = await User.findOne({  email, role: "vendeur" });
+    if (!vendeur) {
+      return res.status(404).json({ success: false, message: "Vendeur introuvable avec cet email" });
+    }
+
+    const product = new Product({
+      name,
+      description,
+      regularPrice,
+      salePrice,
+      category,
+      image,
+      vendeurId: vendeur._id,
+    });
+
+    await product.save();
+    res.status(201).json({ success: true, product });
+  } catch (error) {
+    console.error("❌ Erreur adminAddProduct:", error);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };

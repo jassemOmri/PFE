@@ -71,7 +71,7 @@ exports.acceptOrder = async (req, res) => {
     if (order.livreur) return res.status(400).json({ message: "Commande déjà prise" });
 
     order.livreur = livreurId;
-    order.status = "en cours de livraison";
+    order.status = "en cours de livraison";  
     await order.save();
 
     res.json({ message: "Commande acceptée", order });
@@ -153,5 +153,103 @@ exports.toggleDisponibilite = async (req, res) => {
   } catch (err) {
     console.error("Erreur toggleDisponibilite:", err);
     res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+exports.setCommandeLivree = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: "Commande introuvable" });
+
+    order.status = "livrée";
+    await order.save();
+
+    res.json({ message: "Commande livrée avec succès" });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+exports.marquerCommandeCommeLivree = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const commande = await Order.findById(orderId);
+    if (!commande) {
+      return res.status(404).json({ message: "Commande introuvable" });
+    }
+
+    commande.status = "livrée";
+    await commande.save();
+
+    res.json({ message: "Commande marquée comme livrée avec succès" });
+  } catch (error) {
+    console.error("Erreur mise à jour commande:", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+
+
+// 📥 GET profil livreur connecté
+exports.getLivreurProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
+
+    const livreur = await Livreur.findOne({ user: id });
+    if (!livreur) return res.status(404).json({ success: false, message: "Profil livreur non trouvé" });
+
+    res.json({ success: true, user, livreur });
+  } catch (error) {
+    console.error("Erreur récupération profil livreur:", error);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+};
+
+// 🔄 PUT update profil livreur
+exports.updateLivreurProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { numTele, dateNaissance, addPostale, lat, lng } = req.body;
+
+    let parsedAddPostale = addPostale;
+    if (typeof addPostale === "string") {
+      parsedAddPostale = JSON.parse(addPostale); // si envoyé en FormData
+    }
+
+    const imProfile = req.files?.imProfile?.[0]?.filename;
+    const imCin = req.files?.imCin?.[0]?.filename;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      {
+        numTele,
+        dateNaissance,
+        addPostale: parsedAddPostale,
+        ...(imProfile && { imProfile }),
+      },
+      { new: true }
+    );
+
+    const updatedLivreur = await Livreur.findOneAndUpdate(
+      { user: id },
+      {
+        ...(lat && { lat }),
+        ...(lng && { lng }),
+        ...(imCin && { imCin }),
+      },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      message: "Profil livreur mis à jour",
+      user: updatedUser,
+      livreur: updatedLivreur,
+    });
+  } catch (error) {
+    console.error("Erreur update livreur :", error);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };

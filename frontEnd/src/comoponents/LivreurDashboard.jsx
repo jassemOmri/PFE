@@ -3,12 +3,19 @@ import axios from "axios";
 import { MapPin, PackageCheck, LayoutDashboard, Menu } from "lucide-react";
 import { Button } from "./ui/button";
 import MapComponent from "../comoponents/ui/MapComponent"
-import MapTest from "../comoponents/ui/MapTest"
+import Swal from "sweetalert2";
+
+import UserNavbar from "./UserNavbar";
+const livreurId = JSON.parse(localStorage.getItem("user"))?.userId;
+
+
+
 
 const LivreurDashboard = () => {
   const [disponible, setDisponible] = useState(false);
   const [commandesDisponibles, setCommandesDisponibles] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [selectedCommande, setSelectedCommande] = useState(null);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const livreurId = user?.role === "livreur" ? user.userId : null;
@@ -16,8 +23,9 @@ const LivreurDashboard = () => {
   useEffect(() => {
     const fetchDisponibilite = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/livreurs/${livreurId}`);
+        const res = await axios.get(`http://localhost:5000/api/livreurs/get-livreur/${livreurId}`);
         setDisponible(res.data?.disponible || false);
+
       } catch (err) {
         console.error("Erreur lors de la récupération de la disponibilité", err);
       }
@@ -40,18 +48,81 @@ const LivreurDashboard = () => {
     }
   };
 
-  const toggleDisponibilite = async () => {
-    try {
-      const res = await axios.put(`http://localhost:5000/api/livreurs/disponible/${livreurId}`, {
-        disponible: !disponible,
-      });
-      setDisponible(res.data?.disponible || false);
-    } catch (err) {
-      console.error("Erreur lors du changement de disponibilité", err);
-    }
-  };
+const toggleDisponibilite = async () => {
+  try {
+    const nouveauStatut = !disponible;
 
+    const res = await axios.put(
+      `http://localhost:5000/api/livreurs/disponible/${livreurId}`,
+      { disponible: nouveauStatut }
+    );
+
+    setDisponible(nouveauStatut);
+
+    if (nouveauStatut) {
+      // Si on devient dispo → on charge les commandes
+      fetchCommandesDisponibles();
+    } else {
+      // Si on devient indisponible → on vide la liste
+      setCommandes([]);
+      setCommandeSelectionnee(null); // reset sélection
+    }
+  } catch (err) {
+    console.error("Erreur lors du changement de disponibilité", err);
+  }
+};
+
+  const accepterCommande = async (orderId) => {
+  try {
+    const res = await axios.post("http://localhost:5000/api/livreurs/orders/accept", {
+      orderId,
+      livreurId,
+    });
+
+    Swal.fire({
+      icon: "success",
+      title: "Commande acceptée ✅",
+      text: "Vous êtes désormais responsable de cette livraison.",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+    setCommandesDisponibles([res.data.order]);
+    setSelectedCommande(res.data.order);
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Erreur",
+      text: error.response?.data?.message || "Impossible d'accepter cette commande.",
+    });
+  }
+};
+
+const marquerCommeLivree = async (orderId) => {
+  try {
+    await axios.put(`http://localhost:5000/api/livreurs/orders/${orderId}/livree`);
+
+    Swal.fire("🎉 Livraison terminée", "Statut mis à jour", "success");
+
+    setCommandesDisponibles([]);
+    setSelectedCommande(null);
+  } catch (error) {
+    Swal.fire("❌ Erreur", "Impossible de mettre à jour la commande", "error");
+  }
+};
+
+useEffect(()=>{
+  fetchCommandesDisponibles();
+},[])
   return (
+   <div>
+
+  <div className="fixed top-0 left-0 right-0 z-50">
+    <UserNavbar />
+  </div>
+
+  <div className="pt-20 ">
+
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar dynamique */}
       <aside
@@ -84,14 +155,15 @@ const LivreurDashboard = () => {
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-auto">
         <div className="text-center mb-6">
-          <Button
+                <button
             onClick={toggleDisponibilite}
-            className={`px-6 py-2 rounded-full text-white font-semibold shadow-md transition duration-300 ease-in-out transform hover:scale-105 ${
-              disponible ? "bg-green-600 hover:bg-green-700" : "bg-red-500 hover:bg-red-600"
+            className={`px-6 py-2 rounded text-white font-semibold ${
+              disponible ? "bg-green-600" : "bg-gray-500"
             }`}
           >
             {disponible ? "✅ Disponible pour livraison" : "🚫 Indisponible"}
-          </Button>
+          </button>
+
         </div>
 
         <div className="grid grid-cols-3 gap-6">
@@ -99,21 +171,26 @@ const LivreurDashboard = () => {
           <div className="col-span-1">
             <h3 className="text-xl font-semibold mb-4">Commandes Disponibles</h3>
             <div className="space-y-4">
-              {commandesDisponibles.length === 0 ? (
-                <p className="text-gray-500">Aucune commande disponible pour l’instant.</p>
-              ) : (
-                commandesDisponibles.map((cmd) => (
-                  <div key={cmd._id} className="bg-white rounded shadow p-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium text-gray-800">Commande de {cmd.clientName}</p>
-                        <p className="text-sm text-gray-500">État: {cmd.status}</p>
-                      </div>
-                      <Button>Voir</Button>
-                    </div>
-                  </div>
-                ))
-              )}
+           {disponible ? (
+  commandesDisponibles.length === 0 ? (
+    <p className="text-gray-500">Aucune commande disponible pour l’instant.</p>
+  ) : (
+    commandesDisponibles.map((cmd) => (
+      <div key={cmd._id} className="bg-white rounded shadow p-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="font-medium text-gray-800">Commande de {cmd.clientName}</p>
+            <p className="text-sm text-gray-500">État: {cmd.status}</p>
+          </div>
+          <Button onClick={() => setSelectedCommande(cmd)}>Voir</Button>
+        </div>
+      </div>
+    ))
+  )
+) : (
+  <p className="text-gray-400 italic">Vous êtes actuellement indisponible.</p>
+)}
+
             </div>
           </div>
 
@@ -121,11 +198,44 @@ const LivreurDashboard = () => {
           <div className="col-span-2 bg-white rounded shadow p-6">
             <h3 className="text-xl font-semibold mb-4">Carte de Livraison</h3>
             <div className="h-[400px] bg-gray-200 rounded flex items-center justify-center">
-              <span className="text-gray-500"><MapTest /></span>
+              {selectedCommande ? (
+                                    <MapComponent
+                                      client={{
+                                        lat: selectedCommande.clientLat,
+                                        lng: selectedCommande.clientLng,
+                                      }}
+                                      vendeur={{
+                                        lat: selectedCommande.products[0].vendeurLat,
+                                        lng: selectedCommande.products[0].vendeurLng,
+                                      }}
+                                    />
+                                  ) : (
+                                    <p className="text-gray-500">Cliquez sur une commande pour afficher la carte.</p>
+                                  )}
+                                  
             </div>
+             <button
+                onClick={() =>
+                  accepterCommande(selectedCommande._id, fetchCommandesDisponibles, setSelectedCommande)
+                }
+                className="mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow"
+              >
+                Accepter la commande
+              </button>
+                                  {selectedCommande?.status === "en cours de livraison" && (
+                      <button
+                        onClick={() => marquerCommeLivree(selectedCommande._id)}
+                        className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow"
+                      >
+                        ✅ Marquer comme livrée
+                      </button>
+                    )}
+
           </div>
         </div>
       </main>
+    </div>
+    </div>
     </div>
   );
 };

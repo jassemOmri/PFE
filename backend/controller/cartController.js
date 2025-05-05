@@ -79,27 +79,6 @@ exports.removeFromCart = async (req, res) => {
   }
 };
 
-
-
-
-/*exports.getCart = async (req, res) => {
-  try {
-    const { acheteurId } = req.params;
-    if (!acheteurId) {
-      return res.status(400).json({ success: false, message: "acheteurId est requis" });
-    }
-
-    const cart = await Cart.findOne({ acheteurId });
-    if (!cart) {
-      return res.status(404).json({ success: false, message: "Panier introuvable" });
-    }
-
-    res.json(cart);
-  } catch (error) {
-    console.error("Erreur dans getCart:", error);
-    res.status(500).json({ success: false, message: "Erreur serveur" });
-  }
-};*/
 exports.getCart = async (req, res) => {
   try {
     const { acheteurId } = req.params;
@@ -131,15 +110,11 @@ exports.confirmOrder = async (req, res) => {
     console.log("Données reçues :", req.body);
 
     const { acheteurId, paymentMethod, clientLng, clientLat, clientName, products } = req.body;
-   
-    console.log("Coordonnées client:", req.body.clientLat, req.body.clientLng);
-
 
     if (!acheteurId || clientLng == null || clientLat == null || !clientName || !products?.length) {
       return res.status(400).json({ success: false, message: "Données manquantes" });
     }
 
-    // ✅ جلب السعر الحقيقي من DB
     const detailedProducts = await Promise.all(
       products.map(async (product) => {
         const dbProduct = await Product.findById(product.productId);
@@ -149,9 +124,9 @@ exports.confirmOrder = async (req, res) => {
           productId: product.productId,
           productName: dbProduct.name,
           quantity: product.quantity,
-          price: dbProduct.salePrice || dbProduct.regularPrice || 0, // ✅ السعر الصحيح
+          price: dbProduct.salePrice || dbProduct.regularPrice || 0, 
           vendeurId: dbProduct.vendeurId,
-             vendeurLat: vendeur?.lat || 0,
+           vendeurLat: vendeur?.lat || 0,
            vendeurLng: vendeur?.lng || 0,
           status: "en attente",
         };

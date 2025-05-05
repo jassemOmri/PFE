@@ -15,8 +15,8 @@ import Payment from "./pages/Payment";
 import VendeurCommandes from "./comoponents/VendeurCommandes";
 import VendeurProfil from "./pages/VendeurProfil";
 import AcheteurProfil from "./pages/AcheteurProfil";
-import LivreurProfil from "./pages/LivreurProfil";
-
+import LivreurProfil from "./pages/LivreurProfile";
+import EditLivreurProfile from "./comoponents/EditLivreurProfile";
 import EditVendeurProfile from "./comoponents/EditVendeurProfile";
 import MesCommandes from "./comoponents/MesCommandes";
 import EditAcheteurProfile from "./comoponents/EditAcheteurProfile";
@@ -26,7 +26,8 @@ import AdminProducts from "./comoponents/Admin/AdminProducts";
 import AdminStats from "./comoponents/Admin/AdminStats";
 import AdminReports from "./comoponents/Admin/AdminReports";
 import AdminLayout from "./comoponents/Admin/AdminLayout";
-
+import "leaflet-defaulticon-compatibility";
+import "leaflet/dist/leaflet.css"; 
 const App = () => {
   const { user } = useContext(UserContext);
 
@@ -62,7 +63,7 @@ const App = () => {
           <Route path="/acheteur/:id" element={<AcheteurProfil />} />
           <Route path="/vendeur/profile/edit" element={<EditVendeurProfile />} />
                     <Route path="/acheteur/profile/edit" element={<EditAcheteurProfile />} />
-
+                <Route path="/livreur/profile/edit" element={<EditLivreurProfile />} />  
           <Route path="MesCommandes" element={<MesCommandes/>}/>
 
           <Route path="/compte-bloque" element={<CompteBloque />} />
