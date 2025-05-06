@@ -1,8 +1,8 @@
 const express = require("express");
 const { getLivreurs ,setDisponibilite,getAvailableOrders,acceptOrder,downloadDeliveryExcel,
-    getLivreurById,toggleDisponibilite,setCommandeLivree,marquerCommandeCommeLivree,getLivreurProfile,updateLivreurProfile
-    
-} = require("../controller/livreurController");
+    getLivreurById,toggleDisponibilite,setCommandeLivree,marquerCommandeCommeLivree,
+    getLivreurProfile,updateLivreurProfile,generateDeliveryPDF} = require("../controller/livreurController");
+
 const router = express.Router();
 const upload = require("../middlewares/uploadProfile");
 router.get("/livreurs", getLivreurs);   
@@ -16,15 +16,7 @@ router.put("/:id/livree", setCommandeLivree);
 
 router.put("/orders/:orderId/livree", marquerCommandeCommeLivree);
 router.get("/profile/:id", getLivreurProfile);
-// Route GET profil
+router.put("/profile/:id",upload.fields([{ name: "imProfile", maxCount: 1 },{ name: "imCin", maxCount: 1 },]),updateLivreurProfile);
+router.get("/orders/download-pdf/:livreurId", generateDeliveryPDF);
 
-// Route PUT profil avec image (CIN + profile)
-router.put(
-  "/profile/:id",
-  upload.fields([
-    { name: "imProfile", maxCount: 1 },
-    { name: "imCin", maxCount: 1 },
-  ]),
-  updateLivreurProfile
-);
 module.exports = router;

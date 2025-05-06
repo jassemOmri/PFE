@@ -26,6 +26,9 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  lat: { type: Number },
+lng: { type: Number },
+
   isActive: {
   type: Boolean,
   default: true

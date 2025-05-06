@@ -222,12 +222,15 @@ useEffect(()=>{
               >
                 Accepter la commande
               </button>
+              <a href={`http://localhost:5000/api/livreurs/orders/download-pdf/${livreurId}`} target="_blank">
+              <button className="bg-blue-500 text-white px-4 py-2 rounded"> Télécharger PDF</button></a>
+
                                   {selectedCommande?.status === "en cours de livraison" && (
                       <button
                         onClick={() => marquerCommeLivree(selectedCommande._id)}
                         className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow"
                       >
-                        ✅ Marquer comme livrée
+                         Marquer comme livrée
                       </button>
                     )}
 

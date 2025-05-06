@@ -13,7 +13,7 @@ router.get("/profile/:userId", getAcheteurProfile);
 // 🛠️ Mettre à jour le profil (avec image de profil uniquement)
 router.put(
   "/profile/:userId",
-  upload.fields([{ name: "imProfile", maxCount: 1 }]),
+  upload.single("imProfile"),  // ✅ واحد فقط وليس .fields()
   updateAcheteurProfile
 );
 

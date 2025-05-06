@@ -14,4 +14,5 @@ router.put(
 router.get("/profile/:userId", getVendeurProfile);
 router.put("/profile/:userId", updateVendeurProfile);
 
+
 module.exports = router;

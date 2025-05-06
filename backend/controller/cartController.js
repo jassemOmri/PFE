@@ -115,36 +115,49 @@ exports.confirmOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "Données manquantes" });
     }
 
-    const detailedProducts = await Promise.all(
-      products.map(async (product) => {
-        const dbProduct = await Product.findById(product.productId);
-        const vendeur = await Vendeur.findById(dbProduct.vendeurId);
+    // 🔁 Construction complète des produits avec coordonnées vendeur
+// 1. Grouper les produits par vendeurId
+const groupedByVendeur = {};
+for (let item of products) {
+  const productData = await Product.findById(item.productId);
+  const vendeurId = productData.vendeurId.toString();
 
-        return {
-          productId: product.productId,
-          productName: dbProduct.name,
-          quantity: product.quantity,
-          price: dbProduct.salePrice || dbProduct.regularPrice || 0, 
-          vendeurId: dbProduct.vendeurId,
-           vendeurLat: vendeur?.lat || 0,
-           vendeurLng: vendeur?.lng || 0,
-          status: "en attente",
-        };
-      })
-    );
+  if (!groupedByVendeur[vendeurId]) {
+    groupedByVendeur[vendeurId] = [];
+  }
 
-    // ✅ إنشاء commande واحدة بكل المنتجات
-    const newOrder = new Order({
-      acheteurId,
-      clientName,
-      clientLng,
-      clientLat,
-      paymentMethod,
-      status: "en attente",
-      products: detailedProducts,
-    });
+  groupedByVendeur[vendeurId].push({
+    ...item,
+    productData,
+  });
+}
+for (const vendeurId in groupedByVendeur) {
+  const vendeurInfo = await Vendeur.findOne({ user: vendeurId });
 
-    await newOrder.save();
+  const produitsDuVendeur = groupedByVendeur[vendeurId].map((item) => ({
+    productId: item.productId,
+    productName: item.productData.name,
+    quantity: item.quantity,
+    price: item.productData.salePrice || item.productData.regularPrice || 0,
+    vendeurId: vendeurId,
+    vendeurLat: vendeurInfo?.lat || 0,
+    vendeurLng: vendeurInfo?.lng || 0,
+    status: "en attente",
+  }));
+
+  const newOrder = new Order({
+    acheteurId,
+    clientName,
+    clientLat,
+    clientLng,
+    paymentMethod,
+    status: "en attente",
+    products: produitsDuVendeur,
+  });
+
+  await newOrder.save();
+}
+
 
     res.json({ success: true, message: "Commande enregistrée avec succès." });
   } catch (error) {
@@ -152,6 +165,7 @@ exports.confirmOrder = async (req, res) => {
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
+
 
 
 exports.clearCartForUser = async (req, res) => {

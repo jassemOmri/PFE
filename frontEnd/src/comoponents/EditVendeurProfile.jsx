@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import UserContext from "../context/UserContext";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const EditVendeurProfile = () => {
+  const navigate = useNavigate(); // داخل الكومبوننت
+
   const { user } = useContext(UserContext);
 const [formData, setFormData] = useState({
   numTele: "",
@@ -53,6 +57,8 @@ const getMyLocation = () => {
           numTele: u.numTele || "",
           dateNaissance: u.dateNaissance ? u.dateNaissance.substring(0, 10) : "",
           addPostale: u.addPostale || {},
+           lat: vendeur.lat || null,
+            lng: vendeur.lng || null,
         });
         setImagePreview({
           imProfile: `/uploads/${u.imProfile}`,
@@ -116,8 +122,17 @@ const getMyLocation = () => {
           },
         }
       );
+        Swal.fire({
+          icon: "success",
+          title: "✅ Profil mis à jour !",
+          text: "Merci d'avoir complété votre profil. Bonne vente et beaucoup de succès !",
+          confirmButtonText: "Aller au tableau vendeur",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate("/vendeur-dashboard");
+          }
+        });
 
-      setMessage("✅ Profil mis à jour !");
     } catch (error) {
       console.error("Erreur update:", error);
       setMessage("Erreur lors de la mise à jour.");

@@ -24,14 +24,15 @@ exports.getAcheteurProfile = async (req, res) => {
 exports.updateAcheteurProfile = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { numTele, dateNaissance, addPostale } = req.body;
+    const { numTele, dateNaissance, addPostale, lat, lng } = req.body;
 
     let addPostaleParsed = addPostale;
     if (typeof addPostale === "string") {
       addPostaleParsed = JSON.parse(addPostale);
     }
 
-    const imProfile = req.files?.imProfile?.[0]?.filename;
+    const imProfile = req.file?.filename;
+
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -39,6 +40,8 @@ exports.updateAcheteurProfile = async (req, res) => {
         numTele,
         dateNaissance,
         addPostale: addPostaleParsed,
+        lat: lat || null,     // ✅ حفظ الإحداثيات
+        lng: lng || null,     // ✅ حفظ الإحداثيات
         ...(imProfile && { imProfile }),
       },
       { new: true }
@@ -54,3 +57,4 @@ exports.updateAcheteurProfile = async (req, res) => {
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
+

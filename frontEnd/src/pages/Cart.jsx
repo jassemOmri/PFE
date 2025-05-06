@@ -2,59 +2,14 @@ import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import UserContext from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
-import { LocateFixed } from "lucide-react";
 
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import "leaflet-defaulticon-compatibility";
-import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
+
+
 
 const Cart = () => {
   const [cart, setCart] = useState([]);
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
-const [clientLat, setClientLat] = useState(null);
-const [clientLng, setClientLng] = useState(null);
-const [gpsStatus, setGpsStatus] = useState("");
-
-useEffect(() => {
-  let watcherId;
-
-  if ("geolocation" in navigator) {
-    watcherId = navigator.geolocation.watchPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setClientLat(latitude);
-        setClientLng(longitude);
-        setGpsStatus("📡 Position en direct activée");
-      },
-      async (error) => {
-        console.warn("Erreur GPS :", error);
-        setGpsStatus("⚠️ Erreur GPS, tentative avec IP...");
-
-        // ⛑ fallback vers IP
-        const res = await fetch("https://ipapi.co/json");
-        const data = await res.json();
-        setClientLat(data.latitude);
-        setClientLng(data.longitude);
-        setGpsStatus("🌐 Position IP approximative utilisée");
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
-    );
-  } else {
-    setGpsStatus("🚫 La géolocalisation n'est pas supportée.");
-  }
-
-  return () => {
-    if (watcherId) navigator.geolocation.clearWatch(watcherId);
-  };
-}, []);
-
-
 
   // 🔄 Charger le panier
   useEffect(() => {
@@ -92,19 +47,39 @@ useEffect(() => {
   };
 
   const handleDeliveryPayment = async () => {
-    if (!cart.length) {
-      alert("Votre panier est vide !");
+  if (!cart.length) {
+    alert("Votre panier est vide !");
+    return;
+  }
+
+  try {
+    // 🔎 الحصول على معلومات المشتري منذ قاعدة البيانات
+    const res = await axios.get(`http://localhost:5000/acheteur/profile/${user.userId}`);
+    const u = res.data.user;
+
+    const hasIncompleteInfo =
+      !u.numTele ||
+      !u.addPostale?.rue ||
+      !u.addPostale?.ville ||
+      !u.addPostale?.region ||
+      !u.addPostale?.pays ||
+      !u.addPostale?.codePostal ||
+      !u.lat ||
+      !u.lng;
+
+    if (hasIncompleteInfo) {
+      alert("Veuillez compléter votre profil avant de passer commande.");
+      navigate("/acheteur/profile/edit");
       return;
     }
 
+    // ✅ Profil complet : envoi de commande
     const orderData = {
       acheteurId: user.userId?.trim(),
       paymentMethod: "à la livraison",
-
-      clientLat,
-      clientLng,
-
-      clientName: user?.name || "Nom inconnu",
+      clientLat: u.lat,
+      clientLng: u.lng,
+      clientName: u.name || "Nom inconnu",
       products: cart.map((product) => ({
         productId: product.productId?.trim(),
         productName: product.name,
@@ -115,16 +90,16 @@ useEffect(() => {
       })),
     };
 
-    try {
-      await axios.post("http://localhost:5000/api/cart/confirm", orderData);
-      await axios.delete(`http://localhost:5000/api/cart/clear/${user.userId}`);
-      setCart([]);
-      alert("Commande confirmée !");  
-    } catch (error) {
-      console.error("Erreur confirmation:", error);
-      alert(error.response?.data?.message || "Erreur lors de la confirmation.");
-    }
-  };
+    await axios.post("http://localhost:5000/api/cart/confirm", orderData);
+    await axios.delete(`http://localhost:5000/api/cart/clear/${user.userId}`);
+    setCart([]);
+    alert("Commande confirmée !");
+  } catch (error) {
+    console.error("Erreur confirmation:", error);
+    alert(error.response?.data?.message || "Erreur lors de la confirmation.");
+  }
+};
+
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -158,33 +133,8 @@ useEffect(() => {
           </div>
 
           <div className="mt-6 space-x-4">
-                    <div className="mb-4">
-<div className="mb-6">
- <p className="text-sm text-gray-600 mt-2">{gpsStatus}</p>
+                    
 
- 
-</div>
-
-  <p className="text-sm mt-2 text-gray-600">{gpsStatus}</p>
-</div>
-{clientLat && clientLng && (
-  <MapContainer
-    center={[clientLat, clientLng]}
-    zoom={12}
-    className="rounded-md w-full h-[250px] mt-4"
-  >
-    <TileLayer
-      attribution='&copy; OpenStreetMap contributors'
-      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-    />
-    <Marker position={[clientLat, clientLng]}>
-      <Popup>Votre position</Popup>
-    </Marker>
-  </MapContainer>
-)}
-<p className="text-sm text-red-500">
-  Latitude: {clientLat} | Longitude: {clientLng}
-</p>
             <button
               onClick={handleOnlinePayment}
               className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-400 transition"

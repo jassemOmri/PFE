@@ -21,6 +21,8 @@
     "framer-motion": "^12.4.7",
     "leaflet-defaulticon-compatibility": "^0.1.2",
     "lucide-react": "^0.475.0",
+    "pdfkit": "^0.17.1",
+    "qrcode": "^1.5.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",

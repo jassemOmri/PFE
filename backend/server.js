@@ -35,7 +35,8 @@ app.use("/api/admin", adminRoutes);
 app.use("/acheteur", acheteurRoutes);
 app.use("/vendeur", require("./routes/vendeurRoutes"));
 app.use("/api/cart", cartRoutes); 
-app.use("/api", vendeurRoutes);
+app.use("/api/vendeurs", vendeurRoutes);
+
 
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Permet d'afficher les images

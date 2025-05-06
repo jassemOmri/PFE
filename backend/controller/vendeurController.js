@@ -33,11 +33,8 @@ exports.updateVendeurProfile = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const {
-      numTele,
-      dateNaissance,
-      addPostale,
-    } = req.body;
+   const { numTele, dateNaissance, addPostale, lat, lng } = req.body;
+
 
     let addPostaleParsed = addPostale;
     if (typeof addPostale === "string") {
@@ -58,13 +55,16 @@ exports.updateVendeurProfile = async (req, res) => {
       { new: true }
     );
 
-    const updatedVendeur = await Vendeur.findOneAndUpdate(
-      { user: userId },
-      {
-        ...(imCin && { imCin }),
-      },
-      { new: true }
-    );
+      const updatedVendeur = await Vendeur.findOneAndUpdate(
+        { user: userId },
+        {
+          ...(imCin && { imCin }),
+          ...(lat && { lat }),
+          ...(lng && { lng }),
+        },
+        { new: true }
+      );
+
 
     res.json({
       success: true,
@@ -73,7 +73,7 @@ exports.updateVendeurProfile = async (req, res) => {
       vendeur: updatedVendeur,
     });
   } catch (error) {
-    console.error("❌ Erreur update vendeur :", error);
+    console.error(" Erreur update vendeur :", error);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };

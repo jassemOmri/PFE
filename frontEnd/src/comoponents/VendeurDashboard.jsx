@@ -3,11 +3,14 @@ import axios from "axios";
 import UserNavbar from "./UserNavbar";
 import categoriesData from "../data/categoriesData"; // chemin selon ta structure
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 
 const VendeurDashboard = () => {
 const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [profileOk, setProfileOk] = useState(false);
+
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
@@ -55,15 +58,46 @@ const navigate = useNavigate();
     setNewProduct({ ...newProduct, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("token");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const token = localStorage.getItem("token");
 
-    if (!token) {
-      alert("Veuillez vous connecter pour ajouter un produit");
+  if (!token) {
+    alert("Veuillez vous connecter pour ajouter un produit");
+    return;
+  }
+
+  // ✅ Vérification du profil vendeur
+  try {
+    const profileRes = await axios.get(`http://localhost:5000/api/vendeurs/profile/${vendeurId}`);
+    const { user: u, vendeur } = profileRes.data;
+
+    const hasAdresse =
+      u.addPostale?.rue &&
+      u.addPostale?.ville &&
+      u.addPostale?.region &&
+      u.addPostale?.pays &&
+      u.addPostale?.codePostal;
+
+    const profilComplet =
+      u.numTele && vendeur?.imCin && hasAdresse && vendeur.lat && vendeur.lng;
+
+    if (!profilComplet) {
+   Swal.fire({
+  icon: "warning",
+  title: "Profil incomplet",
+  text: "Veuillez compléter votre profil (CIN, téléphone, adresse postale et position GPS) avant d'ajouter un produit.",
+  confirmButtonText: "Aller au profil"
+}).then((result) => {
+  if (result.isConfirmed) {
+    navigate("/vendeur/profile/edit"); // ✅ Redirection SPA
+  }
+});
+
       return;
     }
 
+    // ✅ Si tout va bien → continuer ajout produit
     if (
       !newProduct.name ||
       !newProduct.description ||
@@ -83,28 +117,28 @@ const navigate = useNavigate();
     formData.append("category", newProduct.category);
     formData.append("image", newProduct.image);
 
-    try {
-      await axios.post("http://localhost:5000/api/products", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      alert("Produit ajouté avec succès !");
-      setNewProduct({
-        name: "",
-        description: "",
-        regularPrice: "",
-        salePrice: "",
-        image: null,
-        category: "",
-      });
-      fetchProducts(vendeurId);
-    } catch (error) {
-      console.error("Erreur lors de l'ajout du produit:", error);
-      alert("Erreur lors de l'ajout du produit");
-    }
-  };
+    await axios.post("http://localhost:5000/api/products", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    alert("Produit ajouté avec succès !");
+    setNewProduct({
+      name: "",
+      description: "",
+      regularPrice: "",
+      salePrice: "",
+      image: null,
+      category: "",
+    });
+    fetchProducts(vendeurId);
+  } catch (error) {
+    console.error("Erreur lors de l'ajout du produit:", error);
+    alert("Erreur lors de l'ajout du produit");
+  }
+};
 
   const filteredProducts =
     selectedCategory === "all"

@@ -1,35 +1,65 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import UserContext from "../context/UserContext";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet-defaulticon-compatibility";
+import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
+import Swal from "sweetalert2";
 
 const EditAcheteurProfile = () => {
-  const { user } = useContext(UserContext);
-  const [formData, setFormData] = useState({
-    numTele: "",
-    dateNaissance: "",
-    addPostale: {
-      rue: "",
-      ville: "",
-      region: "",
-      pays: "",
-      codePostal: "",
-    },
-  });
-
+  
+const [gpsStatus, setGpsStatus] = useState("");
   const [imProfile, setImProfile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [message, setMessage] = useState("");
+
+  const { user } = useContext(UserContext);
+const [formData, setFormData] = useState({
+  numTele: "",
+  addPostale: {
+    rue: "",
+    ville: "",
+    region: "",
+    pays: "",
+    codePostal: "",
+  },
+  lat: null,
+  lng: null,
+});
+
+const getMyLocation = () => {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        setFormData((prev) => ({ ...prev, lat, lng }));
+        setGpsStatus(" Position détectée !");
+      },
+      (error) => {
+        setGpsStatus("Impossible de récupérer la position.");
+        console.error("Erreur GPS:", error);
+      }
+    );
+  } else {
+    setGpsStatus("La géolocalisation n'est pas supportée.");
+  }
+};
 
   useEffect(() => {
     const fetchCurrentData = async () => {
       try {
         const res = await axios.get(`http://localhost:5000/acheteur/profile/${user.userId}`);
         const u = res.data.user;
-        setFormData({
-          numTele: u.numTele || "",
-          dateNaissance: u.dateNaissance ? u.dateNaissance.substring(0, 10) : "",
-          addPostale: u.addPostale || {},
-        });
+              setFormData({
+            numTele: u.numTele || "",
+            dateNaissance: u.dateNaissance ? u.dateNaissance.substring(0, 10) : "",
+            addPostale: u.addPostale || {},
+            lat: u.lat || null,
+            lng: u.lng || null,
+          });
+
         setImagePreview(`/uploads/${u.imProfile}`);
       } catch (error) {
         console.error("Erreur chargement données:", error);
@@ -63,26 +93,63 @@ const EditAcheteurProfile = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("numTele", formData.numTele);
-      formDataToSend.append("dateNaissance", formData.dateNaissance);
-      formDataToSend.append("addPostale", JSON.stringify(formData.addPostale));
-      if (imProfile) formDataToSend.append("imProfile", imProfile);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-      await axios.put(
-        `http://localhost:5000/acheteur/profile/${user.userId}`,
-        formDataToSend,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-      setMessage("✅ Profil mis à jour avec succès !");
-    } catch (error) {
-      console.error("Erreur update:", error);
-      setMessage("Erreur lors de la mise à jour.");
-    }
-  };
+  // ✅ Vérification avant envoi
+  const { numTele, addPostale, lat, lng } = formData;
+  if (
+    !numTele ||
+    !addPostale.rue ||
+    !addPostale.ville ||
+    !addPostale.region ||
+    !addPostale.pays ||
+    !addPostale.codePostal ||
+    !lat ||
+    !lng
+  ) {
+    Swal.fire({
+      icon: "warning",
+      title: "Champs manquants",
+      text: "Veuillez remplir toutes les informations obligatoires y compris votre position GPS.",
+    });
+    return;
+  }
+
+  try {
+    const formDataToSend = new FormData();
+    formDataToSend.append("numTele", numTele);
+    formDataToSend.append("dateNaissance", formData.dateNaissance);
+    formDataToSend.append("addPostale", JSON.stringify(addPostale));
+    formDataToSend.append("lat", lat);
+    formDataToSend.append("lng", lng);
+
+    if (imProfile) formDataToSend.append("imProfile", imProfile);
+
+    await axios.put(
+      `http://localhost:5000/acheteur/profile/${user.userId}`,
+      formDataToSend,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+
+    // ✅ Succès : alert + redirection
+    Swal.fire({
+      icon: "success",
+      title: "Succès",
+      text: "Votre profil a été mis à jour avec succès !",
+      confirmButtonText: "Aller au panier",
+    }).then(() => {
+      window.location.href = "/cart"; // ✅ Redirection vers la page commande
+    });
+  } catch (error) {
+    console.error("Erreur update:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Erreur",
+      text: "Échec de la mise à jour du profil. Veuillez réessayer.",
+    });
+  }
+};
 
   return (
     <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md mt-8">
@@ -141,7 +208,38 @@ const EditAcheteurProfile = () => {
             />
           ))}
         </div>
+<div className="mt-6">
+  <button
+    onClick={getMyLocation}
+    className="flex items-center gap-2 px-5 py-2 rounded-full bg-sky-600 text-white font-semibold shadow hover:bg-sky-950 transition"
+  >
+   Détecter ma position
+  </button>
 
+  <p className="text-sm text-gray-600 mt-2">{gpsStatus}</p>
+
+  {formData.lat && formData.lng && (
+    <>
+      <MapContainer
+        center={[formData.lat, formData.lng]}
+        zoom={13}
+        className="rounded-md w-full h-[300px] mt-4"
+      >
+        <TileLayer
+          attribution='&copy; OpenStreetMap contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={[formData.lat, formData.lng]}>
+          <Popup>Votre position</Popup>
+        </Marker>
+      </MapContainer>
+      <p className="text-sm text-gray-500 mt-2">
+        Latitude: {formData.lat.toFixed(5)} | Longitude: {formData.lng.toFixed(5)}
+      </p>
+    </>
+  )}
+</div>
+        
         <button
           type="submit"
           className="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-500 transition"

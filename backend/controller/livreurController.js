@@ -3,6 +3,10 @@ const Order = require("../models/order");
 const User = require("../models/User");
 const Product = require("../models/product");
 const ExcelJS = require("exceljs");
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
+const path = require("path");
+const QRCode = require("qrcode");
 
 exports.getLivreurs = async (req, res) => {
   try {
@@ -207,49 +211,148 @@ exports.getLivreurProfile = async (req, res) => {
   }
 };
 
-// 🔄 PUT update profil livreur
+exports.generateDeliveryPDF = async (req, res) => {
+  try {
+    const { livreurId } = req.params;
+    const orders = await Order.find({ livreur: livreurId }).populate("acheteurId");
+
+    if (!orders.length) {
+      return res.status(404).json({ message: "Aucune commande trouvée." });
+    }
+
+    const doc = new PDFDocument({ margin: 40 });
+    const filename = `bon_livraison_${Date.now()}.pdf`;
+
+    res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
+    res.setHeader("Content-Type", "application/pdf");
+    doc.pipe(res);
+
+    // 🖼️ Logo
+    const logoPath = path.join(__dirname, "../public/images/logo.png");
+    if (fs.existsSync(logoPath)) {
+      doc.image(logoPath, 40, 30, { width: 80 });
+    }
+
+    doc.fontSize(20).font("Helvetica-Bold").text("Bon de Livraison", 0, 40, { align: "center" });
+    doc.moveDown();
+
+    const acheteur = orders[0].acheteurId;
+    doc.fontSize(12).font("Helvetica").text(`Client        : ${acheteur.name}`);
+    doc.text(`Téléphone     : ${acheteur.numTele || "N/A"}`);
+    const adr = acheteur.addPostale;
+    doc.text(`Adresse       : ${adr?.rue || ""}, ${adr?.ville || ""}, ${adr?.region || ""}, ${adr?.pays || ""}`).moveDown();
+
+    doc.fontSize(13).font("Helvetica-Bold").text("Produits commandés :", { underline: true }).moveDown(0.3);
+    doc.font("Helvetica-Bold").fontSize(11);
+    doc.text("Produit", 50, doc.y, { continued: true });
+    doc.text("Quantité", 200, doc.y, { continued: true });
+    doc.text("Prix Unitaire", 300, doc.y, { continued: true });
+    doc.text("Total", 400, doc.y);
+    doc.moveDown(0.2).font("Helvetica");
+
+    let totalProduits = 0;
+    const fraisLivraison = 10;
+
+    for (const order of orders) {
+      for (const p of order.products) {
+        const prix = p.quantity * p.price;
+        totalProduits += prix;
+
+        doc.text(p.productName, 50, doc.y, { continued: true });
+        doc.text(`${p.quantity}`, 200, doc.y, { continued: true });
+        doc.text(`${p.price.toFixed(2)} dt`, 300, doc.y, { continued: true });
+        doc.text(`${prix.toFixed(2)} dt`, 400, doc.y);
+        doc.moveDown(0.3);
+      }
+    }
+
+    doc.moveDown();
+    doc.font("Helvetica-Bold");
+    doc.text(`Total Produits      : ${totalProduits.toFixed(2)} dt`);
+    doc.text(`Frais de Livraison  : ${fraisLivraison.toFixed(2)} dt`);
+    doc.text(`Montant Total       : ${(totalProduits + fraisLivraison).toFixed(2)} dt`);
+    doc.moveDown(1);
+
+    // 📦 QR Code
+
+
+    const qrContent = `CommandeLivraison-${livreurId}-${Date.now()}`;
+
+const qrPath = path.join(__dirname, "../public/temp_qr.png");
+const qrDataUrl = await QRCode.toDataURL(qrContent);
+const base64Data = qrDataUrl.replace(/^data:image\/png;base64,/, "");
+
+// ✅ Assurer que le dossier existe
+const qrFolder = path.join(__dirname, "../public");
+if (!fs.existsSync(qrFolder)) {
+  fs.mkdirSync(qrFolder, { recursive: true });
+}
+
+fs.writeFileSync(qrPath, base64Data, "base64");
+
+    if (fs.existsSync(qrPath)) {
+      doc.image(qrPath, { width: 100, align: "center" });
+      doc.text("Scannez ce QR Code pour vérifier la commande", { align: "center" });
+    }
+
+    doc.end();
+
+    // 🧼 Nettoyage QR
+    setTimeout(() => {
+      if (fs.existsSync(qrPath)) fs.unlinkSync(qrPath);
+    }, 3000);
+
+  } catch (err) {
+    console.error("Erreur PDF:", err);
+    res.status(500).json({ message: "Erreur serveur PDF" });
+  }
+};
+// ✅ Mise à jour profil livreur
 exports.updateLivreurProfile = async (req, res) => {
   try {
     const { id } = req.params;
-    const { numTele, dateNaissance, addPostale, lat, lng } = req.body;
+    const {
+      numTele,
+      dateNaissance,
+      addPostale,
+      lat,
+      lng
+    } = req.body;
 
-    let parsedAddPostale = addPostale;
-    if (typeof addPostale === "string") {
-      parsedAddPostale = JSON.parse(addPostale); // si envoyé en FormData
-    }
-
-    const imProfile = req.files?.imProfile?.[0]?.filename;
-    const imCin = req.files?.imCin?.[0]?.filename;
-
-    const updatedUser = await User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
       id,
       {
         numTele,
         dateNaissance,
-        addPostale: parsedAddPostale,
-        ...(imProfile && { imProfile }),
+        addPostale: JSON.parse(addPostale),
+        lat,
+        lng,
+        ...(req.files.imProfile?.[0] && {
+          imProfile: req.files.imProfile[0].filename,
+        }),
       },
       { new: true }
     );
 
-    const updatedLivreur = await Livreur.findOneAndUpdate(
+    let livreur = await Livreur.findOneAndUpdate(
       { user: id },
       {
-        ...(lat && { lat }),
-        ...(lng && { lng }),
-        ...(imCin && { imCin }),
+        lat,
+        lng,
+        ...(req.files.imCin?.[0] && {
+          imCin: req.files.imCin[0].filename,
+        }),
       },
       { new: true }
     );
 
-    res.json({
-      success: true,
-      message: "Profil livreur mis à jour",
-      user: updatedUser,
-      livreur: updatedLivreur,
-    });
+    if (!user || !livreur) {
+      return res.status(404).json({ success: false, message: "Livreur ou utilisateur non trouvé" });
+    }
+
+    res.json({ success: true, message: "Profil mis à jour avec succès", user, livreur });
   } catch (error) {
-    console.error("Erreur update livreur :", error);
-    res.status(500).json({ success: false, message: "Erreur serveur" });
+    console.error("Erreur updateLivreurProfile:", error);
+    res.status(500).json({ success: false, message: "Erreur serveur lors de la mise à jour" });
   }
 };
