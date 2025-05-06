@@ -51,10 +51,20 @@ const navigate = useNavigate();
   };
 
     // Rediriger vers la page de paiement en ligne
-   const handleOnlinePayment = () => {
-    const productTotal = product.price * quantity; // Calculer le total en fonction de la quantité
-    navigate("/payment", { state: { productTotal, source: "product" } }); // Passer productTotal et la source
-  };
+ const handleOnlinePayment = () => {
+  if (!product || !product.regularPrice ) {
+    alert("Erreur : le prix du produit est introuvable.");
+    return;
+  }
+
+  const price = parseFloat(product.regularPrice );
+  const qty = parseInt(quantity) || 1;
+
+
+  const productTotal = price * qty;
+  navigate("/payment", { state: { productTotal, source: "product" } });
+};
+
   // Fonction pour partager sur les réseaux sociaux
   const handleShare = (platform) => {
     const url = window.location.href;
@@ -101,7 +111,7 @@ const navigate = useNavigate();
           <p className="text-gray-700 mt-2">{product.description}</p>
 
           {/* Prix */}
-          <div className="text-2xl font-bold text-red-600 mt-4">{product.price} TND</div>
+          <div className="text-2xl font-bold text-red-600 mt-4">{product.regularPrice } TND</div>
 
           {/* Quantité */}
           <div className="mt-4">

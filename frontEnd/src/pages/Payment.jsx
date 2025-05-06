@@ -1,206 +1,130 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-
+import axios from "axios";
+import UserNavbar from "../comoponents/UserNavbar"
 const Payment = () => {
-  const [deliveryMethod, setDeliveryMethod] = useState("livraison");
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [country, setCountry] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [zipCode, setZipCode] = useState("");
-  const [agreeTerms, setAgreeTerms] = useState(false);
-  const [discountCode, setDiscountCode] = useState("");
-  const [discountApplied, setDiscountApplied] = useState(false);
   const navigate = useNavigate();
-
- // Récupérer les données passées depuis Cart.jsx ou ProductDetails.jsx
   const location = useLocation();
-  const { cartTotal, productTotal, source } = location.state || {
-    cartTotal: 0,
-    productTotal: 0,
-    source: null,
+  const { cartTotal = 0, productTotal = 0, source } = location.state || {};
+const subtotal = parseFloat(source === "product" ? location.state?.productTotal : location.state?.cartTotal) || 0;
+
+
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    address: "",
+    city: "",
+    state: "",
+    zip: "",
+    country: "",
+    cardName: "",
+    cardNumber: "",
+    expMonth: "",
+    expYear: "",
+    cvv: "",
+  });
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Déterminer le sous-total en fonction de la source
-  const subtotal = source === "cart" ? cartTotal : productTotal;
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!agreeTerms) {
-      alert("Veuillez accepter les termes et conditions.");
-      return;
-    }
-    alert("Paiement réussi !");
-    navigate("/"); // Rediriger vers la page d'accueil
-  };
 
-  const applyDiscount = () => {
-    if (discountCode === "REMISE20") {
-      setDiscountApplied(true);
-      alert("Code de réduction appliqué !");
-    } else {
-      alert("Code de réduction invalide.");
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user?.userId) {
+        alert("Utilisateur non connecté.");
+        return;
+      }
+
+      const paymentData = {
+        acheteurId: user.userId,
+        fullName: form.fullName,
+        email: form.email,
+        phone: form.phone || "00000000",
+        address: `${form.address}, ${form.city}, ${form.state}, ${form.zip}`,
+        country: form.country,
+        amount: subtotal,
+        paymentMethod: "en ligne",
+      };
+
+      const res = await axios.post("http://localhost:5000/api/payment/confirm", paymentData);
+
+      if (res.data.success) {
+        alert("✅ Paiement enregistré avec succès !");
+        navigate("/");
+      } else {
+        alert("Erreur lors de l'enregistrement.");
+      }
+    } catch (error) {
+      console.error("Erreur paiement:", error);
+      alert("❌ Une erreur est survenue lors du paiement.");
     }
   };
-
-  const shipping = 5.0; // Frais de livraison
-  const discount = discountApplied ? 20.0 : 0.0; // Réduction appliquée
-  const total = subtotal + shipping - discount; // Total à payer
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="p-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">Paiement</h2>
-
-          {/* Informations de livraison */}
-          <div className="mb-8">
-           
-
-            <form className="space-y-4">
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                  Nom complet *
-                </label>
-                <input
-                  type="text"
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Adresse e-mail *
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                  Numéro de téléphone *
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="country" className="block text-sm font-medium text-gray-700">
-                  Pays *
-                </label>
-                <input
-                  type="text"
-                  id="country"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label htmlFor="city" className="block text-sm font-medium text-gray-700">
-                    Ville
-                  </label>
-                  <input
-                    type="text"
-                    id="city"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="state" className="block text-sm font-medium text-gray-700">
-                    Région
-                  </label>
-                  <input
-                    type="text"
-                    id="state"
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
-                    Code postal
-                  </label>
-                  <input
-                    type="text"
-                    id="zipCode"
-                    value={zipCode}
-                    onChange={(e) => setZipCode(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="agreeTerms"
-                  checked={agreeTerms}
-                  onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="mr-2"
-                />
-                <label htmlFor="agreeTerms" className="text-sm text-gray-700">
-                  J'ai lu et j'accepte les termes et conditions.
-                </label>
-              </div>
-            </form>
+    <div><UserNavbar/>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100 py-12 px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-5xl bg-white p-10 rounded-xl shadow-2xl grid grid-cols-1 md:grid-cols-2 gap-10"
+      >
+        {/* Billing Address */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Coordonnées</h2>
+          <div className="space-y-4">
+            <input type="text" name="fullName" placeholder="Nom Complet" value={form.fullName} onChange={handleChange} className="w-full border rounded px-4 py-3 shadow-sm" required />
+            <input type="email" name="email" placeholder="Email" value={form.email} onChange={handleChange} className="w-full border rounded px-4 py-3 shadow-sm" required />
+            <input type="text" name="address" placeholder="Adresse" value={form.address} onChange={handleChange} className="w-full border rounded px-4 py-3 shadow-sm" required />
+            <div className="flex gap-4">
+              <input type="text" name="city" placeholder="Ville" value={form.city} onChange={handleChange} className="w-full border rounded px-4 py-3 shadow-sm" required />
+              <input type="text" name="state" placeholder="Région" value={form.state} onChange={handleChange} className="w-full border rounded px-4 py-3 shadow-sm" required />
+            </div>
+            <div className="flex gap-4">
+              <input type="text" name="zip" placeholder="Code Postal" value={form.zip} onChange={handleChange} className="w-full border rounded px-4 py-3 shadow-sm" required />
+              <input type="text" name="country" placeholder="Pays" value={form.country} onChange={handleChange} className="w-full border rounded px-4 py-3 shadow-sm" required />
+            </div>
           </div>
+        </div>
 
-          {/* Récapitulatif du panier */}
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Récapitulatif de la commande</h3>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-700">Sous-total</span>
-                <span className="text-gray-700">{subtotal.toFixed(2)}€</span>
+        {/* Payment Details */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Paiement</h2>
+          <div className="space-y-4">
+            <input type="text" name="cardName" placeholder="Nom sur la carte" value={form.cardName} onChange={handleChange} className="w-full border rounded px-4 py-3 shadow-sm" required />
+            <input type="text" name="cardNumber" placeholder="Numéro de carte" value={form.cardNumber} onChange={handleChange} className="w-full border rounded px-4 py-3 shadow-sm" required />
+            <div className="flex gap-4">
+              <input type="text" name="expMonth" placeholder="Mois" value={form.expMonth} onChange={handleChange} className="w-full border rounded px-4 py-3 shadow-sm" required />
+              <input type="text" name="expYear" placeholder="Année" value={form.expYear} onChange={handleChange} className="w-full border rounded px-4 py-3 shadow-sm" required />
+              <input type="text" name="cvv" placeholder="CVV" value={form.cvv} onChange={handleChange} className="w-full border rounded px-4 py-3 shadow-sm" required />
+            </div>
+
+            <div className="mt-6 bg-gray-100 p-4 rounded-lg">
+              <h3 className="text-lg font-bold text-gray-800 mb-2">Résumé</h3>
+              <div className="flex justify-between text-gray-700">
+                <span>Sous-total</span>
+                <span>{subtotal.toFixed(2)} TND</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-700">Frais de livraison</span>
-                <span className="text-gray-700">5,00 €</span>
+              <div className="flex justify-between text-gray-700 mt-1">
+                <span>Frais de livraison</span>
+                <span>5.00 TND</span>
               </div>
-             
-              <div className="flex justify-between items-center border-t border-gray-200 pt-4">
-                <span className="text-lg font-bold text-gray-900">Total</span>
-                <span className="text-lg font-bold text-gray-900">{total.toFixed(2)} €</span>
+              <div className="flex justify-between font-bold text-green-700 mt-2 border-t pt-2">
+                <span>Total</span>
+                <span>{(subtotal + 5).toFixed(2)} TND</span>
               </div>
             </div>
           </div>
-
-        
-
-          {/* Bouton de paiement */}
-          <button
-            onClick={handleSubmit}
-            className="w-full bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-400 transition"
-          >
-            Payer maintenant
-          </button>
-
-          {/* Sécurité */}
-          <div className="mt-6 text-center text-sm text-gray-500">
-            <span className="mr-2">🔒</span> Paiement sécurisé 
-          </div>
         </div>
-      </div>
+
+        <div className="col-span-1 md:col-span-2">
+          <button type="submit" className="w-full bg-green-600 text-white py-4 rounded-lg font-semibold hover:bg-green-700 transition">
+            Confirmer le Paiement
+          </button>
+        </div>
+      </form>
+    </div>
     </div>
   );
 };

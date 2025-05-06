@@ -29,7 +29,7 @@ const vendeurRoutes = require("./routes/vendeurRoutes");
 const livreurRoutes = require("./routes/livreurRoutes");
 const acheteurRoutes = require("./routes/acheteurRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-
+const paymentRoutes = require("./routes/paymentRoutes");
 
 app.use("/api/admin", adminRoutes);
 app.use("/acheteur", acheteurRoutes);
@@ -43,6 +43,8 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Permet 
 
 app.use("/auth", authRoutes);
 
+
+app.use("/api/payment", paymentRoutes);
 
 
 

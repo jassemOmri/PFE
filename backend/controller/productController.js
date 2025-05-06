@@ -90,37 +90,58 @@ exports.addProduct = async (req, res) => {
 // Supprimer un produit
 exports.deleteProduct = async (req, res) => {
   try {
-    await Product.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: "Produit supprimé" });
+    const productId = req.params.id;
+
+    const deleted = await Product.findByIdAndDelete(productId);
+
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: "Produit introuvable" });
+    }
+
+    res.json({ success: true, message: "Produit supprimé avec succès" });
   } catch (err) {
-    console.error("Erreur suppression produit:", err);
+    console.error("❌ Erreur suppression produit:", err);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
+
+
 
 exports.updateProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ success: false, message: "Produit introuvable" });
+    const productId = req.params.id;
+    const { name, description, regularPrice, salePrice, category } = req.body;
+    const image = req.file?.filename; // في حالة تبديل الصورة
 
-    product.name = req.body.name || product.name;
-    product.description = req.body.description || product.description;
-    product.regularPrice = req.body.regularPrice || product.regularPrice;
-    product.salePrice = req.body.salePrice || product.salePrice;
-    product.category = req.body.category || product.category;
+    const updatedFields = {
+      name,
+      description,
+      regularPrice,
+      salePrice,
+      category,
+    };
 
-    // Gestion image
-    if (req.file) {
-      product.image = req.file.filename; // ou req.file.path si cloud
+    if (image) {
+      updatedFields.image = image;
     }
 
-    await product.save();
-    res.json({ success: true, product });
-  } catch (err) {
-    console.error("Erreur update product:", err);
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      updatedFields,
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ success: false, message: "Produit introuvable" });
+    }
+
+    res.json({ success: true, message: "Produit mis à jour", product: updatedProduct });
+  } catch (error) {
+    console.error(" Erreur update produit:", error);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
+
 // Utilisée uniquement par l'admin pour ajouter un produit à un vendeur donné via son email
 
 exports.adminAddProduct = async (req, res) => {

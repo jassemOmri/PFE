@@ -4,10 +4,38 @@ import UserNavbar from "./UserNavbar";
 import categoriesData from "../data/categoriesData"; // chemin selon ta structure
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import VendeurProductModifcations from "./VendeurProductModifcations";
+
 
 
 const VendeurDashboard = () => {
+  const handleDelete = async (productId) => {
+  const result = await Swal.fire({
+    title: "Supprimer le produit ?",
+    text: "Cette action est irréversible.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#e3342f",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Oui, supprimer !",
+    cancelButtonText: "Annuler",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await axios.delete(`http://localhost:5000/api/products/${productId}`);
+      Swal.fire("Supprimé !", "Le produit a été supprimé.", "success");
+      fetchProducts(vendeurId); // Refresh la liste
+    } catch (error) {
+      Swal.fire("Erreur", "Impossible de supprimer le produit.", "error");
+      console.error("Erreur suppression:", error);
+    }
+  }
+};
+
 const navigate = useNavigate();
+
+const [selectedProductId, setSelectedProductId] = useState(null);
   const [products, setProducts] = useState([]);
   const [profileOk, setProfileOk] = useState(false);
 
@@ -238,8 +266,26 @@ const handleSubmit = async (e) => {
                     <p className="text-gray-600 text-sm mb-2">{product.description}</p>
                     <p className="text-gray-900 font-bold">${product.regularPrice}</p>
                     <div className="flex justify-between items-center mt-4">
-                      <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-400">Supprimer</button>
-                      <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-400">Modifier</button>
+                      <button
+                              onClick={() => handleDelete(product._id)}
+                              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                            >
+                              Supprimer
+                            </button>
+
+                     <button
+                                onClick={() => setSelectedProductId(product._id)}
+                                className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+                              >
+                                Modifier
+                              </button>
+        {selectedProductId && (
+  <VendeurProductModifcations
+    productId={selectedProductId}
+    onClose={() => setSelectedProductId(null)}
+    onSave={() => fetchProducts(vendeurId)}
+  />
+)}
                     </div>
                   </div>
                 ))
@@ -278,14 +324,8 @@ const TextAreaField = ({ label, name, value, onChange }) => (
       rows="4"
       required
     />
+
   </div>
-
-
-
-
-    
-
-
 );
 
 export default VendeurDashboard;

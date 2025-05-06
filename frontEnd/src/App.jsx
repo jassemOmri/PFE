@@ -28,6 +28,7 @@ import AdminReports from "./comoponents/Admin/AdminReports";
 import AdminLayout from "./comoponents/Admin/AdminLayout";
 import "leaflet-defaulticon-compatibility";
 import "leaflet/dist/leaflet.css"; 
+import VendeurProductModifcations from "./comoponents/VendeurProductModifcations";
 const App = () => {
   const { user } = useContext(UserContext);
 
@@ -68,7 +69,7 @@ const App = () => {
 
           <Route path="/compte-bloque" element={<CompteBloque />} />
 
-
+          <Route path="/vendeur/produit/modifier/:id" element={<VendeurProductModifcations />} />
 
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
