@@ -1,7 +1,9 @@
 const express = require("express");
 const { getLivreurs ,setDisponibilite,getAvailableOrders,acceptOrder,downloadDeliveryExcel,
     getLivreurById,toggleDisponibilite,setCommandeLivree,marquerCommandeCommeLivree,
-    getLivreurProfile,updateLivreurProfile,generateDeliveryPDF} = require("../controller/livreurController");
+    getLivreurProfile,updateLivreurProfile,generateDeliveryPDF,toggleVerificationLivreur,
+    getAllLivreursWithUser
+} = require("../controller/livreurController");
 
 const router = express.Router();
 const upload = require("../middlewares/uploadProfile");
@@ -18,5 +20,7 @@ router.put("/orders/:orderId/livree", marquerCommandeCommeLivree);
 router.get("/profile/:id", getLivreurProfile);
 router.put("/profile/:id",upload.fields([{ name: "imProfile", maxCount: 1 },{ name: "imCin", maxCount: 1 },]),updateLivreurProfile);
 router.get("/orders/download-pdf/:livreurId", generateDeliveryPDF);
-
+// ✅ Ajouter dans livreurRoutes.js
+router.put("/verify/:id", toggleVerificationLivreur);
+router.get("/", getAllLivreursWithUser);
 module.exports = router;

@@ -32,7 +32,8 @@ exports.addToCart = async (req, res) => {
     const productIndex = cart.products.findIndex(p => p.productId.toString() === productId);
     if (productIndex > -1) {
       cart.products[productIndex].quantity += quantity;
-    } else {
+    } else { // creer un nouvelle produit  dans la panier , parceque la phinomane de snapshot ou en france copie figée
+              // si vendeur veux changer la prix de la produit , dans la panier n'est change pas la prix
       cart.products.push({
         productId: product._id,
         name: product.name,
@@ -60,24 +61,26 @@ notifyClient(acheteurId, {
   }
 };
 
-exports.removeFromCart = async (req, res) => {
+exports.removeProductFromCart = async (req, res) => {
+  const { acheteurId, productId } = req.params;
+
   try {
-    const { acheteurId, productId } = req.body;
+    const cart = await Cart.findOne({ acheteurId });
+    if (!cart) return res.status(404).json({ message: "Panier non trouvé." });
 
-    let cart = await Cart.findOne({ acheteurId });
-    if (!cart) {
-      return res.status(404).json({ success: false, message: "Panier introuvable" });
-    }
+    cart.products = cart.products.filter(
+      (item) => item.productId.toString() !== productId
+    );
 
-    cart.products = cart.products.filter(p => p.productId.toString() !== productId);
     await cart.save();
 
-    res.json({ success: true, message: "Produit supprimé du panier", cart });
-  } catch (error) {
-    console.error("Erreur dans removeFromCart:", error);
-    res.status(500).json({ success: false, message: "Erreur serveur" });
+    res.status(200).json({ message: "Produit supprimé du panier.", cart });
+  } catch (err) {
+    console.error("Erreur suppression produit:", err);
+    res.status(500).json({ message: "Erreur serveur" });
   }
 };
+
 
 exports.getCart = async (req, res) => {
   try {
@@ -116,7 +119,7 @@ exports.confirmOrder = async (req, res) => {
     }
 
     // 🔁 Construction complète des produits avec coordonnées vendeur
-// 1. Grouper les produits par vendeurId
+    // 1. Grouper les produits par vendeurId
 const groupedByVendeur = {};
 for (let item of products) {
   const productData = await Product.findById(item.productId);
@@ -176,20 +179,6 @@ exports.clearCartForUser = async (req, res) => {
   } catch (error) {
     console.error("Erreur lors de la suppression du panier:", error);
     res.status(500).json({ success: false, message: "Erreur serveur." });
-  }
-};
-exports.removeProductFromCart = async (req, res) => {
-  const { acheteurId, productId } = req.params;
-  try {
-    const cart = await Cart.findOne({ acheteurId });
-    if (!cart) return res.status(404).json({ message: "Panier introuvable" });
-
-    cart.products = cart.products.filter((item) => item.productId !== productId);
-    await cart.save();
-
-    res.json({ success: true, message: "Produit supprimé" });
-  } catch (error) {
-    res.status(500).json({ message: "Erreur serveur" });
   }
 };
 

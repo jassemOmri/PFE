@@ -21,7 +21,7 @@ const Cart = () => {
     }
   }, [user]);
 
-
+// reduce : loop et collecte les resultat dans un tabeau
   const calculateTotal = () => {
     return cart.reduce((total, product) => {
       const price = parseFloat(product.price || 0);
@@ -31,20 +31,62 @@ const Cart = () => {
   };
 
   //  Supprimer un produit du panier
-  const handleRemoveProduct = async (productId) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/cart/remove/${user.userId}/${productId}`);
-      setCart(cart.filter((item) => item.productId !== productId));
-    } catch (error) {
-      console.error("Erreur suppression produit:", error);
-      alert("Erreur lors de la suppression du produit.");
-    }
-  };
+const handleRemoveProduct = async (productId) => {
+  try {
+    // supprimer côté backend aussi
+    await axios.delete(`http://localhost:5000/api/cart/remove/${user.userId}/${productId}`);
 
-  const handleOnlinePayment = () => {
+    //  mettre à jour le state frontend
+    setCart((prev) => prev.filter((item) => item.productId !== productId));
+  } catch (error) {
+    console.error("Erreur suppression produit:", error);
+    alert("Erreur lors de la suppression du produit.");
+  }
+};
+
+ const handleOnlinePayment = async () => {
+  if (!cart.length) {
+    alert("Votre panier est vide !");
+    return;
+  }
+
+  try {
+    // ✅ Vérifier profil complet
+    const res = await axios.get(`http://localhost:5000/acheteur/profile/${user.userId}`);
+    const u = res.data.user;
+
+    const hasIncompleteInfo =
+      !u.numTele ||
+      !u.addPostale?.rue ||
+      !u.addPostale?.ville ||
+      !u.addPostale?.region ||
+      !u.addPostale?.pays ||
+      !u.addPostale?.codePostal ||
+      !u.lat ||
+      !u.lng;
+
+    if (hasIncompleteInfo) {
+      alert("Veuillez compléter votre profil avant de passer commande.");
+      navigate("/acheteur/profile/edit");
+      return;
+    }
+
+    // ✅ Si tout est ok, calculer le total
     const cartTotal = calculateTotal();
-    navigate("/payment", { state: { cartTotal, source: "cart" } });
-  };
+
+    // ✅ Redirection vers l'interface paiement en ligne
+    navigate("/payment", {
+      state: {
+        cartTotal,
+        source: "cart",
+      },
+    });
+  } catch (error) {
+    console.error("Erreur vérification profil:", error);
+    alert("Erreur lors de la vérification du profil.");
+  }
+};
+
 
   const handleDeliveryPayment = async () => {
   if (!cart.length) {

@@ -34,14 +34,14 @@ function initSocket(server) {
   });
 }
 
-// ✅ Correction ici : envoyer "order_update"
+//  Correction ici : envoyer "order_update"
 function notifyClient(clientId, data) {
   const socketId = connectedClients.get(clientId);
   if (socketId && io) {
-    io.to(socketId).emit("order_update", data); // ✅ cohérent avec Navbar.jsx
-    console.log(`📨 Notification envoyée à ${clientId}`, data);
+    io.to(socketId).emit("order_update", data); //  cohérent avec Navbar.jsx
+    console.log(` Notification envoyée à ${clientId}`, data);
   } else {
-    console.warn(`⚠️ Aucun socket enregistré pour le clientId : ${clientId}`);
+    console.warn(` Aucun socket enregistré pour le clientId : ${clientId}`);
   }
 }
 

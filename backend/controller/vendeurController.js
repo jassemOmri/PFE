@@ -78,3 +78,30 @@ exports.updateVendeurProfile = async (req, res) => {
   }
 };
 
+
+exports.toggleVerificationVendeur = async (req, res) => {
+  try {
+    const vendeur = await Vendeur.findOne({ user: req.params.id });
+
+    if (!vendeur) {
+      return res.status(404).json({ success: false, message: "Vendeur non trouvé" });
+    }
+
+    vendeur.verified = !vendeur.verified;
+    await vendeur.save();
+
+    res.json({ success: true, verified: vendeur.verified });
+  } catch (error) {
+    console.error("Erreur toggleVerificationVendeur:", error);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+};
+exports.getAllVendeursWithUser = async (req, res) => {
+  try {
+    const vendeurs = await Vendeur.find().populate("user"); // ⚠️ لازم ref في schema
+    res.json(vendeurs);
+  } catch (err) {
+    console.error("Erreur getAllVendeurs:", err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};

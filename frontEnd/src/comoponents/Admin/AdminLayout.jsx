@@ -9,7 +9,7 @@ const AdminLayout = () => {
   if (!isAdmin) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-red-50 text-red-600 font-semibold">
-        ⛔ Accès refusé — réservé à l'administrateur
+         Accès refusé — réservé à l'administrateur
       </div>
     );
   }

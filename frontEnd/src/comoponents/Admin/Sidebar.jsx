@@ -8,8 +8,8 @@ const Sidebar = () => {
   const menuItems = [
     { label: "Utilisateurs", path: "/admin/dashboard", icon: <FaUserCog /> },
     { label: "Produits", path: "/admin/products", icon: <FaBoxOpen /> },
-    { label: "Statistiques", path: "/admin/stats", icon: <FaChartBar /> },
-    { label: "Rapports", path: "/admin/reports", icon: <FaFileAlt /> },
+    { label: "Verfier les employés", path: "/admin/employes", icon: <FaChartBar /> },
+ 
   ];
 
   const handleLogout = () => {

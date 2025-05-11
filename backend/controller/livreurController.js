@@ -356,3 +356,30 @@ exports.updateLivreurProfile = async (req, res) => {
     res.status(500).json({ success: false, message: "Erreur serveur lors de la mise à jour" });
   }
 };
+// ✅ Ajouter dans livreurController.js
+exports.toggleVerificationLivreur = async (req, res) => {
+  try {
+    const livreur = await Livreur.findOne({ user: req.params.id });
+
+    if (!livreur) {
+      return res.status(404).json({ success: false, message: "Livreur non trouvé" });
+    }
+
+    livreur.verified = !livreur.verified;
+    await livreur.save();
+
+    res.json({ success: true, verified: livreur.verified });
+  } catch (error) {
+    console.error("Erreur toggleVerificationLivreur:", error);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+};
+exports.getAllLivreursWithUser = async (req, res) => {
+  try {
+    const livreurs = await Livreur.find().populate("user"); // ⚠️ ref = "User"
+    res.json(livreurs);
+  } catch (err) {
+    console.error("Erreur getAllLivreurs:", err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};

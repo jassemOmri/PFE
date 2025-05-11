@@ -6,17 +6,24 @@ import Navbar from "../comoponents/Navbar";
 import UserContext from "../context/UserContext";
 
 const Home = () => {
+  //const [valeur, setValeur] = useState(valeurInitiale);
   const [allProducts, setAllProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
-
-  // 🟢 Récupérer la catégorie sélectionnée depuis localStorage
+/* exemple
+const user = { nom: "Ali", age: 30 };
+sauvegarder :JSON.stringify
+localStorage.setItem("user", JSON.stringify(user));
+lire :JSON.parse
+const u = JSON.parse(localStorage.getItem("user"));
+ */
+  // Récupérer la catégorie sélectionnée depuis localStorage syntax :localStorage.getItem("clé")
   const selectedCategory = localStorage.getItem("selectedCategory") || "all";
 
-  // 🔄 Chargement initial des produits avec filtrage par catégorie
+  // Chargement initial des produits avec filtrage par catégorie
   useEffect(() => {
     setLoading(true);
     axios
@@ -28,6 +35,7 @@ const Home = () => {
         if (selectedCategory === "all") {
           setFilteredProducts(all);
         } else {
+          //syntaxe :let nouveauTableau = tableauOriginal.filter((element) => condition);
           const filtered = all.filter(
             (product) => product.category === selectedCategory
           );
@@ -42,15 +50,18 @@ const Home = () => {
 
   // 🔍 Filtrage en temps réel (barre de recherche)
   const handleSearch = (searchTerm) => {
-    if (searchTerm.trim() === "") {
+    if (searchTerm.trim() === "") { // if user entre rien fais ca 
       setFilteredProducts(
         selectedCategory === "all"
-          ? allProducts
-          : allProducts.filter((product) => product.category === selectedCategory)
+          ? allProducts : allProducts.filter((product) => product.category === selectedCategory)
       );
-    } else {
+    } else { // sinon fais ca
+      /// syntaxe filter + recherche insensible à la casse
+//array.filter((element) =>
+  //element.propriete.toLowerCase().includes(motRecherche.toLowerCase())
+//);
       const filtered = allProducts.filter((product) =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())//includes : true | false
       );
       // filtre croisé avec la catégorie
       const result =
@@ -61,7 +72,7 @@ const Home = () => {
     }
   };
 
-  // ➕ Ajouter au panier
+  //Ajouter au panier
   const addToCart = async (product) => {
     if (!user || !user.userId || user.role !== "acheteur") {
       alert("Veuillez vous connecter comme acheteur !");
@@ -89,12 +100,13 @@ const Home = () => {
       <div className="min-h-screen flex flex-col justify-between">
         <div className="container mx-auto p-8 flex-1">
           <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+            {/*Syntaxe condition ? valeur_si_vrai : valeur_si_faux*/}
             {selectedCategory === "all"
               ? "Tous les produits"
               : `Produits : ${selectedCategory}`}
           </h2>
 
-          {/* 💬 Affichage des produits */}
+          {/*  Affichage des produits */}
           {loading ? (
             <p className="text-center text-gray-500">Chargement...</p>
           ) : filteredProducts.length === 0 ? (
@@ -138,7 +150,7 @@ const Home = () => {
 
                   </div>
 
-                  {/* 🛒 Bouton pour acheteur uniquement */}
+                  {/* Bouton pour acheteur uniquement */}
                   {user && user.role === "acheteur" && (
                     <button
                       onClick={() => addToCart(product)}

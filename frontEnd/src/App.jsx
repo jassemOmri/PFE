@@ -23,12 +23,12 @@ import EditAcheteurProfile from "./comoponents/EditAcheteurProfile";
 import AdminDashboard from "./comoponents/Admin/AdminDashboard";
 import CompteBloque from "./pages/CompteBloque";
 import AdminProducts from "./comoponents/Admin/AdminProducts";
-import AdminStats from "./comoponents/Admin/AdminStats";
-import AdminReports from "./comoponents/Admin/AdminReports";
+
 import AdminLayout from "./comoponents/Admin/AdminLayout";
 import "leaflet-defaulticon-compatibility";
 import "leaflet/dist/leaflet.css"; 
 import VendeurProductModifcations from "./comoponents/VendeurProductModifcations";
+import AdminEmployes from "./comoponents/Admin/AdminEmployes";
 const App = () => {
   const { user } = useContext(UserContext);
 
@@ -74,8 +74,8 @@ const App = () => {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
-          <Route path="stats" element={<AdminStats />} />
-          <Route path="reports" element={<AdminReports />} />
+          <Route path="employes" element={<AdminEmployes />} />
+         
         </Route>
 
         
