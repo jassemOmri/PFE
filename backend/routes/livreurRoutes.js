@@ -20,6 +20,7 @@ router.put("/orders/:orderId/livree", marquerCommandeCommeLivree);
 router.get("/profile/:id", getLivreurProfile);
 router.put("/profile/:id",upload.fields([{ name: "imProfile", maxCount: 1 },{ name: "imCin", maxCount: 1 },]),updateLivreurProfile);
 router.get("/orders/download-pdf/:livreurId", generateDeliveryPDF);
+
 // ✅ Ajouter dans livreurRoutes.js
 router.put("/verify/:id", toggleVerificationLivreur);
 router.get("/", getAllLivreursWithUser);

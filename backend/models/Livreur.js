@@ -9,13 +9,13 @@ const LivreurSchema = new mongoose.Schema({
   },
   numTele: {
     type: String,
-    required: false, // ✅ PAS obligatoire
-    unique: false,   // ✅ très important : ne PAS mettre `unique: true` si le champ est vide
+    required: false, 
+    unique: false,   
   },
   imCin: {
     type: String,
     required: false,
-    unique: false,   // ✅ même chose ici
+    unique: false,   
   },
   verified: {
     type: Boolean,
@@ -23,7 +23,7 @@ const LivreurSchema = new mongoose.Schema({
   },
   disponible: {
   type: Boolean,
-  default: true, // ✅ par défaut le livreur est disponible
+  default: true,
 },
 });
 

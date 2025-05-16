@@ -7,6 +7,7 @@ const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
 const QRCode = require("qrcode");
+const { notifyClient } = require("../socketServer"); 
 
 exports.getLivreurs = async (req, res) => {
   try {
@@ -76,6 +77,12 @@ exports.acceptOrder = async (req, res) => {
 
     order.livreur = livreurId;
     order.status = "en cours de livraison";  
+
+    notifyClient(order.acheteurId.toString(), {
+      type: "en cours de livraison",
+      message: "Votre commande est maintenant en cours de livraison 🚚",
+      orderId: order._id,
+    });
     await order.save();
 
     res.json({ message: "Commande acceptée", order });
@@ -177,12 +184,21 @@ exports.marquerCommandeCommeLivree = async (req, res) => {
   try {
     const { orderId } = req.params;
     const commande = await Order.findById(orderId);
+
     if (!commande) {
       return res.status(404).json({ message: "Commande introuvable" });
     }
 
     commande.status = "livrée";
     await commande.save();
+
+    // ✅ Ajouter la notification WebSocket
+    const { notifyClient } = require("../socketServer");
+    notifyClient(commande.acheteurId.toString(), {
+      type: "livrée",
+      message: "Votre commande a été livrée avec succès ✅",
+      orderId: commande._id,
+    });
 
     res.json({ message: "Commande marquée comme livrée avec succès" });
   } catch (error) {
@@ -212,9 +228,24 @@ exports.getLivreurProfile = async (req, res) => {
 };
 
 exports.generateDeliveryPDF = async (req, res) => {
+  const mongoose = require("mongoose");
+
+
   try {
     const { livreurId } = req.params;
-    const orders = await Order.find({ livreur: livreurId }).populate("acheteurId");
+    const { acheteurId } = req.query;
+
+    if (!mongoose.Types.ObjectId.isValid(livreurId) || !mongoose.Types.ObjectId.isValid(acheteurId)) {
+      return res.status(400).json({ message: "ID invalide." });
+    }
+
+    const livreurObjectId = new mongoose.Types.ObjectId(livreurId);
+    const acheteurObjectId = new mongoose.Types.ObjectId(acheteurId);
+
+    const orders = await Order.find({
+      livreur: livreurObjectId,
+      acheteurId: acheteurObjectId
+    }).populate("acheteurId");
 
     if (!orders.length) {
       return res.status(404).json({ message: "Aucune commande trouvée." });
@@ -227,33 +258,27 @@ exports.generateDeliveryPDF = async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     doc.pipe(res);
 
-    // 🖼️ Logo
-    const logoPath = path.join(__dirname, "../public/images/logo.png");
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, 40, 30, { width: 80 });
-    }
-
-    doc.fontSize(20).font("Helvetica-Bold").text("Bon de Livraison", 0, 40, { align: "center" });
-    doc.moveDown();
-
+    // Informations acheteur
     const acheteur = orders[0].acheteurId;
-    doc.fontSize(12).font("Helvetica").text(`Client        : ${acheteur.name}`);
-    doc.text(`Téléphone     : ${acheteur.numTele || "N/A"}`);
-    const adr = acheteur.addPostale;
-    doc.text(`Adresse       : ${adr?.rue || ""}, ${adr?.ville || ""}, ${adr?.region || ""}, ${adr?.pays || ""}`).moveDown();
-
-    doc.fontSize(13).font("Helvetica-Bold").text("Produits commandés :", { underline: true }).moveDown(0.3);
-    doc.font("Helvetica-Bold").fontSize(11);
-    doc.text("Produit", 50, doc.y, { continued: true });
-    doc.text("Quantité", 200, doc.y, { continued: true });
-    doc.text("Prix Unitaire", 300, doc.y, { continued: true });
-    doc.text("Total", 400, doc.y);
-    doc.moveDown(0.2).font("Helvetica");
-
-    let totalProduits = 0;
-    const fraisLivraison = 10;
+    const adr = acheteur.addPostale || {};
+    doc.fontSize(20).font("Helvetica-Bold").text("Bon de Livraison", { align: "center" }).moveDown();
+    doc.fontSize(12).font("Helvetica");
+    doc.text(`Nom client  : ${acheteur.name || "N/A"}`);
+    doc.text(`Téléphone   : ${acheteur.numTele || "N/A"}`);
+    doc.text(`Adresse     : ${adr.rue || ""}, ${adr.ville || ""}, ${adr.region || ""}, ${adr.pays || ""}`).moveDown();
 
     for (const order of orders) {
+      doc.fontSize(13).font("Helvetica-Bold").text(`Commande : ${order._id}`).moveDown(0.3);
+      doc.font("Helvetica-Bold").fontSize(11);
+      doc.text("Produit", 50, doc.y, { continued: true });
+      doc.text("Quantité", 200, doc.y, { continued: true });
+      doc.text("Prix U.", 300, doc.y, { continued: true });
+      doc.text("Total", 400, doc.y);
+      doc.moveDown(0.3).font("Helvetica");
+
+      let totalProduits = 0;
+      const fraisLivraison = 10;
+
       for (const p of order.products) {
         const prix = p.quantity * p.price;
         totalProduits += prix;
@@ -264,49 +289,43 @@ exports.generateDeliveryPDF = async (req, res) => {
         doc.text(`${prix.toFixed(2)} dt`, 400, doc.y);
         doc.moveDown(0.3);
       }
-    }
 
-    doc.moveDown();
-    doc.font("Helvetica-Bold");
-    doc.text(`Total Produits      : ${totalProduits.toFixed(2)} dt`);
-    doc.text(`Frais de Livraison  : ${fraisLivraison.toFixed(2)} dt`);
-    doc.text(`Montant Total       : ${(totalProduits + fraisLivraison).toFixed(2)} dt`);
-    doc.moveDown(1);
+      doc.moveDown(0.2);
+      doc.font("Helvetica-Bold");
+      doc.text(`Total Produits     : ${totalProduits.toFixed(2)} dt`);
+      doc.text(`Frais Livraison    : ${fraisLivraison.toFixed(2)} dt`);
+      doc.text(`Montant Total      : ${(totalProduits + fraisLivraison).toFixed(2)} dt`);
+      doc.moveDown(0.5);
 
-    // 📦 QR Code
+      // QR Code
+      const qrContent = `http://localhost:5000/api/orders/confirm-delivery/${order._id}`;
+      const qrDataUrl = await QRCode.toDataURL(qrContent);
+      const base64Data = qrDataUrl.replace(/^data:image\/png;base64,/, "");
+      const qrPath = path.join(__dirname, `../public/temp_qr_${order._id}.png`);
+      fs.writeFileSync(qrPath, base64Data, "base64");
+      
+      if (fs.existsSync(qrPath)) {
+        doc.image(qrPath, { width: 100, align: "center" });
+        doc.text("Scannez pour confirmer la livraison", { align: "center" });
+      }
+      
 
+      setTimeout(() => {
+        if (fs.existsSync(qrPath)) fs.unlinkSync(qrPath);
+      }, 3000);
 
-    const qrContent = `CommandeLivraison-${livreurId}-${Date.now()}`;
-
-const qrPath = path.join(__dirname, "../public/temp_qr.png");
-const qrDataUrl = await QRCode.toDataURL(qrContent);
-const base64Data = qrDataUrl.replace(/^data:image\/png;base64,/, "");
-
-// ✅ Assurer que le dossier existe
-const qrFolder = path.join(__dirname, "../public");
-if (!fs.existsSync(qrFolder)) {
-  fs.mkdirSync(qrFolder, { recursive: true });
-}
-
-fs.writeFileSync(qrPath, base64Data, "base64");
-
-    if (fs.existsSync(qrPath)) {
-      doc.image(qrPath, { width: 100, align: "center" });
-      doc.text("Scannez ce QR Code pour vérifier la commande", { align: "center" });
+      doc.moveDown(1);
+      doc.text("--------------------------------------------------", { align: "center" }).moveDown(1);
     }
 
     doc.end();
-
-    // 🧼 Nettoyage QR
-    setTimeout(() => {
-      if (fs.existsSync(qrPath)) fs.unlinkSync(qrPath);
-    }, 3000);
-
   } catch (err) {
     console.error("Erreur PDF:", err);
     res.status(500).json({ message: "Erreur serveur PDF" });
   }
 };
+
+
 // ✅ Mise à jour profil livreur
 exports.updateLivreurProfile = async (req, res) => {
   try {

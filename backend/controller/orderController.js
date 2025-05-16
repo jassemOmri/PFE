@@ -23,7 +23,15 @@ exports.confirmOrder = async (req, res) => {
 
     order.livreur = livreurId;
     order.status = "en cours de livraison";
+
+    notifyClient(order.acheteurId.toString(), {
+      type: "en cours de livraison",
+      message: "Votre commande est maintenant en cours de livraison 🚚",
+      orderId: order._id,
+    });
+    
     await order.save();
+
 
     await Order.deleteMany({ _id: { $ne: orderId }, clientName: order.clientName });
 
@@ -182,8 +190,8 @@ exports.confirmProductByVendeur = async (req, res) => {
       success: true,
       message: "Produit(s) confirmé(s) avec succès.",
       order,
-      clientId: order.clientId,
-      clientName: order.clientName
+      clientId: order.acheteurId.toString(), // ✅ c’est ça qu’on veut
+      clientName: order.clientName,
     });
   } catch (error) {
     console.error("Erreur confirmation produit vendeur:", error);
@@ -304,3 +312,20 @@ exports.markOrderAsDeLivered =async (res,req)=>{
     
   }
 }
+exports.confirmOrderDelivery = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Commande introuvable" });
+    }
+
+    order.status = "livrée";
+    await order.save();
+
+    res.json({ message: "Commande livrée avec succès" });
+  } catch (error) {
+    console.error("Erreur lors de la livraison :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};

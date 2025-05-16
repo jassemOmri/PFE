@@ -8,6 +8,8 @@ import UserContext from "../context/UserContext";
 import Sidebar from "./Sidebar";
 import axios from "axios";
 import { io } from "socket.io-client";
+import Swal from "sweetalert2";
+
 
 const Navbar = ({ onSearch }) => {
   const { user, logout } = useContext(UserContext);
@@ -17,8 +19,10 @@ const Navbar = ({ onSearch }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  console.log(" Socket connecté pour :", user?.userId);
 
   const socketRef = useRef(null);
+  console.log("user", user);
 
   const fetchCartCount = async () => {
     try {
@@ -41,12 +45,38 @@ const Navbar = ({ onSearch }) => {
       socket.emit("register_client", user.userId);
 
       socket.on("order_update", (data) => {
-        console.log("Order update:", data);
-
-        if (data?.type === "confirmation" || data?.type === "annulation") {
-          setNotifications((prev) => [...prev, data]);
+        console.log("🔔 Notification reçue :", data);
+      
+        // Mise à jour notifications en haut
+        setNotifications((prev) => [...prev, data]);
+      
+        // Popup visuel
+        if (data?.type === "confirmation") {
+          Swal.fire({
+            icon: "success",
+            title: "Commande confirmée ✅",
+            text: data.message,
+            timer: 3000,
+            showConfirmButton: false,
+          });
+        } else if (data?.type === "annulation") {
+          Swal.fire({
+            icon: "error",
+            title: "Commande annulée ",
+            text: data.message,
+            timer: 3000,
+            showConfirmButton: false,
+          });
+        } else if (data?.type === "en cours de livraison") {
+          Swal.fire({
+            icon: "info",
+            title: "en cours de livraison",
+            text: data.message,
+            timer: 3000,
+            showConfirmButton: false,
+          });
         }
-
+      
         if (data?.type === "cart_updated") {
           fetchCartCount();
         }
@@ -56,16 +86,7 @@ const Navbar = ({ onSearch }) => {
     }
   }, [user]);
 
-  useEffect(() => {
-    if (!socketRef.current) return;
 
-    socketRef.current.on("notification", (data) => {
-      console.log("🔔 Notification WebSocket:", data);
-      setNotifications((prev) => [...prev, data]);
-    });
-
-    return () => socketRef.current.off("notification");
-  }, []);
 
   useEffect(() => {
     fetchCartCount();

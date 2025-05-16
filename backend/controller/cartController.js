@@ -159,6 +159,9 @@ for (const vendeurId in groupedByVendeur) {
   });
 
   await newOrder.save();
+ 
+ 
+
 }
 
 

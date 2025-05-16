@@ -5,11 +5,11 @@ const UserContext = createContext(null); // Créer `UserContext`
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null); // État pour stocker les données de l'utilisateur
 
-  // Au chargement du composant, récupérer l'utilisateur depuis localStorage
+  // يبقى connecté  حتى بعد ما يعمل reload للصفحة
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+    const storedUser = localStorage.getItem("user");//return string
     if (storedUser) {
-      setUser(JSON.parse(storedUser)); // Mettre à jour l'état avec les données de l'utilisateur
+      setUser(JSON.parse(storedUser));//return objet (key : value)
     }
   }, []);
 
@@ -21,15 +21,15 @@ export const UserProvider = ({ children }) => {
 
   // Fonction de déconnexion
   const logout = () => {
-    setUser(null); // Réinitialiser l'état
-    localStorage.removeItem("user"); // Supprimer les données de localStorage
+    setUser(null); // réinitialiser l'état
+    localStorage.removeItem("user"); // supprimer les données de localStorage
   };
 
-  return (
+  return (//provider = fornisseur 
     <UserContext.Provider value={{ user, login, logout }}>
       {children}
     </UserContext.Provider>
   );
 };
 
-export default UserContext; // Exporter `UserContext`
+export default UserContext; 

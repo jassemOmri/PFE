@@ -6,10 +6,15 @@ import UserNavbar from "./UserNavbar";
 const socket = io("http://localhost:5000");
 
 const VendeurCommandes = () => {
+  
+
+
   const [commandes, setCommandes] = useState([]);
   const vendeurId = localStorage.getItem("vendeurId");
 
+
   useEffect(() => {
+    
     if (vendeurId) fetchCommandes();
   }, [vendeurId]);
 
@@ -17,8 +22,9 @@ const VendeurCommandes = () => {
     try {
       const res = await axios.get(`http://localhost:5000/api/orders/by-vendeur/${vendeurId}`);
       const sorted = [...res.data].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      
       setCommandes(sorted);
-    } catch (err) {
+    } catch (err) { 
       console.error("Erreur lors du chargement des commandes :", err);
     }
   };
@@ -33,17 +39,19 @@ const VendeurCommandes = () => {
       const { clientId } = response.data;
 
       if (clientId) {
+        const type = action === "confirm" ? "confirmation" : "annulation";
         const message = action === "confirm"
-          ? "Votre commande a été confirmée ✅"
-          : "Votre commande a été annulée ❌";
-
+          ? "Votre commande a été confirmée "
+          : "Votre commande a été annulée ";
+      
         socket.emit("notification", {
           to: clientId,
           message,
           from: vendeurId,
-          type: "order-update",
+          type,
         });
       }
+      
 
       fetchCommandes();
     } catch (error) {

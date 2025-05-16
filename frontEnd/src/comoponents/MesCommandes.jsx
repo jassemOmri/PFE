@@ -3,12 +3,17 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import Navbar from "./Navbar"
 import Footer from "./Footer"
+import QRCodeScanner from "./QRCodeScanner"; // adapte le chemin si besoin
+// adapte si besoin
 
 const MesCommandes = () => {
   const [orders, setOrders] = useState([]);
   const [filteredStatus, setFilteredStatus] = useState("all");
   const user = JSON.parse(localStorage.getItem("user"));
   const acheteurId = user?.userId;
+  const [showScanner, setShowScanner] = useState(false);
+  const hasLivraisonEnCours = orders.some(order => order.status === "en cours de livraison");
+
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -88,6 +93,22 @@ const MesCommandes = () => {
               <li><button onClick={() => filterOrders("en cours de livraison")} className={buttonStyle}> En Livraison</button></li>
               <li><button onClick={() => filterOrders("livrée")} className={buttonStyle}> Livrées</button></li>
               <li><button onClick={() => filterOrders("annulée")} className={buttonStyle}> Annulées</button></li>
+              {hasLivraisonEnCours && (
+                      <li>
+                        <button
+                          onClick={() => setShowScanner(true)}
+                          className="bg-indigo-600 text-white px-4 py-2 rounded mt-2 w-full"
+                        >
+                          Scanner le QR Code
+                        </button>
+                      </li>
+                    )}
+{showScanner && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <QRCodeScanner onClose={() => setShowScanner(false)} />
+  </div>
+)}
+
             </ul>
           </aside>
 

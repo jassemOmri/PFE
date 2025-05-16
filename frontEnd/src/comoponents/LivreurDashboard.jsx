@@ -222,8 +222,14 @@ useEffect(()=>{
               >
                 Accepter la commande
               </button>
-              <a href={`http://localhost:5000/api/livreurs/orders/download-pdf/${livreurId}`} target="_blank">
-              <button className="bg-blue-500 text-white px-4 py-2 rounded"> Télécharger PDF</button></a>
+              <a
+  href={`http://localhost:5000/api/livreurs/orders/download-pdf/${livreurId}?acheteurId=${selectedCommande?.acheteurId}`}
+  target="_blank"
+  className="bg-indigo-600 text-white px-4 py-2 rounded mt-2 inline-block"
+>
+  Télécharger PDF
+</a>
+
 
                                   {selectedCommande?.status === "en cours de livraison" && (
                       <button

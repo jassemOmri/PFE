@@ -52,14 +52,14 @@ const subtotal = parseFloat(source === "product" ? location.state?.productTotal 
       const res = await axios.post("http://localhost:5000/api/payment/confirm", paymentData);
 
       if (res.data.success) {
-        alert("✅ Paiement enregistré avec succès !");
+        alert(" Paiement enregistré avec succès !");
         navigate("/");
       } else {
         alert("Erreur lors de l'enregistrement.");
       }
     } catch (error) {
       console.error("Erreur paiement:", error);
-      alert("❌ Une erreur est survenue lors du paiement.");
+      alert(" Une erreur est survenue lors du paiement.");
     }
   };
 

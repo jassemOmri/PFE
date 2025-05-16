@@ -20,7 +20,7 @@ exports.login = async (req, res) => {
     
   
 
-    const token = jwt.sign({ userId: user._id, role: user.role }, SECRET_KEY, { expiresIn: "2h" });
+    const token = jwt.sign({ userId: user._id, role: user.role }, SECRET_KEY, { expiresIn: "12h" });
  
     let redirectUrl = "/";
     if (user.role === "livreur") {
@@ -35,8 +35,8 @@ exports.login = async (req, res) => {
       success: true,
       message: "Connexion réussie",
       token,
-        userId: user._id, //  //  إرسال `vendeurId`
-       userName: user.name,
+      userId: user._id, 
+      userName: user.name,
       role: user.role,
     isActive: user.isActive,
       redirectUrl, 

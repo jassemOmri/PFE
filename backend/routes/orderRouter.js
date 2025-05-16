@@ -3,7 +3,7 @@ const { getOrders, confirmOrder ,getOrdersByVendeur,
         confirmOrderByVendeur,cancelOrderByVendeur,
         getOrdersByAcheteur,confirmProductByVendeur,cancelProductByVendeur,
         getOrdersForLivreur,
-        assignOrderToLivreur
+        assignOrderToLivreur,confirmOrderDelivery
     } = require("../controller/orderController");
 const router = express.Router();
 
@@ -19,4 +19,9 @@ router.put("/cancel/:orderId/:vendeurId", cancelProductByVendeur);
 
 router.get("/livreur/:livreurId",getOrdersForLivreur);
 router.put("/assign/:orderId/:livreurId",assignOrderToLivreur)
+
+// orderRoutes.js
+router.put("/confirm-delivery/:orderId", confirmOrderDelivery);
+
+
 module.exports = router;

@@ -31,7 +31,7 @@ const u = JSON.parse(localStorage.getItem("user"));
       .then((response) => {
         const all = response.data;
 
-        setAllProducts(all); // stocke tout
+        setAllProducts(all); // stocke tout les produit
         if (selectedCategory === "all") {
           setFilteredProducts(all);
         } else {
@@ -48,11 +48,11 @@ const u = JSON.parse(localStorage.getItem("user"));
       .finally(() => setLoading(false));
   }, [selectedCategory]);
 
-  // 🔍 Filtrage en temps réel (barre de recherche)
+ 
   const handleSearch = (searchTerm) => {
     if (searchTerm.trim() === "") { // if user entre rien fais ca 
       setFilteredProducts(
-        selectedCategory === "all"
+        selectedCategory === "all"// filter est un methode pour les tableau
           ? allProducts : allProducts.filter((product) => product.category === selectedCategory)
       );
     } else { // sinon fais ca
@@ -65,7 +65,7 @@ const u = JSON.parse(localStorage.getItem("user"));
       );
       // filtre croisé avec la catégorie
       const result =
-        selectedCategory === "all"
+        selectedCategory === "all" 
           ? filtered
           : filtered.filter((p) => p.category === selectedCategory);
       setFilteredProducts(result);

@@ -9,7 +9,7 @@ const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { login } = useContext(UserContext); // ✅ جلب `login` من `UserContext`
+  const { login } = useContext(UserContext); //  جلب `login` من `UserContext`
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,14 +36,14 @@ const handleSubmit = async (e) => {
       if (!isActive) {
         localStorage.setItem("blockedUser", JSON.stringify({ userName, role }));
         navigate("/compte-bloque");
-        console.log("🔴 Compte désactivé — redirection vers /compte-bloque");
+        console.log(" compte désactivé — redirection vers /compte-bloque");
         return;
       }
 
       window.dispatchEvent(new Event("storage")); // met à jour la Navbar
       login(userData); // met à jour le contexte utilisateur
 
-      // ✅ Navigation propre selon rôle
+     
       if (role === "admin") {
         navigate("/admin/dashboard");
       } else {

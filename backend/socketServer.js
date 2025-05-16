@@ -1,7 +1,7 @@
 const { Server } = require("socket.io");
 
 let io;
-const connectedClients = new Map(); // 🔁 Pour faire le lien clientId → socketId
+const connectedClients = new Map(); //   Pour faire le lien clientId → socketId
 
 function initSocket(server) {
   io = new Server(server, {
@@ -12,7 +12,7 @@ function initSocket(server) {
     },
   });
 
-  console.log("📦 WebSocket prêt !");
+  console.log(" WebSocket prêt !");
 
   io.on("connection", (socket) => {
     console.log("🟢 Client connecté :", socket.id);
@@ -21,9 +21,16 @@ function initSocket(server) {
       connectedClients.set(clientId, socket.id);
       console.log("✅ Client enregistré :", clientId);
     });
+    socket.on("notification", ({ to, ...data }) => {
+      console.log("📨 Notification reçue du vendeur :", data);
+      notifyClient(to, {
+        ...data,
+        type: data.type || "notification", // sécurité si type manquant
+      });
+    });
 
     socket.on("disconnect", () => {
-      console.log("🔴 Client déconnecté :", socket.id);
+      console.log(" Client déconnecté :", socket.id);
       for (const [clientId, sockId] of connectedClients.entries()) {
         if (sockId === socket.id) {
           connectedClients.delete(clientId);
@@ -31,6 +38,8 @@ function initSocket(server) {
         }
       }
     });
+   
+    
   });
 }
 
@@ -39,7 +48,7 @@ function notifyClient(clientId, data) {
   const socketId = connectedClients.get(clientId);
   if (socketId && io) {
     io.to(socketId).emit("order_update", data); //  cohérent avec Navbar.jsx
-    console.log(` Notification envoyée à ${clientId}`, data);
+    console.log("⚡️ EVENT order_update envoyé à :", clientId);
   } else {
     console.warn(` Aucun socket enregistré pour le clientId : ${clientId}`);
   }
