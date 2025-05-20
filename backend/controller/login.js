@@ -26,7 +26,7 @@ exports.login = async (req, res) => {
     if (user.role === "livreur") {
       redirectUrl = "/livreur-dashboard";
     } else if (user.role === "acheteur") {
-      redirectUrl = "/acheteur-dashboard";
+      redirectUrl = "/";
     } else if (user.role === "vendeur") {
       redirectUrl = "/vendeur-dashboard";
     } 

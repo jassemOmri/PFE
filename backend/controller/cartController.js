@@ -113,6 +113,24 @@ exports.confirmOrder = async (req, res) => {
     console.log("Données reçues :", req.body);
 
     const { acheteurId, paymentMethod, clientLng, clientLat, clientName, products } = req.body;
+    //  Vérification si une commande similaire existe déjà récemment Protection contre la duplication des commande
+           const trenteSecondes = new Date(Date.now() - 30 * 1000); // ✅ 30 secondes
+
+           const duplicate = await Order.findOne({
+            acheteurId,
+            status: "en attente",
+            createdAt: { $gte: trenteSecondes },
+            "products.productId": { $in: products.map(p => p.productId) }
+          });
+          
+          if (duplicate) {
+            return res.status(400).json({
+              success: false,
+              message: "  Une commande identique est déjà en attente. Merci de patienter quelques secondes."
+            });
+          }
+          
+
 
     if (!acheteurId || clientLng == null || clientLat == null || !clientName || !products?.length) {
       return res.status(400).json({ success: false, message: "Données manquantes" });

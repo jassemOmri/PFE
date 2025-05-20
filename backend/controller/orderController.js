@@ -261,29 +261,7 @@ try{
 }
 
 }
-exports.assignOrderToLivreur=async (res ,req)=>{
-try {
-  const {orderId ,livreurId}=req.params;
 
-  const order = await Order.findById(orderId)
-  console.log(order)
-  if (!order){
-    return res.status(404).json({messsage:"Commande non trovée"})
-  } 
-  if (!order.livreur){
-    return res.status(400).json({message:"commande déja assignée"})
-  }
-  order.livreur=livreurId
-  order.status="en cours de livraision"
-
-  await order.save()
-  res.json({success :true , order})
-} catch (error) {
-  
-}
-
-
-}
 exports.markOrderAsDeLivered =async (res,req)=>{
   try {
     const {orderId}=req.params;

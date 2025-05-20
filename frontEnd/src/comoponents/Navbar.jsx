@@ -179,8 +179,19 @@ const Navbar = ({ onSearch }) => {
                       >
                         Profil
                       </Link>
-                      <Link to="/MesCommandes" className="block px-4 py-2 hover:bg-gray-100">Mes Commandes</Link>
-                      <Link to="/settings" className="block px-4 py-2 hover:bg-gray-100">Paramètres</Link>
+                                                    {user.role === "acheteur" && (
+                                <Link to="/MesCommandes" className="block px-4 py-2 hover:bg-gray-100">
+                                  Mes Commandes
+                                </Link>
+                              )}
+                                                                  {user.role === "livreur" && (
+                                      <Link to="/livreur-dashboard" className="block px-4 py-2 hover:bg-gray-100">
+                                        Mon Dashboard
+                                      </Link>
+                                    )}
+
+
+
                       <button onClick={logout} className="w-full text-left px-4 py-2 hover:bg-gray-100">Déconnecter</button>
                     </div>
                   )}

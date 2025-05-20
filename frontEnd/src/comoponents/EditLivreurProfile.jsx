@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import UserContext from "../context/UserContext";
+import Navbar from "../comoponents/Navbar";
 
 const EditLivreurProfile = () => {
   const { user } = useContext(UserContext);
@@ -114,14 +115,16 @@ const EditLivreurProfile = () => {
         { headers: { "Content-Type": "multipart/form-data" } }
       );
 
-      setMessage("✅ Profil mis à jour avec succès !");
+      setMessage(" Profil mis à jour avec succès !");
     } catch (error) {
       console.error("Erreur update:", error);
-      setMessage("❌ Erreur lors de la mise à jour.");
+      setMessage(" Erreur lors de la mise à jour.");
     }
   };
 
   return (
+    <div> 
+       <Navbar/>
     <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md mt-8">
       <h2 className="text-3xl font-bold text-green-600 mb-6">Modifier mon profil livreur</h2>
       {message && <p className="text-center text-blue-600 mb-4">{message}</p>}
@@ -207,7 +210,7 @@ const EditLivreurProfile = () => {
           Sauvegarder
         </button>
       </form>
-    </div>
+    </div> </div>
   );
 };
 

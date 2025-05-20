@@ -51,19 +51,29 @@ const navigate = useNavigate();
   };
 
     // Rediriger vers la page de paiement en ligne
- const handleOnlinePayment = () => {
-  if (!product || !product.regularPrice ) {
-    alert("Erreur : le prix du produit est introuvable.");
-    return;
-  }
-
-  const price = parseFloat(product.regularPrice );
-  const qty = parseInt(quantity) || 1;
-
-
-  const productTotal = price * qty;
-  navigate("/payment", { state: { productTotal, source: "product" } });
-};
+    const handleOnlinePayment = () => {
+      if (!product || !product._id || !product.regularPrice) {
+        alert("Erreur : produit invalide.");
+        return;
+      }
+    
+      const qty = parseInt(quantity) || 1;
+      const price = parseFloat(product.regularPrice);
+      const total = price * qty;
+    
+      navigate("/payment", {
+        state: {
+          source: "product",
+          productId: product._id,
+          quantity: qty,
+          price,
+          productName: product.name,
+          vendeurId: product.vendeurId,
+          productTotal: total,
+        },
+      });
+    };
+    
 
   // Fonction pour partager sur les réseaux sociaux
   const handleShare = (platform) => {

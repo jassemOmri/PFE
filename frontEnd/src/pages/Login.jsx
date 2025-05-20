@@ -50,9 +50,7 @@ const handleSubmit = async (e) => {
         navigate(redirectUrl);
       }
 
-      setTimeout(() => {
-        alert("Connexion réussie !");
-      }, 300);
+      
     } else {
       setError("Email ou mot de passe incorrect !");
     }

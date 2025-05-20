@@ -57,7 +57,6 @@ exports.setDisponibilite = async (req, res) => {
   }
 };
 
-// 📦 Voir les commandes disponibles
 exports.getAvailableOrders = async (req, res) => {
   try {
     const orders = await Order.find({ status: "confirmée", livreur: null });
@@ -67,7 +66,6 @@ exports.getAvailableOrders = async (req, res) => {
   }
 };
 
-// ✅ Accepter une commande
 exports.acceptOrder = async (req, res) => {
   const { orderId, livreurId } = req.body;
   try {
@@ -91,63 +89,7 @@ exports.acceptOrder = async (req, res) => {
   }
 };
 
-// 🧾 Télécharger les infos de livraison (Excel)
-exports.downloadDeliveryExcel = async (req, res) => {
-  try {
-    const { livreurId } = req.params;
-    const orders = await Order.find({ livreur: livreurId }).populate("acheteurId").populate("livreur");
 
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Livraisons");
-
-    worksheet.columns = [
-      { header: "Nom Acheteur", key: "acheteur", width: 20 },
-      { header: "Nom Vendeur", key: "vendeur", width: 20 },
-      { header: "Nom Livreur", key: "livreur", width: 20 },
-      { header: "Produit", key: "produit", width: 30 },
-      { header: "Quantité", key: "quantite", width: 10 },
-      { header: "Prix Produit", key: "prix", width: 15 },
-      { header: "Prix Livraison", key: "prixLivraison", width: 15 },
-      { header: "Adresse", key: "adresse", width: 30 },
-      { header: "Région", key: "region", width: 15 },
-    ];
-
-    for (const order of orders) {
-      const acheteur = order.acheteurId;
-      const livreur = order.livreur;
-
-      for (const p of order.products) {
-        const vendeur = await User.findById(p.vendeurId);
-        worksheet.addRow({
-          acheteur: acheteur.name,
-          vendeur: vendeur?.name || "Non trouvé",
-          livreur: livreur?.user || "Non défini",
-          produit: p.productName,
-          quantite: p.quantity,
-          prix: p.price,
-          prixLivraison: 7.0, // Tu peux personnaliser
-          adresse: `${acheteur.addPostale?.rue || ""}, ${acheteur.addPostale?.ville || ""}`,
-          region: acheteur.addPostale?.region || "",
-        });
-      }
-    }
-
-    res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=livraisons.xlsx"
-    );
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    );
-
-    await workbook.xlsx.write(res);
-    res.end();
-  } catch (error) {
-    console.error("Erreur export Excel :", error);
-    res.status(500).json({ message: "Erreur serveur" });
-  }
-};
 
 
 exports.toggleDisponibilite = async (req, res) => {
@@ -192,11 +134,11 @@ exports.marquerCommandeCommeLivree = async (req, res) => {
     commande.status = "livrée";
     await commande.save();
 
-    // ✅ Ajouter la notification WebSocket
+    //  Ajouter la notification WebSocket
     const { notifyClient } = require("../socketServer");
     notifyClient(commande.acheteurId.toString(), {
       type: "livrée",
-      message: "Votre commande a été livrée avec succès ✅",
+      message: "Votre commande a été livrée avec succès ",
       orderId: commande._id,
     });
 
@@ -209,7 +151,7 @@ exports.marquerCommandeCommeLivree = async (req, res) => {
 
 
 
-// 📥 GET profil livreur connecté
+//   GET profil livreur connecté
 exports.getLivreurProfile = async (req, res) => {
   try {
     const { id } = req.params;
@@ -229,8 +171,6 @@ exports.getLivreurProfile = async (req, res) => {
 
 exports.generateDeliveryPDF = async (req, res) => {
   const mongoose = require("mongoose");
-
-
   try {
     const { livreurId } = req.params;
     const { acheteurId } = req.query;
@@ -242,12 +182,13 @@ exports.generateDeliveryPDF = async (req, res) => {
     const livreurObjectId = new mongoose.Types.ObjectId(livreurId);
     const acheteurObjectId = new mongoose.Types.ObjectId(acheteurId);
 
-    const orders = await Order.find({
+    // ✅ فقط آخر commande
+    const order = await Order.findOne({
       livreur: livreurObjectId,
       acheteurId: acheteurObjectId
-    }).populate("acheteurId");
+    }).sort({ createdAt: -1 }).populate("acheteurId");
 
-    if (!orders.length) {
+    if (!order) {
       return res.status(404).json({ message: "Aucune commande trouvée." });
     }
 
@@ -258,8 +199,8 @@ exports.generateDeliveryPDF = async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     doc.pipe(res);
 
-    // Informations acheteur
-    const acheteur = orders[0].acheteurId;
+    // 🧾 Info acheteur
+    const acheteur = order.acheteurId;
     const adr = acheteur.addPostale || {};
     doc.fontSize(20).font("Helvetica-Bold").text("Bon de Livraison", { align: "center" }).moveDown();
     doc.fontSize(12).font("Helvetica");
@@ -267,56 +208,51 @@ exports.generateDeliveryPDF = async (req, res) => {
     doc.text(`Téléphone   : ${acheteur.numTele || "N/A"}`);
     doc.text(`Adresse     : ${adr.rue || ""}, ${adr.ville || ""}, ${adr.region || ""}, ${adr.pays || ""}`).moveDown();
 
-    for (const order of orders) {
-      doc.fontSize(13).font("Helvetica-Bold").text(`Commande : ${order._id}`).moveDown(0.3);
-      doc.font("Helvetica-Bold").fontSize(11);
-      doc.text("Produit", 50, doc.y, { continued: true });
-      doc.text("Quantité", 200, doc.y, { continued: true });
-      doc.text("Prix U.", 300, doc.y, { continued: true });
-      doc.text("Total", 400, doc.y);
-      doc.moveDown(0.3).font("Helvetica");
+    // 🛒 Contenu commande
+    doc.fontSize(13).font("Helvetica-Bold").text(`Commande : ${order._id}`).moveDown(0.3);
+    doc.font("Helvetica-Bold").fontSize(11);
+    doc.text("Produit", 50, doc.y, { continued: true });
+    doc.text("Quantité", 200, doc.y, { continued: true });
+    doc.text("Prix U.", 300, doc.y, { continued: true });
+    doc.text("Total", 400, doc.y);
+    doc.moveDown(0.3).font("Helvetica");
 
-      let totalProduits = 0;
-      const fraisLivraison = 10;
+    let totalProduits = 0;
+    const fraisLivraison = 5;
 
-      for (const p of order.products) {
-        const prix = p.quantity * p.price;
-        totalProduits += prix;
+    for (const p of order.products) {
+      const prix = p.quantity * p.price;
+      totalProduits += prix;
 
-        doc.text(p.productName, 50, doc.y, { continued: true });
-        doc.text(`${p.quantity}`, 200, doc.y, { continued: true });
-        doc.text(`${p.price.toFixed(2)} dt`, 300, doc.y, { continued: true });
-        doc.text(`${prix.toFixed(2)} dt`, 400, doc.y);
-        doc.moveDown(0.3);
-      }
-
-      doc.moveDown(0.2);
-      doc.font("Helvetica-Bold");
-      doc.text(`Total Produits     : ${totalProduits.toFixed(2)} dt`);
-      doc.text(`Frais Livraison    : ${fraisLivraison.toFixed(2)} dt`);
-      doc.text(`Montant Total      : ${(totalProduits + fraisLivraison).toFixed(2)} dt`);
-      doc.moveDown(0.5);
-
-      // QR Code
-      const qrContent = `http://localhost:5000/api/orders/confirm-delivery/${order._id}`;
-      const qrDataUrl = await QRCode.toDataURL(qrContent);
-      const base64Data = qrDataUrl.replace(/^data:image\/png;base64,/, "");
-      const qrPath = path.join(__dirname, `../public/temp_qr_${order._id}.png`);
-      fs.writeFileSync(qrPath, base64Data, "base64");
-      
-      if (fs.existsSync(qrPath)) {
-        doc.image(qrPath, { width: 100, align: "center" });
-        doc.text("Scannez pour confirmer la livraison", { align: "center" });
-      }
-      
-
-      setTimeout(() => {
-        if (fs.existsSync(qrPath)) fs.unlinkSync(qrPath);
-      }, 3000);
-
-      doc.moveDown(1);
-      doc.text("--------------------------------------------------", { align: "center" }).moveDown(1);
+      doc.text(p.productName, 50, doc.y, { continued: true });
+      doc.text(`${p.quantity}`, 200, doc.y, { continued: true });
+      doc.text(`${p.price.toFixed(2)} dt`, 300, doc.y, { continued: true });
+      doc.text(`${prix.toFixed(2)} dt`, 400, doc.y);
+      doc.moveDown(0.3);
     }
+
+    doc.moveDown(0.2);
+    doc.font("Helvetica-Bold");
+    doc.text(`Total Produits     : ${totalProduits.toFixed(2)} dt`);
+    doc.text(`Frais Livraison    : ${fraisLivraison.toFixed(2)} dt`);
+    doc.text(`Montant Total      : ${(totalProduits + fraisLivraison).toFixed(2)} dt`);
+    doc.moveDown(0.5);
+
+    // 📦 QR Code
+    const qrContent = `http://localhost:5000/api/orders/confirm-delivery/${order._id}`;
+    const qrDataUrl = await QRCode.toDataURL(qrContent);
+    const base64Data = qrDataUrl.replace(/^data:image\/png;base64,/, "");
+    const qrPath = path.join(__dirname, `../public/temp_qr_${order._id}.png`);
+    fs.writeFileSync(qrPath, base64Data, "base64");
+
+    if (fs.existsSync(qrPath)) {
+      doc.image(qrPath, { width: 100, align: "center" });
+      doc.text("Scannez pour confirmer la livraison", { align: "center" });
+    }
+
+    setTimeout(() => {
+      if (fs.existsSync(qrPath)) fs.unlinkSync(qrPath);
+    }, 3000);
 
     doc.end();
   } catch (err) {
@@ -326,7 +262,8 @@ exports.generateDeliveryPDF = async (req, res) => {
 };
 
 
-// ✅ Mise à jour profil livreur
+
+//  Mise à jour profil livreur
 exports.updateLivreurProfile = async (req, res) => {
   try {
     const { id } = req.params;

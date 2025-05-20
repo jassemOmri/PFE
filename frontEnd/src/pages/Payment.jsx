@@ -30,14 +30,14 @@ const subtotal = parseFloat(source === "product" ? location.state?.productTotal 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const user = JSON.parse(localStorage.getItem("user"));
       if (!user?.userId) {
         alert("Utilisateur non connecté.");
         return;
       }
-
+  
       const paymentData = {
         acheteurId: user.userId,
         fullName: form.fullName,
@@ -48,21 +48,91 @@ const subtotal = parseFloat(source === "product" ? location.state?.productTotal 
         amount: subtotal,
         paymentMethod: "en ligne",
       };
-
+  
+      // 1️⃣ Enregistrer le paiement
       const res = await axios.post("http://localhost:5000/api/payment/confirm", paymentData);
-
-      if (res.data.success) {
-        alert(" Paiement enregistré avec succès !");
-        navigate("/");
-      } else {
-        alert("Erreur lors de l'enregistrement.");
+  
+      if (!res.data.success) {
+        alert("Erreur lors du paiement.");
+        return;
       }
+  
+      // 2️⃣ Générer la commande selon la source
+      if (source === "cart") {
+        const { cart, acheteur } = location.state;
+  
+        const orderData = {
+          acheteurId: user.userId?.trim(),
+          paymentMethod: "payer en ligne",
+          clientLat: acheteur.lat,
+          clientLng: acheteur.lng,
+          clientName: acheteur.name || "Nom inconnu",
+          products: cart.map((product) => ({
+            productId: product.productId?.trim(),
+            productName: product.name,
+            quantity: Number(product.quantity) || 1,
+            price: Number(product.salePrice || product.regularPrice || product.price) || 0,
+            vendeurId: product.vendeurId?.trim() || "",
+            status: "en attente",
+          })),
+        };
+  
+        await axios.post("http://localhost:5000/api/cart/confirm", orderData);
+        await axios.delete(`http://localhost:5000/api/cart/clear/${user.userId}`);
+      }
+  
+      if (source === "product") {
+        const {
+          productId,
+          productName,
+          quantity,
+          price,
+          vendeurId,
+        } = location.state;
+  
+        const acheteurRes = await axios.get(`http://localhost:5000/acheteur/profile/${user.userId}`);
+        const acheteur = acheteurRes.data.user;
+        const lastCommandTime = localStorage.getItem("lastCommandTime");
+        const now = Date.now();
+        if (lastCommandTime && now - parseInt(lastCommandTime) < 30000) {
+          alert("Veuillez patienter avant de confirmer une nouvelle commande.");
+          return;
+        }
+        
+        const orderData = {
+          acheteurId: user.userId?.trim(),
+          paymentMethod: "payer en ligne",
+          clientLat: acheteur.lat,
+          clientLng: acheteur.lng,
+          clientName: acheteur.name || "Nom inconnu",
+          products: [
+            {
+              productId,
+              productName,
+              quantity,
+              price,
+              vendeurId,
+              status: "en attente",
+            },
+          ],
+        };
+  
+        await axios.post("http://localhost:5000/api/cart/confirm", orderData);
+        
+
+      }
+  
+      //  Rediriger à la fin
+      localStorage.setItem("lastCommandTime", Date.now().toString());
+      alert(" Paiement et commande enregistrés !");
+      navigate("/");
+  
     } catch (error) {
-      console.error("Erreur paiement:", error);
-      alert(" Une erreur est survenue lors du paiement.");
+      console.error("Erreur paiement/commande:", error);
+      alert(" Une erreur est survenue.");
     }
   };
-
+  
   return (
     <div><UserNavbar/>
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100 py-12 px-4">

@@ -51,19 +51,19 @@ const handleOnlinePayment = async () => {
   }
 
   try {
-    // ✅ Vérifier profil complet
+    // Vérifier le profil de l'utilisateur
     const res = await axios.get(`http://localhost:5000/acheteur/profile/${user.userId}`);
-    const u = res.data.user;
+    const acheteur = res.data.user;
 
     const hasIncompleteInfo =
-      !u.numTele ||
-      !u.addPostale?.rue ||
-      !u.addPostale?.ville ||
-      !u.addPostale?.region ||
-      !u.addPostale?.pays ||
-      !u.addPostale?.codePostal ||
-      !u.lat ||
-      !u.lng;
+      !acheteur.numTele ||
+      !acheteur.addPostale?.rue ||
+      !acheteur.addPostale?.ville ||
+      !acheteur.addPostale?.region ||
+      !acheteur.addPostale?.pays ||
+      !acheteur.addPostale?.codePostal ||
+      !acheteur.lat ||
+      !acheteur.lng;
 
     if (hasIncompleteInfo) {
       alert("Veuillez compléter votre profil avant de passer commande.");
@@ -71,53 +71,39 @@ const handleOnlinePayment = async () => {
       return;
     }
 
-   
     const cartTotal = calculateTotal();
 
-    //  Préparer les données de commande
-    const orderData = {
-      acheteurId: user.userId?.trim(),
-      paymentMethod: "payer en ligne",
-      clientLat: u.lat,
-      clientLng: u.lng,
-      clientName: u.name || "Nom inconnu",
-      products: cart.map((product) => ({
-        productId: product.productId?.trim(),
-        productName: product.name,
-        quantity: Number(product.quantity) || 1,
-        price: Number(product.salePrice || product.regularPrice || product.price) || 0,
-        vendeurId: product.vendeurId?.trim() || "",
-        status: "en attente",
-      })),
-    };
-
-    
-    await axios.post("http://localhost:5000/api/cart/confirm", orderData);
-
-   
-    await axios.delete(`http://localhost:5000/api/cart/clear/${user.userId}`);
-    setCart([]);
-
-   
-    alert("Commande confirmée avec succès !");
+    // 👉 NE PAS envoyer la commande ici
+    // On redirige vers /payment avec les données nécessaires
     navigate("/payment", {
       state: {
-        cartTotal,
         source: "cart",
+        cartTotal,
+        cart,
+        acheteur,
       },
     });
 
   } catch (error) {
-    console.error("Erreur lors du traitement:", error);
-    alert("Une erreur est survenue pendant le paiement.");
+    console.error("Erreur lors de la vérification du profil:", error);
+    alert("Une erreur est survenue lors de la préparation du paiement.");
   }
 };
+
 
   const handleDeliveryPayment = async () => {
   if (!cart.length) {
     alert("votre panier est vide !");
     return;
   }
+  // Protection contre la duplication de commandes
+const lastCommandTime = localStorage.getItem("lastCommandTime");
+const now = Date.now();
+if (lastCommandTime && now - parseInt(lastCommandTime) < 30000) {
+  alert("Veuillez patienter un peu avant de confirmer une nouvelle commande.");
+  return;
+}
+
 
   try {
     //   الحصول على معلومات المشتري منذ قاعدة البيانات
@@ -158,6 +144,7 @@ const handleOnlinePayment = async () => {
     };
 
     await axios.post("http://localhost:5000/api/cart/confirm", orderData);
+    localStorage.setItem("lastCommandTime", Date.now().toString());
     await axios.delete(`http://localhost:5000/api/cart/clear/${user.userId}`);
     setCart([]);
     alert("Commande confirmée !");

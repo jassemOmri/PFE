@@ -41,7 +41,8 @@ const App = () => {
   return (
     <>
       {/* Passez la fonction handleSearch à Navbar */}
-      {!user && <Navbar onSearch={handleSearch} />}
+      <Navbar onSearch={handleSearch} />
+
 
       
      

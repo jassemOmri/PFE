@@ -1,5 +1,5 @@
 const express = require("express");
-const { getLivreurs ,setDisponibilite,getAvailableOrders,acceptOrder,downloadDeliveryExcel,
+const { getLivreurs ,setDisponibilite,getAvailableOrders,acceptOrder,
     getLivreurById,toggleDisponibilite,setCommandeLivree,marquerCommandeCommeLivree,
     getLivreurProfile,updateLivreurProfile,generateDeliveryPDF,toggleVerificationLivreur,
     getAllLivreursWithUser
@@ -13,7 +13,6 @@ router.put("/disponible/:id", toggleDisponibilite);
 router.put("/disponible/:userId", setDisponibilite);
 router.get("/orders/available", getAvailableOrders);
 router.post("/orders/accept", acceptOrder);
-router.get("/orders/download/:livreurId", downloadDeliveryExcel);
 router.put("/:id/livree", setCommandeLivree);
 
 router.put("/orders/:orderId/livree", marquerCommandeCommeLivree);

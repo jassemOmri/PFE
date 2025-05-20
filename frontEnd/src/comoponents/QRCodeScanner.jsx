@@ -37,11 +37,12 @@ const QRCodeScanner = ({ onClose }) => {
 
     return () => scanner.clear();
   }, [onClose]);
-
+//y9aren bin /confirm-delivery\ et QR code 
   const extractOrderIdFromURL = (url) => {
-    const match = url.match(/\/livrer\/(.+)$/);
+    const match = url.match(/confirm-delivery\/(.+)$/); // ✅ يتماشى مع route
     return match ? match[1] : null;
   };
+  
   
 
   return (

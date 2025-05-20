@@ -9,6 +9,7 @@ import VendeurProductModifcations from "./VendeurProductModifcations";
 
 
 const VendeurDashboard = () => {
+  const [vendeurData, setVendeurData] = useState(null); // ⬅️ في أعلى الملف
   const handleDelete = async (productId) => {
   const result = await Swal.fire({
     title: "Supprimer le produit ?",
@@ -60,6 +61,16 @@ const [selectedProductId, setSelectedProductId] = useState(null);
     }
     setVendeurId(storedId);
     setCategories(categoriesData);
+     // ✅ Charger vendeur vérification
+  const fetchVendeurData = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/vendeurs/profile/${storedId}`);
+      setVendeurData(res.data.vendeur);
+    } catch (err) {
+      console.error("Erreur fetch vendeur:", err);
+    }
+  };
+  fetchVendeurData();
   }, []);
 
   // 2️⃣ Charger les produits dès que vendeurId est dispo
@@ -125,7 +136,7 @@ const handleSubmit = async (e) => {
       return;
     }
 
-    // ✅ Si tout va bien → continuer ajout produit
+    //  Si tout va bien → continuer ajout produit
     if (
       !newProduct.name ||
       !newProduct.description ||
@@ -179,7 +190,13 @@ const handleSubmit = async (e) => {
          
       <div className="p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard Vendeur</h1>
-             
+        {vendeurData && !vendeurData.verified && (
+  <div className="bg-yellow-100 text-yellow-800 border border-yellow-300 px-4 py-3 rounded mb-6 text-sm">
+     Bonjour vendeur, merci pour votre inscription. <br />
+     Votre profil est en cours de vérification. Veuillez patienter 24 à 48 heures pendant que l'admin examine vos informations.
+  </div>
+)}
+
 
 
         {/* Filtre par catégorie */}
@@ -203,7 +220,7 @@ const handleSubmit = async (e) => {
           {/* Formulaire */}
           <div className="lg:w-1/3 p-6 bg-white rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Ajouter un produit</h2>
-
+            {vendeurData?.verified ? (
             <form onSubmit={handleSubmit}>
               <InputField label="Nom du produit" name="name" value={newProduct.name} onChange={handleChange} />
               <TextAreaField label="Description" name="description" value={newProduct.description} onChange={handleChange} />
@@ -245,7 +262,11 @@ const handleSubmit = async (e) => {
               >
                 Ajouter le produit
               </button>
-            </form>
+            </form>) : (
+                  <p className="text-red-600 text-sm font-medium">
+                     Vous ne pouvez pas ajouter de produit tant que votre profil n’est pas vérifié par l’admin.
+                  </p>
+                )}
           </div>
 
           {/* Liste des produits */}

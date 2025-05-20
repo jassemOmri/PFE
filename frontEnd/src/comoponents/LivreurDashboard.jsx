@@ -16,10 +16,23 @@ const LivreurDashboard = () => {
   const [commandesDisponibles, setCommandesDisponibles] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedCommande, setSelectedCommande] = useState(null);
+  const [livreurData, setLivreurData] = useState(null);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const livreurId = user?.role === "livreur" ? user.userId : null;
-
+  useEffect(() => {
+    const fetchLivreur = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/livreurs/get-livreur/${livreurId}`);
+        setLivreurData(res.data);
+        setDisponible(res.data?.disponible || false);
+      } catch (err) {
+        console.error("Erreur lors de la récupération de la disponibilité", err);
+      }
+    };
+    if (livreurId) fetchLivreur();
+  }, [livreurId]);
+  
   useEffect(() => {
     const fetchDisponibilite = async () => {
       try {
@@ -102,12 +115,12 @@ const marquerCommeLivree = async (orderId) => {
   try {
     await axios.put(`http://localhost:5000/api/livreurs/orders/${orderId}/livree`);
 
-    Swal.fire("🎉 Livraison terminée", "Statut mis à jour", "success");
+    Swal.fire(" Livraison terminée", "Statut mis à jour", "success");
 
     setCommandesDisponibles([]);
     setSelectedCommande(null);
   } catch (error) {
-    Swal.fire("❌ Erreur", "Impossible de mettre à jour la commande", "error");
+    Swal.fire(" Erreur", "Impossible de mettre à jour la commande", "error");
   }
 };
 
@@ -119,9 +132,18 @@ useEffect(()=>{
 
   <div className="fixed top-0 left-0 right-0 z-50">
     <UserNavbar />
-  </div>
 
-  <div className="pt-20 ">
+
+  </div>
+  {livreurData && !livreurData.verified && (
+  <div className="bg-yellow-100 text-yellow-800 border border-yellow-300 px-4 py-3 text-sm text-center mb-4">
+    Bonjour <strong>{user?.name}</strong>, merci pour votre inscription.
+    <br />
+    Votre profil livreur est en cours de vérification. Veuillez patienter 24 à 48 heures pendant que l'admin examine vos documents.
+  </div>
+)}
+<div className="pt-0">
+
 
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar dynamique */}
@@ -155,14 +177,21 @@ useEffect(()=>{
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-auto">
         <div className="text-center mb-6">
+                      {livreurData?.verified ? (
                 <button
-            onClick={toggleDisponibilite}
-            className={`px-6 py-2 rounded text-white font-semibold ${
-              disponible ? "bg-green-600" : "bg-gray-500"
-            }`}
-          >
-            {disponible ? "✅ Disponible pour livraison" : "🚫 Indisponible"}
-          </button>
+                  onClick={toggleDisponibilite}
+                  className={`px-6 py-2 rounded text-white font-semibold ${
+                    disponible ? "bg-green-600" : "bg-gray-500"
+                  }`}
+                >
+                  {disponible ? "✅ Disponible pour livraison" : "🚫 Indisponible"}
+                </button>
+              ) : (
+                <p className="text-red-600 text-sm font-medium">
+                   Vous ne pouvez pas activer votre disponibilité tant que votre profil n’est pas vérifié.
+                </p>
+              )}
+
 
         </div>
 
@@ -214,31 +243,30 @@ useEffect(()=>{
                                   )}
                                   
             </div>
-             <button
-                onClick={() =>
-                  accepterCommande(selectedCommande._id, fetchCommandesDisponibles, setSelectedCommande)
-                }
-                className="mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow"
-              >
-                Accepter la commande
-              </button>
-              <a
-  href={`http://localhost:5000/api/livreurs/orders/download-pdf/${livreurId}?acheteurId=${selectedCommande?.acheteurId}`}
-  target="_blank"
-  className="bg-indigo-600 text-white px-4 py-2 rounded mt-2 inline-block"
->
-  Télécharger PDF
-</a>
+   
+            {livreurData?.verified ? (
+  <>
+    <button
+      onClick={() =>
+        accepterCommande(selectedCommande._id, fetchCommandesDisponibles, setSelectedCommande)
+      }
+      className="mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow"
+    >
+      Accepter la commande
+    </button>
+
+    <a
+      href={`http://localhost:5000/api/livreurs/orders/download-pdf/${livreurId}?acheteurId=${selectedCommande?.acheteurId}`}
+      target="_blank"
+      className="bg-orange-500 text-white px-4 py-2 rounded mt-2 inline-block"
+    >
+      Télécharger PDF
+    </a>
+  </>
+) : null}
 
 
-                                  {selectedCommande?.status === "en cours de livraison" && (
-                      <button
-                        onClick={() => marquerCommeLivree(selectedCommande._id)}
-                        className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow"
-                      >
-                         Marquer comme livrée
-                      </button>
-                    )}
+                    
 
           </div>
         </div>
