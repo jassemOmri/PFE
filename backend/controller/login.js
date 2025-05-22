@@ -42,8 +42,8 @@ exports.login = async (req, res) => {
       redirectUrl, 
     });
    } catch (error) {
-  console.error("🚨 Erreur exacte :", error.message);
-  console.error("🧠 Stack complète :", error.stack);
+  console.error("Erreur exacte :", error.message);
+  console.error("Stack complète :", error.stack);
   res.status(500).json({ success: false, message: "Erreur serveur" });
 }
 };

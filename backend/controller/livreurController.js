@@ -33,13 +33,13 @@ exports.getLivreurById = async (req, res) => {
 };
 
 
-// 📦 Mettre à jour la disponibilité du livreur
+// Mettre à jour la disponibilité du livreur
 exports.setDisponibilite = async (req, res) => {
   try {
     const { disponible } = req.body;
     const { userId } = req.params;
 
-    // 🔍 Mise à jour du champ disponible
+    //  Mise à jour du champ disponible
     const livreur = await Livreur.findOneAndUpdate(
       { user: userId },
       { disponible },
@@ -199,7 +199,7 @@ exports.generateDeliveryPDF = async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     doc.pipe(res);
 
-    // 🧾 Info acheteur
+    //  Info acheteur
     const acheteur = order.acheteurId;
     const adr = acheteur.addPostale || {};
     doc.fontSize(20).font("Helvetica-Bold").text("Bon de Livraison", { align: "center" }).moveDown();
@@ -208,7 +208,7 @@ exports.generateDeliveryPDF = async (req, res) => {
     doc.text(`Téléphone   : ${acheteur.numTele || "N/A"}`);
     doc.text(`Adresse     : ${adr.rue || ""}, ${adr.ville || ""}, ${adr.region || ""}, ${adr.pays || ""}`).moveDown();
 
-    // 🛒 Contenu commande
+    // Contenu commande
     doc.fontSize(13).font("Helvetica-Bold").text(`Commande : ${order._id}`).moveDown(0.3);
     doc.font("Helvetica-Bold").fontSize(11);
     doc.text("Produit", 50, doc.y, { continued: true });

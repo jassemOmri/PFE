@@ -45,7 +45,7 @@ const Navbar = ({ onSearch }) => {
       socket.emit("register_client", user.userId);
 
       socket.on("order_update", (data) => {
-        console.log("🔔 Notification reçue :", data);
+        console.log(" Notification reçue :", data);
       
         // Mise à jour notifications en haut
         setNotifications((prev) => [...prev, data]);
@@ -54,7 +54,7 @@ const Navbar = ({ onSearch }) => {
         if (data?.type === "confirmation") {
           Swal.fire({
             icon: "success",
-            title: "Commande confirmée ✅",
+            title: "Commande confirmée ",
             text: data.message,
             timer: 3000,
             showConfirmButton: false,

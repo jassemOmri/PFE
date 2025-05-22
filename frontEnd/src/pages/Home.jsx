@@ -94,80 +94,75 @@ const u = JSON.parse(localStorage.getItem("user"));
 
   return (
     <div>
-      {/* 🔎 Navbar avec fonction de recherche */}
-      <Navbar onSearch={handleSearch} />
+  <Navbar onSearch={handleSearch} />
 
-      <div className="min-h-screen flex flex-col justify-between">
-        <div className="container mx-auto p-8 flex-1">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-            {/*Syntaxe condition ? valeur_si_vrai : valeur_si_faux*/}
-            {selectedCategory === "all"
-              ? "Tous les produits"
-              : `Produits : ${selectedCategory}`}
-          </h2>
+  <div className="min-h-screen flex flex-col justify-between bg-gray-50">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1">
+      <h2 className="text-3xl font-bold text-center text-gray-900 mb-8 tracking-tight">
+        {selectedCategory === "all"
+          ? "Tous les produits"
+          : `Produits : ${selectedCategory}`}
+      </h2>
 
-          {/*  Affichage des produits */}
-          {loading ? (
-            <p className="text-center text-gray-500">Chargement...</p>
-          ) : filteredProducts.length === 0 ? (
-            <p className="text-center text-gray-500">Aucun produit trouvé</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {filteredProducts.map((product) => (
-                <div
-                  key={product._id}
-                  className="bg-white rounded-lg shadow-lg p-4 hover:shadow-2xl transition duration-300"
-                >
-                  <div
-                    onClick={() => navigate(`/product/${product._id}`)}
-                    className="cursor-pointer"
-                  >
-                    <img
-                      src={`http://localhost:5000/uploads/${product.image}`}
-                      alt={product.name}
-                      className="w-full h-48 object-cover rounded-md mb-3"
-                    />
-                    <h4 className="text-lg font-semibold mb-1 text-gray-900">
-                      {product.name}
-                    </h4>
-                    <div className="font-semibold text-gray-900">
-                              {product.salePrice
-                                ? (
-                                  <>
-                                    <span className="line-through text-sm text-gray-400 mr-2">
-                                      {product.regularPrice} DT
-                                    </span>
-                                    <span className="text-green-600 font-bold">
-                                      {product.salePrice} DT
-                                    </span>
-                                  </>
-                                )
-                                : (
-                                  <span>{product.regularPrice || 0} DT</span>
-                                )
-                              }
-                                  </div>
-
+      {loading ? (
+        <p className="text-center text-gray-500 text-lg">Chargement...</p>
+      ) : filteredProducts.length === 0 ? (
+        <p className="text-center text-gray-500 text-lg">Aucun produit trouvé</p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+          {filteredProducts.map((product) => (
+            <div
+              key={product._id}
+              className="bg-white rounded-xl shadow-md hover:shadow-xl border border-gray-100 overflow-hidden transition-transform duration-300 hover:-translate-y-1"
+            >
+              <div
+                onClick={() => navigate(`/product/${product._id}`)}
+                className="cursor-pointer"
+              >
+                <img
+                  src={`http://localhost:5000/uploads/${product.image}`}
+                  alt={product.name}
+                  className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                />
+                <div className="p-4">
+                  <h4 className="text-base font-semibold text-gray-800 leading-tight truncate mb-1">
+                    {product.name}
+                  </h4>
+                  <div className="text-sm font-medium">
+                    {product.salePrice ? (
+                      <>
+                        <span className="line-through text-gray-400 mr-1">
+                          {product.regularPrice} DT
+                        </span>
+                        <span className="text-green-600 font-bold">
+                          {product.salePrice} DT
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-gray-900">{product.regularPrice || 0} DT</span>
+                    )}
                   </div>
-
-                  {/* Bouton pour acheteur uniquement */}
-                  {user && user.role === "acheteur" && (
-                    <button
-                      onClick={() => addToCart(product)}
-                      className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-500 transition"
-                    >
-                      Ajouter au panier
-                    </button>
-                  )}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+              </div>
 
-      <Footer />
+              {user && user.role === "acheteur" && (
+                <button
+                  onClick={() => addToCart(product)}
+                  className="w-full bg-blue-400 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded-b-xl transition"
+                >
+                  Ajouter au panier
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
+  </div>
+
+  <Footer />
+</div>
+
   );
 };
 

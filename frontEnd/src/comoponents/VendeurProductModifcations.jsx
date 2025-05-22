@@ -71,7 +71,7 @@ const VendeurProductModifcations = ({ productId, onClose, onSave }) => {
         className="bg-white p-6 rounded-lg shadow-lg w-[500px]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-bold mb-4 text-center text-green-600">✏️ Modifier le produit</h2>
+        <h2 className="text-xl font-bold mb-4 text-center text-green-600"> Modifier le produit</h2>
         <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
           <input
             type="text"

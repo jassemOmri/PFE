@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import Swal from "sweetalert2";
+import { FaMapMarkerAlt, FaSave, FaPowerOff, FaPhone, FaCalendarAlt, FaImage } from "react-icons/fa";
 
 const EditAcheteurProfile = () => {
   
@@ -150,105 +151,176 @@ const getMyLocation = () => {
     });
   }
 };
+const handleDeactivate = async () => {
+  const result = await Swal.fire({
+    title: "Confirmation de désactivation",
+    input: "password",
+    inputLabel: "Entrez votre mot de passe pour confirmer",
+    inputPlaceholder: "Mot de passe",
+    inputAttributes: {
+      autocapitalize: "off",
+      autocorrect: "off"
+    },
+    showCancelButton: true,
+    confirmButtonText: "Confirmer",
+    cancelButtonText: "Annuler",
+    preConfirm: async (password) => {
+      if (!password) {
+        Swal.showValidationMessage("Mot de passe requis");
+        return false;
+      }
 
-  return (
-    <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md mt-8">
-      <h2 className="text-3xl font-bold text-green-600 mb-6">Modifier mon profil</h2>
-      {message && <p className="text-center text-blue-600 mb-4">{message}</p>}
+      try {
+        const res = await axios.put(`http://localhost:5000/api/users/desactiver/${user.userId}`, { password });
+        return res.data;
+      } catch (err) {
+        const msg = err.response?.data?.message || "Erreur inconnue";
+        Swal.showValidationMessage(msg);
+        return false;
+      }
+    }
+  });
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-          <input
-            name="numTele"
-            value={formData.numTele}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-          />
-        </div>
+  if (result.isConfirmed) {
+    //  Suppression du token et redirection
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Image de profil</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="block"
-          />
+    await Swal.fire("✅ Désactivé", result.value.message, "success");
+    window.location.href = "/login";
+  }
+};
+
+
+return (
+<div className="max-w-6xl mx-auto bg-gray-50 p-6 rounded-2xl shadow-lg mt-10">
+  <h2 className="text-4xl font-bold text-gray-800 mb-10 border-b pb-4 flex items-center gap-3">
+    <FaImage className="text-green-600" />
+    Modifier mon profil
+  </h2>
+
+  <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    
+    {/* Colonne gauche */}
+    <div className="col-span-2 space-y-6">
+      <div>
+        <label className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+          <FaPhone /> Téléphone
+        </label>
+        <input
+          name="numTele"
+          value={formData.numTele}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-green-500 focus:border-green-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2 items-center gap-2">
+          <FaImage /> Image de profil
+        </label>
+        <div className="flex items-center gap-4">
           {imagePreview && (
             <img
               src={imagePreview}
               alt="Aperçu"
-              className="mt-2 w-24 h-24 object-cover rounded-full border border-gray-300"
+              className="w-20 h-20 rounded-full border-2 border-green-400 shadow-md object-cover"
             />
           )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Date de naissance</label>
           <input
-            name="dateNaissance"
-            type="date"
-            value={formData.dateNaissance}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="text-sm text-gray-600"
           />
         </div>
+      </div>
 
-        <div>
-          <h3 className="font-semibold text-gray-700 mb-2">Adresse postale :</h3>
-          {Object.keys(formData.addPostale).map((key) => (
-            <input
-              key={key}
-              name={`addPostale.${key}`}
-              value={formData.addPostale[key]}
-              onChange={handleChange}
-              placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
-              className="w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg"
-            />
-          ))}
-        </div>
-<div className="mt-6">
-  <button
-    onClick={getMyLocation}
-    className="flex items-center gap-2 px-5 py-2 rounded-full bg-sky-600 text-white font-semibold shadow hover:bg-sky-950 transition"
-  >
-   Détecter ma position
-  </button>
-
-  <p className="text-sm text-gray-600 mt-2">{gpsStatus}</p>
-
-  {formData.lat && formData.lng && (
-    <>
-      <MapContainer
-        center={[formData.lat, formData.lng]}
-        zoom={13}
-        className="rounded-md w-full h-[300px] mt-4"
-      >
-        <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1 items-center gap-2">
+          <FaCalendarAlt /> Date de naissance
+        </label>
+        <input
+          name="dateNaissance"
+          type="date"
+          value={formData.dateNaissance}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm"
         />
-        <Marker position={[formData.lat, formData.lng]}>
-          <Popup>Votre position</Popup>
-        </Marker>
-      </MapContainer>
-      <p className="text-sm text-gray-500 mt-2">
-        Latitude: {formData.lat.toFixed(5)} | Longitude: {formData.lng.toFixed(5)}
-      </p>
-    </>
-  )}
-</div>
-        
+      </div>
+
+      <div>
+        <h3 className="font-semibold text-gray-700 mb-2">Adresse postale :</h3>
+        {Object.keys(formData.addPostale).map((key) => (
+          <input
+            key={key}
+            name={`addPostale.${key}`}
+            value={formData.addPostale[key]}
+            onChange={handleChange}
+            placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
+            className="w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg shadow-sm"
+          />
+        ))}
+      </div>
+    </div>
+
+    {/* Colonne droite */}
+    <div className="space-y-6 bg-white rounded-xl p-4 shadow-lg">
+      <button
+        onClick={getMyLocation}
+        type="button"
+        className="w-full flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-sky-600 text-white font-semibold shadow hover:bg-sky-700 transition"
+      >
+        <FaMapMarkerAlt />
+        Détecter ma position
+      </button>
+
+      <p className="text-sm text-gray-600">{gpsStatus}</p>
+
+      {formData.lat && formData.lng && (
+        <>
+          <MapContainer
+            center={[formData.lat, formData.lng]}
+            zoom={13}
+            className="rounded-lg w-full h-[200px]"
+          >
+            <TileLayer
+              attribution='&copy; OpenStreetMap contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={[formData.lat, formData.lng]}>
+              <Popup>Votre position</Popup>
+            </Marker>
+          </MapContainer>
+          <p className="text-xs text-gray-500 mt-1">
+            Latitude: {formData.lat.toFixed(5)} | Longitude: {formData.lng.toFixed(5)}
+          </p>
+        </>
+      )}
+
+      <div className="flex flex-col gap-4 pt-4">
         <button
           type="submit"
-          className="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-500 transition"
+          className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition"
         >
+          <FaSave />
           Sauvegarder
         </button>
-      </form>
+        <button
+          type="button"
+          onClick={handleDeactivate}
+          className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg transition"
+        >
+          <FaPowerOff />
+          Désactiver mon compte
+        </button>
+      </div>
     </div>
-  );
+  </form>
+</div>
+
+);
+
 };
 
 export default EditAcheteurProfile;

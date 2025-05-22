@@ -22,7 +22,7 @@ const QRCodeScanner = ({ onClose }) => {
 
       try {
         const response = await axios.put(`http://localhost:5000/api/orders/confirm-delivery/${orderId}`);
-        Swal.fire("✅", "Commande livrée avec succès", "success");
+        Swal.fire("", "Commande livrée avec succès", "success");
         scanner.clear();
         onClose();
       } catch (error) {
@@ -39,7 +39,7 @@ const QRCodeScanner = ({ onClose }) => {
   }, [onClose]);
 //y9aren bin /confirm-delivery\ et QR code 
   const extractOrderIdFromURL = (url) => {
-    const match = url.match(/confirm-delivery\/(.+)$/); // ✅ يتماشى مع route
+    const match = url.match(/confirm-delivery\/(.+)$/); //  يتماشى مع route
     return match ? match[1] : null;
   };
   

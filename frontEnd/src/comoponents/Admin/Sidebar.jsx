@@ -8,7 +8,7 @@ const Sidebar = () => {
   const menuItems = [
     { label: "Utilisateurs", path: "/admin/dashboard", icon: <FaUserCog /> },
     { label: "Produits", path: "/admin/products", icon: <FaBoxOpen /> },
-    { label: "Verfier les employés", path: "/admin/employes", icon: <FaChartBar /> },
+    { label: "Validation", path: "/admin/employes", icon: <FaChartBar /> },
  
   ];
 

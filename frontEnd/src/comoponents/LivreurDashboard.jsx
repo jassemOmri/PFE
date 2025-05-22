@@ -111,18 +111,7 @@ const toggleDisponibilite = async () => {
   }
 };
 
-const marquerCommeLivree = async (orderId) => {
-  try {
-    await axios.put(`http://localhost:5000/api/livreurs/orders/${orderId}/livree`);
 
-    Swal.fire(" Livraison terminée", "Statut mis à jour", "success");
-
-    setCommandesDisponibles([]);
-    setSelectedCommande(null);
-  } catch (error) {
-    Swal.fire(" Erreur", "Impossible de mettre à jour la commande", "error");
-  }
-};
 
 useEffect(()=>{
   fetchCommandesDisponibles();

@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Vendeur = require("../models/vendeur");
 const Livreur = require("../models/Livreur");
-const SECRET_KEY ="jassemomri";
+const SECRET_KEY ="mysecretkey";
 
 exports.signup = async (req, res) => {
   try {

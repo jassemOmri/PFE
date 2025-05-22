@@ -26,6 +26,11 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  dateDesactivation: {
+    type: Date,
+    default: null,
+  },
+  
   lat: { type: Number },
 lng: { type: Number },
 
