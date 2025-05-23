@@ -33,7 +33,7 @@ const requestAccountDeactivation = async (req, res) => {
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ message: "Utilisateur introuvable" });
 
-    // 🔐 Vérification mot de passe
+    //  Vérification mot de passe
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: "Mot de passe incorrect" });
 

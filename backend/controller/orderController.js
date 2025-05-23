@@ -76,7 +76,7 @@ exports.confirmOrderByVendeur = async (req, res) => {
     order.status = "confirmée";
     await order.save();
 
-    // ✅ Envoi d'une notification au client
+    // Envoi d'une notification au client
     notifyClient(order.acheteurId.toString(), {
       type: "confirmation",
       message: `Votre commande a été confirmée par le vendeur.`,
@@ -102,7 +102,7 @@ exports.cancelOrderByVendeur = async (req, res) => {
     order.status = "annulée";
     await order.save();
 
-    // ❌ Envoi d'une notification au client
+    //  Envoi d'une notification au client
     notifyClient(order.acheteurId.toString(), {
       type: "annulation",
       message: `Votre commande a été annulée par le vendeur.`,
@@ -124,7 +124,7 @@ exports.getOrdersByAcheteur = async (req, res) => {
 
   try {
     const orders = await Order.find({ acheteurId });
-    console.log("👀 All Orders Acheteur:", orders);
+    console.log(" All Orders Acheteur:", orders);
 
     const final = orders.map(order => ({
       _id: order._id,
@@ -142,7 +142,7 @@ exports.getOrdersByAcheteur = async (req, res) => {
 
     res.json(final);
   } catch (err) {
-    console.error("❌ Erreur dans getOrdersByAcheteur:", err);
+    console.error(" Erreur dans getOrdersByAcheteur:", err);
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
@@ -190,7 +190,7 @@ exports.confirmProductByVendeur = async (req, res) => {
       success: true,
       message: "Produit(s) confirmé(s) avec succès.",
       order,
-      clientId: order.acheteurId.toString(), // ✅ c’est ça qu’on veut
+      clientId: order.acheteurId.toString(), //  c’est ça qu’on veut
       clientName: order.clientName,
     });
   } catch (error) {
@@ -209,7 +209,7 @@ exports.cancelProductByVendeur = async (req, res) => {
 
     let updated = false;
 
-    // 🎯 نعدلو حالة المنتج فقط
+    //  نعدلو حالة المنتج فقط
     order.products = order.products.map((p) => {
       if (p.vendeurId.toString() === vendeurId && p.status === "en attente") {
         p.status = "annulée";
@@ -224,7 +224,7 @@ exports.cancelProductByVendeur = async (req, res) => {
       });
     }
 
-    // ⛔ إذا كل المنتجات ملغية → الغي الكومند كاملة
+    //  إذا كل المنتجات ملغية → الغي الكومند كاملة
     if (order.products.every(p => p.status === "annulée")) {
       order.status = "annulée";
     }

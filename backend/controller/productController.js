@@ -54,8 +54,7 @@ exports.addProduct = async (req, res) => {
     if (!token) {
       return res.status(401).json({ success: false, message: "Token non fourni" });
     }
-     console.log("🛠️ البيانات المستلمة:", req.body); // ✅ تحقق من البيانات
-      console.log("📸 الملفات المستلمة:", req.files);
+    
     // Décodez le token pour récupérer les informations de l'utilisateur
     const decoded = jwt.verify(token, SECRET_KEY);
     const vendeurId = decoded.userId; // Récupérez l'ID du vendeur depuis le token
@@ -63,8 +62,7 @@ exports.addProduct = async (req, res) => {
     // Récupérez les données du produit depuis le corps de la requête
     const { name,description ,regularPrice,salePrice,category} = req.body;
     const image = req.file ? req.file.filename : null;
-        console.log("🛠️ Body reçu:", req.body);
-        console.log("📸 Fichier reçu:", req.file);
+     
 
     // Vérifiez que vendeurId est présent
     if (!vendeurId) {
@@ -100,7 +98,7 @@ exports.deleteProduct = async (req, res) => {
 
     res.json({ success: true, message: "Produit supprimé avec succès" });
   } catch (err) {
-    console.error("❌ Erreur suppression produit:", err);
+    console.error(" Erreur suppression produit:", err);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
@@ -180,7 +178,7 @@ exports.adminAddProduct = async (req, res) => {
     await product.save();
     res.status(201).json({ success: true, product });
   } catch (error) {
-    console.error("❌ Erreur adminAddProduct:", error);
+    console.error(" Erreur adminAddProduct:", error);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
