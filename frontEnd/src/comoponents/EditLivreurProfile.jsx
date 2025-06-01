@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import UserContext from "../context/UserContext";
 import Navbar from "../comoponents/Navbar";
+import { FaMapMarkerAlt, FaSave, FaPhone, FaCalendarAlt, FaImage } from "react-icons/fa";
 
 const EditLivreurProfile = () => {
   const { user } = useContext(UserContext);
@@ -23,8 +24,8 @@ const EditLivreurProfile = () => {
   const [imCin, setImCin] = useState(null);
   const [imagePreview, setImagePreview] = useState({});
   const [message, setMessage] = useState("");
+  const [gpsStatus, setGpsStatus] = useState("");
 
-  // 🛰️ Obtenir position GPS
   const getMyLocation = () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -32,14 +33,15 @@ const EditLivreurProfile = () => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
           setFormData((prev) => ({ ...prev, lat, lng }));
+          setGpsStatus(" Position détectée !");
         },
         (error) => {
-          alert("❌ Impossible de récupérer la position.");
+          setGpsStatus("Impossible de récupérer la position.");
           console.error(error);
         }
       );
     } else {
-      alert("⚠️ La géolocalisation n'est pas supportée.");
+      setGpsStatus("La géolocalisation n'est pas supportée.");
     }
   };
 
@@ -123,94 +125,130 @@ const EditLivreurProfile = () => {
   };
 
   return (
-    <div> 
-       <Navbar/>
-    <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md mt-8">
-      <h2 className="text-3xl font-bold text-green-600 mb-6">Modifier mon profil livreur</h2>
-      {message && <p className="text-center text-blue-600 mb-4">{message}</p>}
+    <div>
+      <Navbar />
+      <div className="max-w-6xl mx-auto bg-gray-50 p-6 rounded-2xl shadow-lg mt-10">
+        <h2 className="text-4xl font-bold text-gray-800 mb-10 border-b pb-4 flex items-center gap-3">
+          <FaImage className="text-green-600" />
+          Modifier mon profil livreur
+        </h2>
+        {message && <p className="text-center text-blue-600 mb-4">{message}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-          <input
-            name="numTele"
-            value={formData.numTele}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="col-span-2 space-y-6">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                <FaPhone /> Téléphone
+              </label>
+              <input
+                name="numTele"
+                value={formData.numTele}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Image de profil</label>
-          <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, "imProfile")} />
-          {imagePreview.imProfile && (
-            <img
-              src={imagePreview.imProfile}
-              alt="Profil"
-              className="mt-2 w-24 h-24 object-cover rounded-full border"
-            />
-          )}
-        </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2 items-center gap-2">
+                <FaImage /> Image de profil
+              </label>
+              <div className="flex items-center gap-4">
+                {imagePreview.imProfile && (
+                  <img
+                    src={imagePreview.imProfile}
+                    alt="Profil"
+                    className="w-20 h-20 rounded-full border-2 border-green-400 shadow-md object-cover"
+                  />
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "imProfile")}
+                  className="text-sm text-gray-600"
+                />
+              </div>
+            </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Image CIN</label>
-          <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, "imCin")} />
-          {imagePreview.imCin && (
-            <img
-              src={imagePreview.imCin}
-              alt="CIN"
-              className="mt-2 w-32 h-20 object-cover border rounded"
-            />
-          )}
-        </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 items-center gap-2">
+                <FaImage /> Image CIN
+              </label>
+              <div className="flex items-center gap-4">
+                {imagePreview.imCin && (
+                  <img
+                    src={imagePreview.imCin}
+                    alt="CIN"
+                    className="w-32 h-20 object-cover border border-gray-300 rounded"
+                  />
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "imCin")}
+                  className="text-sm text-gray-600"
+                />
+              </div>
+            </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Date de naissance</label>
-          <input
-            name="dateNaissance"
-            type="date"
-            value={formData.dateNaissance}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-          />
-        </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 items-center gap-2">
+                <FaCalendarAlt /> Date de naissance
+              </label>
+              <input
+                name="dateNaissance"
+                type="date"
+                value={formData.dateNaissance}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm"
+              />
+            </div>
 
-        <div>
-          <h3 className="font-semibold text-gray-700 mb-2">Adresse postale :</h3>
-          {["rue", "ville", "region", "pays", "codePostal"].map((field) => (
-            <input
-              key={field}
-              name={`addPostale.${field}`}
-              value={formData.addPostale[field] || ""}
-              onChange={handleChange}
-              placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-              className="w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg"
-            />
-          ))}
-        </div>
+            <div>
+              <h3 className="font-semibold text-gray-700 mb-2">Adresse postale :</h3>
+              {["rue", "ville", "region", "pays", "codePostal"].map((field) => (
+                <input
+                  key={field}
+                  name={`addPostale.${field}`}
+                  value={formData.addPostale[field] || ""}
+                  onChange={handleChange}
+                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                  className="w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg shadow-sm"
+                />
+              ))}
+            </div>
+          </div>
 
-        <button
-          type="button"
-          onClick={getMyLocation}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500"
-        >
-          📍 Définir ma position actuelle
-        </button>
+          <div className="space-y-6 bg-white rounded-xl p-4 shadow-lg">
+            <button
+              onClick={getMyLocation}
+              type="button"
+              className="w-full flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-sky-600 text-white font-semibold shadow hover:bg-sky-700 transition"
+            >
+              <FaMapMarkerAlt />
+              Détecter ma position
+            </button>
 
-        {formData.lat && formData.lng && (
-          <p className="text-sm text-gray-500 mt-2">
-            Position actuelle : {formData.lat.toFixed(5)} / {formData.lng.toFixed(5)}
-          </p>
-        )}
+            <p className="text-sm text-gray-600">{gpsStatus}</p>
 
-        <button
-          type="submit"
-          className="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-500"
-        >
-          Sauvegarder
-        </button>
-      </form>
-    </div> </div>
+            {formData.lat && formData.lng && (
+              <p className="text-xs text-gray-500 mt-1">
+                Latitude: {formData.lat.toFixed(5)} | Longitude: {formData.lng.toFixed(5)}
+              </p>
+            )}
+
+            <div className="flex flex-col gap-4 pt-4">
+              <button
+                type="submit"
+                className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition"
+              >
+                <FaSave />
+                Sauvegarder
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

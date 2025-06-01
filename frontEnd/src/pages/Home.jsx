@@ -50,28 +50,34 @@ const u = JSON.parse(localStorage.getItem("user"));
 
  
   const handleSearch = (searchTerm) => {
-    if (searchTerm.trim() === "") { // if user entre rien fais ca 
-      setFilteredProducts(
-        selectedCategory === "all"// filter est un methode pour les tableau
-          ? allProducts : allProducts.filter((product) => product.category === selectedCategory)
-      );
-    } else { // sinon fais ca
-      /// syntaxe filter + recherche insensible à la casse
-//array.filter((element) =>
-  //element.propriete.toLowerCase().includes(motRecherche.toLowerCase())
-//);
-      const filtered = allProducts.filter((product) =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())//includes : true | false
-      );
-      // filtre croisé avec la catégorie
-      const result =
-        selectedCategory === "all" 
-          ? filtered
-          : filtered.filter((p) => p.category === selectedCategory);
-      setFilteredProducts(result);
+    if (searchTerm.trim() === "") {
+      // المستخدم لم يكتب شيء → نعرض حسب الفئة فقط
+      if (selectedCategory === "all") {
+        setFilteredProducts(allProducts);
+      } else {
+        const filtered = allProducts.filter((product) => {
+          return product.category === selectedCategory;
+        });
+        setFilteredProducts(filtered);
+      }
+    } else {
+      // المستخدم كتب شيء → نبدأ نفلتر بالاسم
+      const filtered = allProducts.filter((product) => {
+        return product.name.toLowerCase().includes(searchTerm.toLowerCase());
+      });
+  
+      // ثم نفلتر حسب الكاتيجوري إذا لازم
+      if (selectedCategory === "all") {
+        setFilteredProducts(filtered);
+      } else {
+        const result = filtered.filter((p) => {
+          return p.category === selectedCategory;
+        });
+        setFilteredProducts(result);
+      }
     }
   };
-
+  
   //Ajouter au panier
   const addToCart = async (product) => {
     if (!user || !user.userId || user.role !== "acheteur") {
@@ -97,12 +103,8 @@ const u = JSON.parse(localStorage.getItem("user"));
   <Navbar onSearch={handleSearch} />
 
   <div className="min-h-screen flex flex-col justify-between bg-gray-50">
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1">
-      <h2 className="text-3xl font-bold text-center text-gray-900 mb-8 tracking-tight">
-        {selectedCategory === "all"
-          ? "Tous les produits"
-          : `Produits : ${selectedCategory}`}
-      </h2>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex-1">
+   
 
       {loading ? (
         <p className="text-center text-gray-500 text-lg">Chargement...</p>

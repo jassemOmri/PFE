@@ -80,7 +80,7 @@ const VendeurCommandes = () => {
     <div className="min-h-screen bg-gray-100">
       <UserNavbar />
       <div className="max-w-5xl mx-auto p-6">
-        <h2 className="text-3xl font-bold mb-8 text-gray-800 text-center">📦 Commandes Reçues</h2>
+        <h2 className="text-3xl font-bold mb-8 text-gray-800 text-center">Commandes Reçues</h2>
 
         {commandes.length === 0 ? (
           <p className="text-center text-gray-500">Aucune commande reçue pour vos produits.</p>
@@ -99,11 +99,7 @@ const VendeurCommandes = () => {
                   {cmd.products.map((prod, index) => (
                     <div key={index} className="flex items-center justify-between gap-4 border-b pb-3">
                       <div className="flex items-center gap-3">
-                        <img
-                          src={`http://localhost:5000/uploads/${prod.productId?.image || 'no-image.png'}`}
-                          alt={prod.productName}
-                          className="w-16 h-16 object-cover rounded"
-                        />
+                       
                         <div>
                           <p className="font-semibold text-gray-700">{prod.productName}</p>
                           <p className="text-sm text-gray-500">{prod.quantity} x {prod.price} DT</p>

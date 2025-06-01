@@ -23,13 +23,13 @@ const Navbar = ({ onSearch }) => {
 
   const socketRef = useRef(null);
   console.log("user", user);
-
+// bech n7sbo gedech me, produit fi panier
   const fetchCartCount = async () => {
     try {
       const acheteurId = localStorage.getItem("acheteurId");
       if (!acheteurId) return;
       const res = await axios.get(`http://localhost:5000/api/cart/${acheteurId}`);
-      setCartCount(res.data?.products?.length || 0);
+      setCartCount(res.data?.products?.length || 0); // ?. => optional chaining signfie si trur passe sinon return undefined
     } catch (error) {
       setCartCount(0);
     }
@@ -37,18 +37,18 @@ const Navbar = ({ onSearch }) => {
 
   useEffect(() => {
     if (user?.role === "acheteur") {
-      const socket = io("http://localhost:5000", {
-        withCredentials: true,
+      const socket = io("http://localhost:5000", {//ouvrire connection avec backend
+        withCredentials: true,//accepte les Token 
       });
       socketRef.current = socket;
 
-      socket.emit("register_client", user.userId);
+      socket.emit("register_client", user.userId); //envoyer evente ("nom de evente",id_evente)
 
-      socket.on("order_update", (data) => {
+      socket.on("order_update", (data) => { //recupere un evente depuis backend ("nome de evente ")
         console.log(" Notification reçue :", data);
       
         // Mise à jour notifications en haut
-        setNotifications((prev) => [...prev, data]);
+        setNotifications((prev) => [...prev, data]);//sauvgarde l'ancien evente et ajoute la nouvelle notification
       
         // Popup visuel
         if (data?.type === "confirmation") {

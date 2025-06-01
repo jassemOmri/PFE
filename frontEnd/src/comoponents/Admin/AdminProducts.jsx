@@ -66,7 +66,7 @@ const deleteProduct = async (id) => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">📦 Liste des Produits</h1>
+        <h1 className="text-2xl font-bold text-gray-800"> Liste des Produits</h1>
         <button
           onClick={() => setShowAddModal(true)}
           className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"

@@ -7,7 +7,6 @@ import Swal from "sweetalert2";
 import VendeurProductModifcations from "./VendeurProductModifcations";
 
 
-
 const VendeurDashboard = () => {
   const [vendeurData, setVendeurData] = useState(null); // ⬅️ في أعلى الملف
   const handleDelete = async (productId) => {
@@ -185,7 +184,7 @@ const handleSubmit = async (e) => {
       : products.filter((product) => product.category === selectedCategory);
 
   return (
-    <div>
+    <div> 
       <UserNavbar />
          
       <div className="p-6">
@@ -345,8 +344,9 @@ const TextAreaField = ({ label, name, value, onChange }) => (
       rows="4"
       required
     />
-
   </div>
+
+  
 );
 
 export default VendeurDashboard;
