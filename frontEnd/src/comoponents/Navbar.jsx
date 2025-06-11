@@ -45,8 +45,6 @@ const Navbar = ({ onSearch }) => {
       socket.emit("register_client", user.userId); //envoyer evente ("nom de evente",id_evente)
 
       socket.on("order_update", (data) => { //recupere un evente depuis backend ("nome de evente ")
-        console.log(" Notification reçue :", data);
-      
         // Mise à jour notifications en haut
         setNotifications((prev) => [...prev, data]);//sauvgarde l'ancien evente et ajoute la nouvelle notification
       

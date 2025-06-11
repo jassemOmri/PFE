@@ -68,8 +68,8 @@ exports.removeProductFromCart = async (req, res) => {
     const cart = await Cart.findOne({ acheteurId });
     if (!cart) return res.status(404).json({ message: "Panier non trouvé." });
 
-    cart.products = cart.products.filter(
-      (item) => item.productId.toString() !== productId
+    cart.products = cart.products.filter( // cart.products tableai de produit 
+      (item) => item.productId.toString() !== productId // item c'est element  de tableau (produit)
     );
 
     await cart.save();
@@ -91,7 +91,7 @@ exports.getCart = async (req, res) => {
 
     let cart = await Cart.findOne({ acheteurId });
 
-    // ✅ Si le panier n'existe pas, retourne un panier vide
+    //  Si le panier n'existe pas, retourne un panier vide
     if (!cart) {
       return res.json({
         acheteurId,

@@ -10,7 +10,7 @@ const {
 } = require("../controller/adminController");
 const isAdmin = require("../middlewares/isAdmin");
 
-// 🔹 Route pour récupérer tous les utilisateurs
+//  Route pour récupérer tous les utilisateurs
 router.get("/users", getAllUsers);
 
 // 🔹 Route pour créer un nouvel utilisateur

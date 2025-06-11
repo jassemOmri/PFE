@@ -1,4 +1,4 @@
-const Payment = require("../models/payment"); // 📌 استدعاء modèle Payment
+const Payment = require("../models/payment");  
 
 exports.confirmPayment = async (req, res) => {
   try {
@@ -13,7 +13,7 @@ exports.confirmPayment = async (req, res) => {
       paymentMethod,
     } = req.body;
 
-    // ✅ Vérification des champs requis
+    // Vérification des champs requis
     if (
       !acheteurId || !fullName || !email || !phone ||
       !address || !country || !amount || !paymentMethod
@@ -21,7 +21,7 @@ exports.confirmPayment = async (req, res) => {
       return res.status(400).json({ success: false, message: "Champs manquants" });
     }
 
-    // 💾 Enregistrement dans la base de données
+    // Enregistrement dans la base de données
     const payment = new Payment({
       acheteurId,
       fullName,

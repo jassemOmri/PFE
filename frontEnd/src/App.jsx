@@ -43,9 +43,6 @@ const App = () => {
       {/* Passez la fonction handleSearch à Navbar */}
       <Navbar onSearch={handleSearch} />
 
-
-      
-     
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/cart" element={<Cart />} />

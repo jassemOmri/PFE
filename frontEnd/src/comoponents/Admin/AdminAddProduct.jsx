@@ -9,7 +9,7 @@ const AdminAddProduct = ({ onClose, onSave }) => {
     salePrice: "",
     category: "",
     image: null,
-    email: "", // ✅ remplacer vendeurId par email
+    email: "", 
   });
 
   const handleChange = (e) => {
@@ -31,8 +31,7 @@ const AdminAddProduct = ({ onClose, onSave }) => {
       form.append("salePrice", formData.salePrice);
       form.append("category", formData.category);
       form.append("image", formData.image);
-      form.append("email", formData.email); // ✅ envoie email vendeur
-
+      form.append("email", formData.email);
       const token = localStorage.getItem("token");
 
       const res = await fetch("http://localhost:5000/api/products/admin-add", {

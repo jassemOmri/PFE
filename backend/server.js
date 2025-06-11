@@ -61,9 +61,8 @@ app.use("/api/users", userRoutes);
 const { initSocket } = require("./socketServer");
 mongoose.connect("mongodb://127.0.0.1:27017/employee")
   .then(() => {
-    console.log("✅ Connected to MongoDB");
+    console.log(" Connected to MongoDB");
     server.listen(5000, () => {
-      console.log(" Serveur lancé sur http://localhost:5000");
       initSocket(server); // ici la magie
     });
   })

@@ -1,0 +1,1327 @@
+\documentclass[12pt]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{setspace} % <-- Pour l'interligne
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{svg}
+\usepackage{tocloft}
+    
+\geometry{a4paper, margin=2.5cm}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\linespread{1.5} % <-- Interligne 1.5 (tu peux tester aussi 1.3 ou 1.6)
+
+\title{\Huge Projet de Fin d'Études\\ \Large MarketPlace - Application Web}
+\author{\LARGE Ton Nom Ici}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+\chapter*{Introduction générale}
+
+Aujourd’hui, le commerce en ligne est devenu très important dans notre vie quotidienne. De plus en plus de personnes utilisent Internet pour acheter des produits, vendre des objets ou chercher des services. Cela est plus facile, plus rapide et parfois moins cher que le commerce traditionnel. Il existe plusieurs grandes plateformes de commerce en ligne comme Amazon, Alibaba, Jumia ou eBay. Ces plateformes proposent beaucoup de services pour les clients et les vendeurs. Mais elles ne sont pas toujours adaptées aux petites entreprises ou aux jeunes développeurs qui veulent créer une solution simple et personnalisée.
+
+En Tunisie, et dans plusieurs pays en développement, le commerce en ligne est encore en phase de croissance. Il y a beaucoup d’opportunités, mais aussi beaucoup de défis. Plusieurs vendeurs travaillent encore de manière classique, sans outils numériques, ce qui limite leur visibilité et leur capacité de vendre. D’un autre côté, les clients cherchent des moyens simples pour commander des produits, mais ils trouvent souvent des sites compliqués ou peu fiables. Il y a donc un besoin réel d’une application simple, efficace et bien organisée.
+
+Dans ce contexte,j'ai opté pour réaliser mon  projet de fin d’études sous forme d’application webCette application s’appelle « MarketPlace ». Elle permet de connecter trois types d’utilisateurs : les vendeurs, les acheteurs et les livreurs. Chaque utilisateur aura une interface adaptée à ses besoins. Le vendeur peut ajouter ses produits, gérer ses commandes et suivre les demandes des clients. L’acheteur peut consulter les produits, faire des recherches, passer des commandes et suivre leurs états. Le livreur peut consulter les commandes disponibles et gérer les livraisons qu’il accepte.
+
+Le projet « MarketPlace » a pour objectif de proposer une solution facile à utiliser. Nous voulons offrir une meilleure organisation du travail entre les utilisateurs, et améliorer la qualité du service dans le commerce en ligne.
+
+Ce rapport présente toutes les étapes de la réalisation de ce projet.\\
+D’abord, je vais présenter la problématique étudiée et les besoins identifiés.\\
+Ensuite, je vais étudier les solutions déjà existantes et voir leurs limites.\\
+Après cela, je présenterai ma proposition et la conception technique de l’application.\\
+Enfin, j’expliquerai la partie développement et les résultats obtenus.
+
+\cleardoublepage
+\thispagestyle{empty}
+
+\vspace*{0.4\textheight}
+
+\begin{center}
+    \rule{0.8\linewidth}{0.4pt} \\[0.8em]
+    \Huge\bfseries Chapitre 1 : Étude préalable \\
+    \rule{0.8\linewidth}{0.4pt}
+\end{center}
+
+\vfill
+\newpage
+
+\chapter{Étude préalable}
+
+
+\section{Introduction}
+
+Avant de commencer le développement de mon application web « MarketPlace », il était essentiel de bien comprendre le contexte du projet, les problèmes existants, et les besoins des utilisateurs. Cette étape est appelée « étude préalable ».
+
+Dans ce chapitre, j’ai d’abord présenté la problématique générale qui m’a motivé à créer cette solution. Ensuite, j’ai analysé quelques plateformes déjà existantes comme Amazon, Jumia ou Alibaba, pour comprendre leurs avantages, mais aussi leurs limites. Cette analyse m’a permis d’identifier les manques et les opportunités à exploiter.
+
+Après cela, j’ai défini les objectifs de mon projet. Chaque utilisateur (vendeur, acheteur, livreur, administrateur) a des attentes précises, et j’ai essayé de répondre à chacune d’elles de manière claire. J’ai aussi décrit les besoins fonctionnels et non fonctionnels de l’application pour garantir une bonne qualité d’utilisation.
+
+Cette étude m’a servi de base solide pour imaginer une solution efficace, simple et adaptée au contexte local tunisien.
+
+\section{Problématique}
+
+Avec l’évolution rapide des technologies et l’usage quotidien d’Internet, le commerce en ligne est devenu une solution incontournable pour les consommateurs et les vendeurs. Aujourd’hui, beaucoup de gens préfèrent acheter depuis leur domicile, sans se déplacer, grâce à des sites de vente en ligne. Ce phénomène a connu une forte croissance surtout après la COVID-19, qui a changé les habitudes des clients.
+
+Mais malgré cette évolution, plusieurs plateformes rencontrent encore des problèmes. Dans les petites et moyennes plateformes, les processus sont souvent mal organisés. Par exemple, il n’y a pas toujours une bonne communication entre le client, le vendeur et le livreur. Chaque utilisateur travaille de son côté sans savoir exactement ce que font les autres. Cela provoque des retards, des erreurs ou des malentendus.
+
+Du côté des clients, il arrive qu’ils passent une commande, mais qu’ils ne reçoivent pas de confirmation. Parfois, ils ne savent pas si la commande est acceptée ou en cours de livraison. Cela crée du stress et une mauvaise expérience.
+
+Pour les vendeurs, la gestion des produits et des commandes peut être compliquée. Ils doivent souvent utiliser plusieurs outils différents. Par exemple, ils publient un produit sur le site, mais doivent gérer les livraisons sur une autre application. Cela demande du temps, de l’attention et augmente les risques d’erreur.
+
+Les livreurs aussi peuvent rencontrer des difficultés. Ils ne reçoivent pas toujours les informations à temps. Il n’y a pas toujours un système clair qui leur montre quelles commandes sont disponibles, quelles sont prioritaires, ou même où livrer exactement.
+
+En résumé, le manque d’un système centralisé et simple complique le travail de tous les acteurs. Chaque rôle a besoin d’une interface adaptée, mais aussi d’une meilleure coordination. c’est pour répondre à ce problème que j’ai pensé à développer une solution plus simple, qui regroupe tous les rôles dans une seule application web bien organisée.
+
+\section{Étude de l’existant}
+
+Avant de développer une nouvelle application, il est important d’analyser ce qui existe déjà sur le marché. Aujourd’hui, il existe plusieurs grandes plateformes de commerce en ligne très connues, comme Amazon, Jumia, Alibaba, Etsy ou encore eBay. Ces sites offrent des services complets pour vendre, acheter et parfois livrer des produits.
+
+\textbf{Amazon} est l’une des plateformes les plus puissantes dans le monde. Elle propose un système très avancé pour passer des commandes, suivre les colis, faire des retours, et communiquer avec le vendeur.
+
+\textbf{Jumia} est très utilisée en Afrique, notamment en Tunisie. Elle propose une interface assez simple, avec des options de paiement à la livraison et des promotions fréquentes.
+
+\textbf{Alibaba} est une plateforme spécialisée dans les ventes en gros. Elle permet aux entreprises de vendre et acheter des produits à grande échelle.
+
+Même si ces plateformes sont très efficaces, elles ne sont pas toujours adaptées aux petites entreprises ou aux vendeurs indépendants.
+
+En plus, la majorité de ces plateformes n’intègrent pas un système clair pour gérer les livreurs de manière locale et personnalisée. C’est pourquoi une solution plus simple et plus ciblée peut être utile.
+
+\subsection*{3.1 Étude critique}
+
+Après avoir étudié les principales plateformes de commerce en ligne comme Amazon, Jumia ou Alibaba, j’ai remarqué plusieurs limites, surtout pour les petites entreprises ou les utilisateurs locaux.
+
+Tout d’abord, j’ai constaté que ces plateformes sont souvent compliquées à utiliser. Je dois suivre beaucoup d’étapes pour publier un produit, gérer les commandes ou répondre aux clients. Cela peut décourager les vendeurs qui n’ont pas beaucoup de temps ou de compétences techniques.
+
+Ensuite, j’ai observé que certaines plateformes prennent des commissions élevées sur chaque vente. Pour un petit vendeur, cela réduit le bénéfice. De plus, il faut souvent payer pour avoir plus de visibilité ou pour utiliser certaines fonctionnalités.
+
+Un autre problème que j’ai relevé est lié à la gestion des livraisons. La plupart de ces plateformes ne proposent pas un système local et clair pour gérer les livreurs. Il n’y a pas d’espace spécifique pour eux, et la communication entre vendeur, client et livreur est parfois difficile.
+
+Enfin, j’ai constaté que les plateformes internationales ne sont pas toujours adaptées au contexte local tunisien. Par exemple, certaines ne permettent pas le paiement à la livraison, ou ne prennent pas en compte les besoins spécifiques des clients locaux.
+
+Toutes ces critiques montrent, selon mon analyse, qu’il y a un réel besoin d’une plateforme plus simple, mieux adaptée, et qui prend en charge tous les rôles dans un seul système.
+
+
+\section{Objectifs du projet}
+
+L'objectif général de mon projet est de développer une plateforme web simple, dynamique et bien organisée, appelée « MarketPlace ». Cette plateforme est conçue pour faciliter les échanges entre quatre types d’utilisateurs : le vendeur, l’acheteur ,le livreur et administrateur. Chaque rôle a des objectifs spécifiques, et mon application cherche à répondre à leurs besoins de manière claire et efficace.
+
+
+\subsection*{Objectifs pour le vendeur}
+
+Le vendeur est au cœur du système. Son but est de publier des produits et de les vendre à des clients intéressés. Pour cela, notre plateforme lui propose :
+
+\begin{itemize}[label=--]
+  \item Une interface personnelle avec un tableau de bord clair.
+  \item La possibilité de créer un compte vendeur avec des informations vérifiées.
+  \item Un formulaire simple pour ajouter de nouveaux produits avec photos, prix et description.
+  \item Une page pour consulter les commandes reçues avec les détails du client.
+  \item Des boutons pour confirmer ou annuler une commande.
+  \item La possibilité de modifier ou supprimer un produit.
+\end{itemize}
+
+\subsection*{Objectifs pour l’acheteur}
+
+L’acheteur est l’utilisateur final qui cherche à faire des achats rapidement, sans difficulté. l' application vise à lui offrir :
+
+\begin{itemize}[label=--]
+  \item Une page d’accueil avec une liste de produits mise à jour automatiquement.
+  \item Un système de recherche des produits par nom et filtrer  par catégorie.
+  \item Un système de panier pour ajouter ou supprimer des articles.
+  \item Deux options de paiement : en ligne ou à la livraison.
+  \item Une page "Mes commandes" pour consulter le statut de chaque commande (en attente, confirmée,en cours de livraison ,annulée ).
+    \item Un système de notification en temps réel.
+  
+\end{itemize}
+
+\subsection*{Objectifs pour le livreur}
+
+Le livreur est un acteur logistique qui permet à l’application de fonctionner complètement. Il joue un rôle important dans la satisfaction du client. Notre application lui propose :
+
+\begin{itemize}[label=--]
+  \item Un tableau de bord pour voir toutes les commandes confirmées par les vendeurs.
+  \item Une carte intégrée pour afficher la position de l’acheteur et du vendeur.
+  \item Un bouton pour accepter une commande à livrer.
+  \item Une option pour indiquer son statut : disponible ou non disponible.
+   \item Possibilité de télécharger le bon de livraison avec un code QR .
+\end{itemize}
+\subsection*{Objectifs pour l’administrateur}
+
+L’administrateur joue un rôle essentiel dans la gestion et la sécurité de la plateforme. Il est responsable de la modération et du bon fonctionnement de tout le système. Pour cela, l’application lui propose :
+
+\begin{itemize}
+  \item Une interface dédiée pour gérer tous les utilisateurs (ajout, modification, suppression, blocage),
+  \item La possibilité de consulter et gérer tous les produits publiés (ajout , modifier ou supprimer si nécessaire),
+  \item Un système de vérification manuelle des vendeurs et des livreurs avant d’accepter leur inscription,
+  \item Une vue globale sur toutes les données du système pour assurer un suivi administratif efficace.
+\end{itemize}
+
+\subsection*{Objectifs techniques généraux}
+
+En plus des objectifs liés aux utilisateurs, ce projet vise à assurer :
+
+\begin{itemize}[label=--]
+  \item Une navigation simple, fluide et rapide.
+  \item Une séparation claire entre les différents rôles.
+  \item Un système d’authentification sécurisé pour chaque utilisateur.
+\end{itemize}
+
+En résumé, notre projet « MarketPlace » ne cherche pas à concurrencer les grandes plateformes internationales, mais à offrir une solution locale, claire et accessible. pour améliorer l’expérience d’achat, de vente et de livraison dans un cadre simple et bien structuré.
+
+\section{Analyse des besoins}
+\section*{1.5 Besoins fonctionnels}
+
+L’application \textbf{MarketPlace} repose sur 4 rôles principaux : \textbf{vendeur}, \textbf{acheteur},\textbf{livreur} et \textbf{administrateur}. Chaque utilisateur a des besoins spécifiques, et le système doit
+ proposer des fonctionnalités adaptées à chacun.
+
+\vspace{1em}
+\subsection*{Pour le vendeur}
+\begin{itemize}
+  \item Créer un compte avec ses informations personnelles (nom, téléphone, etc.),
+  \item Ajouter un produit (titre, description, prix, image),
+  \item Modifier ou supprimer un produit existant,
+  \item Consulter les commandes reçues,
+  \item Confirmer ou annuler une commande client.
+\end{itemize}
+
+\vspace{1em}
+\subsection*{Pour l’acheteur}
+\begin{itemize}
+  \item Créer un compte acheteur,
+    \item Consulter la liste des produits disponibles.
+  \item Rechercher un produit par nom ou par catégorie,
+  \item Ajouter ou retirer des articles dans un panier,
+  \item Choisir le mode de paiement (en ligne ou à la livraison),
+  \item Suivre le statut de chaque commande (en attente, confirmée, en livraison, livrée, annulée),
+  \item Recevoir des notifications en temps réel.
+
+\end{itemize}
+
+\vspace{1em}
+\subsection*{Pour le livreur}
+\begin{itemize}
+  \item Se connecter en tant que livreur disponible,
+  \item Accéder à la liste des commandes confirmées,
+  \item Accepter une livraison ou changer son statut (disponible / non disponible),
+  \item Consulter  la position du client et du vendeur sur une carte,
+  \item Télécharger le bon de livraison avec QR code.
+\end{itemize}
+\vspace{1em}
+\subsection*{Pour l’administrateur}
+\begin{itemize}
+  \item Gérer tous les utilisateurs (ajouter, modifier, supprimer, bloquer),
+  \item Vérifier les profils des vendeurs et des livreurs avant leur validation,
+  \item Consulter, modifier ou supprimer les produits publiés sur la plateforme,
+\end{itemize}
+
+\subsection*{5.2 Besoins non fonctionnels}
+
+En plus des fonctionnalités principales, notre application MarketPlace doit respecter certains critères de qualité pour garantir une bonne expérience pour tous les utilisateurs. Ces critères sont appelés « besoins non fonctionnels ». Ils concernent la sécurité, la performance, la fiabilité et la compatibilité du système.
+
+Voici les principaux besoins non fonctionnels de  projet :
+
+\begin{itemize}[label=--]
+  \item \textbf{Sécurité} : les mots de passe doivent être bien protégés, les données personnelles doivent rester confidentielles. Le système doit utiliser un processus d’authentification pour chaque utilisateur.
+
+  \item \textbf{Simplicité d’utilisation} : l’application doit être facile à comprendre, même pour les personnes qui ne sont pas expertes en informatique. Les boutons et les pages doivent être clairs.
+
+  \item \textbf{Performance} : le site doit fonctionner rapidement, même quand il y a plusieurs utilisateurs connectés. Le chargement des produits ou des pages doit être fluide.
+
+  \item \textbf{Fiabilité} : l’application doit fonctionner sans erreur. Si une action échoue, un message clair doit être affiché.
+
+  \item \textbf{Compatibilité} : l’application doit fonctionner sur différents navigateurs (Chrome, Firefox, Edge...) et sur ordinateur ou smartphone.
+
+  \item \textbf{Extensibilité} : il faut que le système puisse évoluer facilement. Par exemple, on pourrait ajouter à l’avenir une version mobile .
+\end{itemize}
+
+Ces besoins non fonctionnels sont essentiels pour assurer une application stable, agréable à utiliser, et capable de répondre aux besion  des utilisateurs.
+
+\section{Solution proposée}
+
+Pour répondre aux besoins identifiés et améliorer l’expérience des utilisateurs, j’ai choisi de créer une application web appelée « MarketPlace ». 
+
+Cette plateforme a pour but de faciliter les échanges entre les vendeurs, les acheteurs et les livreurs, dans un environnement local, simple et bien structuré. Chaque utilisateur possède son propre espace avec des fonctionnalités adaptées à son rôle.
+
+Le vendeur peut publier ses produits. L’acheteur peut parcourir les articles, passer une commande et choisir son mode de paiement. Quant au livreur, il peut voir les commandes disponibles, accepter celles qu’il souhaite livrer, et suivre les adresses sur une carte.
+
+Cette solution vise donc à offrir un service complet, accessible depuis n’importe quel appareil, avec une interface claire et moderne. Elle met l’accent sur la simplicité d’utilisation, la rapidité d’accès aux informations, et une meilleure organisation des échanges entre les utilisateurs.
+
+En résumé, « MarketPlace » est une réponse concrète à un besoin local : permettre à chacun de vendre, acheter et livrer plus facilement, sans passer par des systèmes complexes ou peu adaptés à notre contexte.
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=1.15\textwidth, height=0.95 \textheight]{Market Place02.jpg}
+    \caption{Diagramme de cas d’utilisation global }
+    \label{fig:usecase-global}
+\end{figure}
+\cleardoublepage
+\thispagestyle{empty}
+
+\vspace*{0.4\textheight}
+
+\begin{center}
+    \rule{0.8\linewidth}{0.4pt} \\[0.8em]
+    \Huge\bfseries Chapitre 2 : Étude détaillée \\
+    \rule{0.8\linewidth}{0.4pt}
+\end{center}
+
+\vfill
+\newpage
+
+\chapter{Étude détaillée}
+
+
+\section{Introduction}
+
+Dans ce chapitre, je vais présenter l’étude fonctionnelle détaillée de l'application . Après avoir défini les objectifs et les besoins dans le chapitre précédent, je vais maintenant décrire le comportement du système de manière plus précise.
+
+Je commence par identifier les rôles des utilisateurs (acheteur, vendeur , livreur et administrateur), puis je présente les différentes interactions possibles sous forme de cas d’utilisation et des diagrammes  .
+
+
+
+\section{Présentation des rôles}
+
+ je vais décrire les rôles principaux que j’ai définis dans  l'application  . Chaque rôle représente un type d’utilisateur avec des actions différentes à accomplir.
+\subsection{Acheteur}
+
+
+
+L’acheteur est l’utilisateur final du système. Son objectif principal est de consulter les produits, passer des commandes et recevoir les articles achetés. Pour cela, il doit pouvoir chercher des produits, les ajouter à un panier, choisir un mode de paiement et suivre le statut de sa commande.
+
+Dans la section suivante, je vais détailler les cas d’utilisation liés à l’acheteur, comme« chercher un produit » « ajouter au panier », « passer une commande », ou « suivre une commande » .
+
+%%chercher un produit
+\subsection{Cas d’utilisation : Chercher ou Filtrer un produit}
+
+Dans mon application, l’acheteur peut rechercher des produits disponibles en tapant un mot-clé ou en utilisant un filtre par catégorie. Cette fonctionnalité est essentielle pour accéder rapidement aux articles souhaités sans devoir parcourir toute la liste.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.9\textwidth]{Chercher ou filtrer un produit.png}
+\caption{Diagramme de cas d'utilisation : Chercher ou Filtrer un produit}
+\end{figure}
+
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{4cm}|p{10cm}|}
+\hline
+\textbf{Cas d'utilisation} & Chercher ou filtrer un produit \\
+\hline
+\textbf{Acteur principal} & Client (Acheteur) \\
+\hline
+\textbf{Préconditions} & 
+- le client est connecté \newline
+- les produits sont enregistrés dans la base de données \\
+\hline
+\textbf{Scénario nominal} & 
+1. le client saisit un mot-clé dans la barre de recherche ou sélectionne une catégorie  ou recherche dans un  catégorie spécifique. \newline
+2. Le système affiche une liste de produits .\newline
+3. Le client parcourt les produits  et peut cliquer sur un article pour voir ses détails. \\
+\hline
+\textbf{Scénario alternatif} & 
+A.2 Aucun produit ne correspond à la recherche ou à la catégorie choisie : le système affiche "Aucun résultat trouvé". \\
+\hline
+\textbf{Postconditions} & 
+-Le client a trouvé (ou non) un produit correspondant à sa recherche ou au filtre sélectionné. \\
+\hline
+\end{tabular}
+\caption{Cas d'utilisation : Chercher ou filtrer un produit}
+\end{table}
+
+\subsection{Cas d’utilisation :ajouter au panier}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=1.1\textwidth]{Ajouter au panier.png}
+
+\end{figure}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{4cm}|p{10cm}|}
+\hline
+\textbf{Cas d'utilisation} & Ajouter un produit au panier \\
+\hline
+\textbf{Acteur principal} & Client (Acheteur) \\
+\hline
+\textbf{Préconditions} & 
+- le client est connecté à son compte. \newline
+- le produit est disponible dans la boutique. \\
+\hline
+\textbf{Scénario nominal} & 
+1. le client consulte la liste des produits. \newline
+2. il clique sur « Ajouter au panier » pour un produit. \newline
+3. le système ajoute ce produit dans le panier du client. \newline
+4.il accède  au panier. \newline
+5. le client choisit entre : \newline
+\quad – \textbf{Payer en ligne} \newline
+\quad – \textbf{Payer en espèces} (à la livraison) \newline
+6. Le client peut aussi passer directement à l’achat depuis la page détail du produit. \\
+\hline
+\textbf{Scénario alternatif} & 
+A.1 Le produit est marqué comme indisponible. \newline
+A.2 Le client annule la commande après avoir ajouté un article. \\
+\hline
+\textbf{Postconditions} & 
+- le produit est bien enregistré dans le panier. \newline
+- la commande est prête, en attente de paiement . \\
+\hline
+\end{tabular}
+\caption{Cas d'utilisation : Ajouter un produit au panier}
+\end{table}
+\subsection{Ajouter au panier}
+
+Le bouton « Ajouter au panier » n’est visible que pour les utilisateurs ayant le rôle d’acheteur, car ce sont les seuls qui peuvent passer une commande. Un livreur ou un vendeur n’a pas besoin de cette fonction, et cela évite toute action inutile ou erreur de clic. Cette séparation permet de garder une interface claire pour chaque rôle. En plus, cela améliore la sécurité du système : on évite qu’un utilisateur non autorisé tente d’envoyer une commande ou de manipuler les données liées au panier.
+
+\subsection{Protection contre la duplication des commandes}
+
+Pour éviter que la même commande soit envoyée plusieurs fois, j’ai mis une protection dans mon application. Par exemple, si l’utilisateur clique deux fois rapidement sur « Confirmer la commande », le bouton devient désactivé. Comme ça, il ne peut pas cliquer encore. En plus, le serveur vérifie si une commande identique existe déjà pour le même client. Si oui, il bloque la nouvelle commande. Pour renforcer la sécurité, j’ai aussi ajouté une limite de temps : un client ne peut pas faire plus d’une commande toutes les 30 secondes. Cela empêche les clics trop rapides ou les tentatives de spam. Cette méthode protège la base de données contre les doublons et les erreurs.
+
+
+
+\subsection{Cas d'utilisation : Suivre ses commandes}
+
+L’acheteur peut consulter l’état de ses commandes à tout moment grâce à une page dédiée appelée \textbf{Mes Commandes}. Cette page affiche la liste de toutes les commandes déjà passées, avec leur statut actuel (en attente, confirmée,t en cours de livraison, livrée ou annulée). 
+Cette fonctionnalité est importante car elle permet à l’utilisateur de suivre l’évolution de sa commande sans avoir besoin de contacter le vendeur ou le livreur.
+
+\begin{figure}[h]
+
+\includegraphics[width=1\textwidth]{suive commande .jpg}
+\caption{Cas d'utilisation : Suivre mes commandes}
+\label{fig:suivre-commandes}
+\end{figure}
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{4.5cm}|p{10cm}|}
+\hline
+\textbf{Cas d'utilisation} & Suivre mes commandes \\
+\hline
+\textbf{Acteur principal} & Client (Acheteur) \\
+\hline
+\textbf{Préconditions} & 
+ L'utilisateur est connecté à son compte. \newline
+ Il a déjà passé au moins une commande. \\
+\hline
+\textbf{Scénario nominal} & 
+1. Le client accède à la page « Mes Commandes ». \newline
+2. Il voit une liste de toutes ses commandes, avec leur statut (en attente, confirmée, en cours de livraison, livrée ou annulée). \newline
+3. Il peut filtrer les commandes selon leur statut. \newline
+4. Si une commande est en cours de livraison, un bouton « Scanner le QR Code » apparaît. \newline
+5. En scannant le QR Code, le système met automatiquement à jour le statut en « Livrée ». \newline
+6. Une notification s’affiche pour confirmer la réception. \\
+\hline
+\textbf{Scénario alternatif} & 
+A3. Si aucune commande n’est trouvée, le système affiche « Aucune commande disponible ». \newline
+A5. Si le scan échoue, un message d’erreur est affiché. \\
+\hline
+\textbf{Postconditions} & 
+-le client voit l’évolution de ses commandes. \newline
+-la commande est marquée comme livrée automatiquement. \\
+\hline
+\end{tabular}
+\caption{Description fonctionnelle du cas d'utilisation : Suivre mes commandes (avec QR Code)}
+\end{table}
+\subsection{Scanner le QR Code}
+
+Dans l'application, le bouton « Scanner le QR Code » n’apparaît que pour le client qui attend une commande en cours de livraison. Cela permet de s’assurer que seul l’acheteur concerné peut confirmer la réception. C’est une sécurité importante pour éviter les erreurs de livraison. Par exemple, un autre utilisateur ne peut pas valider une commande qui ne lui appartient pas. Ce système protège aussi le livreur, car il peut prouver qu’il a bien livré au bon client. Une fois le scan validé, la commande passe automatiquement à l’état « Livrée », et le travail du livreur est marqué comme terminé.
+
+
+
+
+
+
+
+
+
+
+\subsection{Vendeur}
+
+Le vendeur est responsable de la mise en ligne des produits. Il peut ajouter, modifier ou supprimer des articles, consulter les commandes reçues et les confirmer, le vendeur assure la disponibilité des produits.
+
+
+\subsection{Cas d'utilisation : Gérer les produits}
+
+
+
+%% Image Gérer Produits
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{gererProduit.jpg}
+\caption{Cas d'utilisation : Gérer les produits}
+\label{fig:gerer-produits}
+\end{figure}
+
+ % شوية مسافة صغيرة بين الصورة والجدول
+%% Tableau Description
+\begin{table}[H]
+\caption{Description du cas d'utilisation : Gérer les produits}
+\centering
+\renewcommand{\arraystretch}{1}
+\begin{tabular}{|p{5cm}|p{11cm}|}
+\hline
+\textbf{Cas d'utilisation} & Gérer les produits \\
+\hline
+\textbf{Acteur principal} & Vendeur \\
+\hline
+\textbf{Préconditions} & 
+-- L’utilisateur doit être connecté. \newline
+-- L’utilisateur doit avoir un compte vendeur vérifié. \\
+\hline
+\textbf{Scénario nominal} & 
+Ajouter un produit : \newline
+1. Le vendeur accède à son Dashboard. \newline
+2. Il remplit le formulaire avec les détails du produit. \newline
+3. Il clique sur « Ajouter produit ». \newline
+4. Le système enregistre le produit. \newline
+5. Le système affiche la liste des produits dans la même page « Mes Produits ». \newline
+6. Le vendeur peut parcourir la liste des produits avec un filtrage par catégorie. \newline
+Modifier un produit : \newline
+1. Le vendeur choisit un produit existant. \newline
+2. Il clique sur « Modifier ». \newline
+3. Il met à jour les informations du produit. \newline
+4. Le système enregistre les modifications. \newline
+Supprimer un produit : \newline
+1. Le vendeur choisit un produit existant. \newline
+2. Il clique sur « Supprimer ». \newline
+3. Le système demande une confirmation. \newline
+4. Le vendeur confirme et le produit est supprimé. \\
+\hline
+\textbf{Scénario alternatif} & 
+A.1 Si l’utilisateur connecté n’est pas vérifié, le système bloque l’accès au formulaire et affiche un message d’attente. \newline
+A.2 Si un champ obligatoire est vide, le système affiche un message d'erreur et bloque l'opération. \newline
+A.6 Si aucune catégorie ne correspond aux produits, le système affiche : « Aucun produit trouvé dans cette catégorie ». \\
+\hline
+\textbf{Postconditions} & 
+Le produit est ajouté, modifié ou supprimé avec succès, la base de données est mise à jour, et le système met également à jour la page d'accueil. \\
+\hline
+\end{tabular}
+
+\end{table}
+\subsection{Cas d'utilisation : Gérer les commandes}
+
+dans l'application, le vendeur a accès à une page dédiée "\textbf{ Commandes}" où il peut gérer toutes les commandes effectuées par les clients.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{use_case_gerer_commande.jpg}
+\caption{Cas d'utilisation : Gérer les commandes}
+\label{fig:gerer-commandes}
+\end{figure}
+
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{0.7}
+\begin{tabular}{|p{5cm}|p{11cm}|}
+\hline
+\textbf{Cas d'utilisation} & Gérer les commandes \\
+\hline
+\textbf{Acteur principal} & Vendeur \\
+\hline
+\textbf{Préconditions} & 
+-- Le vendeur est connecté. \newline
+-- Des commandes ont été passées par des clients. \newline
+-- Le vendeur a accès à la page « Commandes ». \\
+\hline
+\textbf{Scénario nominal} & 
+Gérer une commande : \newline
+1. Le vendeur consulte la liste des commandes reçues. \newline
+2. Il sélectionne une commande spécifique. \newline
+3. Il clique sur « Confirmer ». \newline
+4. Le système met à jour le statut de la commande à « Confirmée ». \newline
+5. Une notification est envoyée au client. \\
+\hline
+\textbf{Scénario alternatif} & 
+A3. Le vendeur clique sur « Annuler ». \newline
+A4. Le système met à jour le statut de la commande à « Annulée ». \newline
+A5. Une notification d'annulation est envoyée au client. \\
+\hline
+\textbf{Postconditions} & 
+-- La commande est soit confirmée, soit annulée. \newline
+-- Le statut de la commande est mis à jour dans la page « Mes Commandes » du client ainsi que dans la base de données.\newline
+-le système vérifie que la commande est transférée à tableau de bord des livreurs\\
+\hline
+\end{tabular}
+\caption{Description du cas d'utilisation : Gérer les commandes}
+\end{table}
+\clearpage
+
+\subsection{Livreur}
+
+Pour commencer, il doit indiquer qu'il est disponible en cliquant sur un bouton spécifique.
+
+Ensuite, il peut accepter une commande, consulter les informations du client et suivre sa position sur une carte. Après avoir accepté la livraison, l'état de la commande change automatiquement. Le client reçoit aussi des notifications en temps réel pour être informé de l'avancement, comme « en cours de livraison » ou « livrée ».
+
+Dans ce qui suit, je vais présenter les cas d'utilisation du livreur, comme « indiquer sa disponibilité » et «accepter et Livrer une commande».
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{indiqueindique disponibilite.jpg}
+\caption{Cas d'utilisation : indique sa disponibilite}
+\label{fig:indique sa disponibilite}
+\end{figure}
+
+
+
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{4cm}|p{10cm}|}
+\hline
+\textbf{Cas d'utilisation} & Indiquer sa disponibilité \\
+\hline
+\textbf{Acteur principal} & Livreur \\
+\hline
+\textbf{Préconditions} & 
+-- L’utilisateur doit avoir un compte Livreur vérifié.  \\
+\hline
+\textbf{Scénario nominal} & 
+1. Le livreur accède à son tableau de bord. \newline
+2. Il clique sur le bouton « Disponible pour livraison ». \newline
+3. Le système change son statut à « Disponible ». \newline
+4. Le livreur peut maintenant consulter les commandes disponibles. \\
+\hline
+\textbf{Scénario alternatif} & 
+A1. Si le bouton n'est pas activé, le livreur ne voit aucune commande à livrer. \\
+\hline
+\textbf{Postconditions} & 
+-- Le statut du livreur est passé à « Disponible ». \newline
+-- Le livreur peut voir et accepter les commandes disponibles. \\
+\hline
+\end{tabular}
+\caption{Description du cas d'utilisation : Indiquer sa disponibilité}
+\end{table}
+\newpage
+\subsection{Diagramme de Séquence : Accepter et Livrer une commande}
+
+Ce diagramme de séquence illustre l'ensemble du processus qu'un livreur suit depuis l'acceptation d'une commande jusqu'à sa livraison complète. 
+
+\vspace{0.5cm}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.96\textwidth]{acepter et livree commande2.jpg}
+\caption{Diagramme de Séquence : Accepter et Livrer une commande}
+\label{fig:sequence-accepter-livrer}
+\end{figure}
+
+%%cote visiteur 
+\subsection{Visiteur}
+
+Le visiteur est un utilisateur qui n'est pas encore inscrit sur la plateforme. Son principal objectif est de créer un compte pour pouvoir accéder aux différentes fonctionnalités proposées.
+
+En visitant le site, il peut consulter certaines informations publiques, mais il ne peut pas interagir avec les produits, passer des commandes ou gérer des livraisons sans inscription préalable.
+
+\subsection{Diagramme de Séquence : Inscription}
+
+Ce diagramme de séquence illustre l'interaction entre un visiteur et le système lors du processus d'inscription. 
+
+
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{diagram seq inscription.jpg}
+\caption{Diagramme de Séquence : Inscription}
+\label{fig:sequence-inscription}
+\end{figure}
+
+\newpage
+
+\subsection{Diagramme de Séquence : Authentification de l’utilisateur}
+\noindent % باش يبدأ النص بدون فراغ
+Lorsqu'un utilisateur souhaite se connecter à son compte, il commence par demander le formulaire de connexion.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Login.jpg}
+\caption{Diagramme de séquence : Authentification de l'utilisateur}
+\label{fig:login-sequence}
+\end{figure}
+
+
+
+\newpage
+\subsection{ Cas d’utilisation : Gérer Profile}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Gerer Profile.jpg}
+\caption{Cas d'utilisation : Gérer Profile}
+\label{fig:profile-sequence}
+\end{figure}
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{4cm}|p{10cm}|}
+\hline
+\textbf{Cas d'utilisation} & Gérer le profil \\
+\hline
+\textbf{Acteur principal} & Utilisateur (Acheteur, Vendeur, Livreur) \\
+\hline
+\textbf{Préconditions} & 
+- L’utilisateur est connecté à son compte. \\
+\hline
+\textbf{Scénario nominal} & 
+1. L’utilisateur accède à son profil. \newline
+2. Il consulte les informations affichées : \newline
+\quad – Pour un vendeur : nom, email, numéro de téléphone, statut de vérification, photo de profil et la liste de ses produits. \newline
+\quad – Pour un acheteur : email, téléphone, position GPS, photo de profil. \newline
+\quad – Pour un livreur : email, téléphone, statut de vérification, photo de profil. \newline
+3. L’utilisateur clique sur “Modifier mon profil”. \newline
+4. Le système affiche un formulaire avec les champs modifiables. \newline
+5. L’utilisateur saisit les nouvelles informations. \newline
+6. Il clique sur “Sauvegarder les modifications”. \newline
+7. Le système enregistre les données et met à jour l'affichage. \newline
+8. Si l’utilisateur souhaite désactiver son compte, il clique sur “Désactiver mon compte”. \newline
+9. Le système demande la saisie du mot de passe. \newline
+10. L’utilisateur entre son mot de passe. \newline
+11. Si la vérification est réussie, le système désactive et déconnecte immédiatement le compte. \\
+\hline
+\textbf{Scénario alternatif} & 
+- Si un champ requis est vide ou invalide, le système affiche un message d’erreur. \newline
+- Si la désactivation échoue (par exemple, mot de passe incorrect), un message d’erreur s’affiche. \newline
+- Si l’utilisateur a eu une interaction avec le système (commande, livraison…), la désactivation est refusée avec explication. \newline
+- Si l’utilisateur désactivé souhaite récupérer son compte, il devra contacter l’administrateur \\
+\hline
+\textbf{Postconditions} & 
+- Les informations du profil sont mises à jour avec succès ou le compte est désactivé selon le choix de l’utilisateur. \\
+\hline
+\end{tabular}
+\end{table}
+
+\newpage
+ \subsection{Administrateur}
+\section{Cas d'utilisation : Gérer les utilisateurs}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{gererUserAdmin.jpg}
+    \caption{Diagramme de cas d'utilisation : Gérer les utilisateurs}
+\end{figure}
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{0.8}
+\begin{tabular}{|p{4cm}|p{10cm}|}
+\hline
+\textbf{Cas d'utilisation} & Gérer les utilisateurs \\
+\hline
+\textbf{Acteur principal} & Administrateur \\
+\hline
+\textbf{Préconditions} & 
+- L'administrateur est connecté à son espace admin. \\
+\hline
+\textbf{Scénario nominal} & 
+1. L’administrateur consulte la liste des utilisateurs (vendeurs, livreurs, acheteurs). \newline
+2. Il peut ajouter un nouvel utilisateur manuellement via un formulaire (nom, email, mot de passe, rôle...). \newline
+3. Il peut modifier les informations d’un utilisateur existant. \newline
+4. Il peut supprimer un utilisateur définitivement. \newline
+5. Il peut bloquer ou débloquer un compte en un clic (empêcher la connexion). \newline
+6. - Il a accès à la section « \textbf{Validation}».\newline
+7. Il peut vérifier un vendeur ou livreur après avoir vu les détails (CIN,Numéro de téléphone, Email ...) et dicede ces verfie ou non . \newline
+8. Toutes les actions sont enregistrées dans le système avec mise à jour immédiate. \\
+\hline
+\textbf{Scénario alternatif} & 
+A2. Si le formulaire d’ajout ou de modification est incomplet, un message d’erreur bloque l’action. \\
+\hline
+\textbf{Postconditions} & 
+- L’état de l’utilisateur (ajouté, modifié, supprimé, bloqué, vérifié) est mis à jour dans la base de données. \newline
+- les interfaces sont mises à jour automatiquement. \\
+\hline
+\end{tabular}
+\end{table}
+\paragraph{}
+\textbf{Pourquoi doit-il vérifier le vendeur et le livreur ?}
+
+Pour améliorer la sécurité et la fiabilité de l’application, j’ai mis en place un système de vérification pour les vendeurs et les livreurs.
+
+\medskip
+
+Lorsqu’un vendeur s’inscrit, il doit d’abord compléter son profil (CIN, adresse postale, position GPS, etc.). Ensuite, un administrateur vérifie ses informations. Tant que le vendeur n’est pas validé, il ne peut pas ajouter de produits à la plateforme. Un message clair s’affiche dans son tableau de bord pour lui indiquer que la vérification est en cours.
+
+\medskip
+
+De la même façon, le livreur doit aussi être vérifié avant de pouvoir activer sa disponibilité, accepter une commande ou télécharger des documents. Un message d’attente apparaît dans son interface, avec une durée estimée de 24 à 48 heures pour la validation.
+
+
+
+\medskip
+
+Et surtout, cette étape permet aussi de me protéger légalement contre les personnes malintentionnées.Par exemple, si un utilisateur tente d’utiliser l’application pour arnaquer un acheteur, les informations fournies (CIN, Numéro de Tele ..) peuvent être utilisées comme preuves. 
+
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{0.9}
+\begin{tabular}{|p{4cm}|p{10cm}|}
+\hline
+\textbf{Cas d'utilisation} & Gérer les produits \\
+\hline
+\textbf{Acteur principal} & Administrateur \\
+\hline
+\textbf{Préconditions} & 
+- L’administrateur est connecté à son tableau de bord. \newline
+- Il a accès à la section « Produits ». \\
+\hline
+\textbf{Scénario nominal} & 
+1. L’administrateur accède à la page des produits. \newline
+2. Il peut consulter tous les produits publiés par les vendeurs. \newline
+3. Il clique sur le bouton « Ajouter un produit ». \newline
+4. Le système affiche un formulaire pour remplir les champs du produit. \newline
+5. L’administrateur ajoute un produit pour un vendeur existant en utilisant son adresse email. \newline
+6. Il peut modifier les informations d’un produit existant. \newline
+7. Le système affiche le formulaire prérempli du produit. \newline
+8. Il peut également supprimer un produit en cas de problème. \newline
+9. Le système affiche une confirmation : « Cette action est irréversible. » \\
+\hline
+\textbf{Scénario alternatif} & 
+A1. Si un champ est vide lors de l’ajout ou de la modification, un message d’erreur s’affiche. \\
+\hline
+\textbf{Postconditions} & 
+- Le produit est ajouté, mis à jour ou supprimé avec succès. \newline
+- La liste des produits est actualisée en temps réel. \newline
+- Chaque action est enregistrée et reflétée dans la base de données. \\
+\hline
+\end{tabular}
+\caption{Description du cas d’utilisation : Gérer les produits (AdminDashboard)}
+\end{table}
+
+\clearpage
+\subsection*{Diagramme de séquence : Vie d'une commande dans l’application }
+\noindent
+ce diagramme montre comment une simple action de l’acheteur déclenche tout un enchaînement. On découvre ici la vraie vie d’une commande, côté client, vendeur, livreur. et surtout, comment tout est lié dans l'application.
+
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{Cycle de vie d'une commande01.jpg}
+\caption{Diagramme de séquence : Cycle de vie d’une commande}
+\label{fig:cycle-commande}
+\end{figure}
+\paragraph{}
+Pour corriger le problème lié à la présence de plusieurs vendeurs dans une seule commande, j’ai proposé une solution dans l’application : \textbf{grouper les produits par vendeur}.
+
+\medskip
+
+Cela signifie que le système crée une commande distincte pour chaque vendeur. Chaque groupe de produits appartenant à un vendeur devient une commande indépendante.
+
+\medskip
+
+Ainsi, même si l’acheteur passe une seule commande avec plusieurs produits provenant de vendeurs différents, l’application la divise automatiquement en plusieurs sous-commandes.
+
+\medskip
+
+Cette solution permet d’envoyer les commandes à plusieurs livreurs en même temps, ce qui améliore la rapidité de livraison et optimise le processus logistique.
+
+%%passe cmd
+
+
+\section{Diagramme d’activité : Passer une commande}
+\noindent
+Ce diagramme représente le parcours qu’un acheteur suit lorsqu’il passe une commande sur la plateforme.
+
+
+
+\noindent
+\makebox[\linewidth][c]{%
+  \includegraphics[width=1.2\linewidth]{PanierNouvelleVersion4.jpg}
+}
+\captionof{Diagramme d’activité : Passer une commande}
+
+\label{fig:diagramme-passer-commande}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.1\textwidth]{ClassDiagram_MarketPlace011.jpg}
+  \caption{Diagramme de classes principal de l'application MarketPlace}
+  \label{fig:class-diagram}
+\end{figure}
+\cleardoublepage
+\thispagestyle{empty}
+
+\vspace*{0.4\textheight}
+
+\begin{center}
+    \rule{0.8\linewidth}{0.4pt} \\[0.8em]
+    \Huge\bfseries Chapitre 3 : Réalisation \\
+    \rule{0.8\linewidth}{0.4pt}
+\end{center}
+
+\vfill
+\newpage
+\subsection*{3.1 Introduction}
+
+Après avoir élaboré la conception de notre plateforme, nous aborderons dans ce chapitre le dernier volet de ce rapport. Nous allons présenter les différentes étapes de réalisation de notre projet. Cette phase implique la description de l’architecture générale de notre application ainsi que l’environnement de travail informatique dans lequel elle a été développée. 
+
+Ensuite, nous présenterons les différents choix techniques utilisés pour la mise en œuvre de notre projet. Enfin, nous clôturons ce chapitre par quelques interfaces pour illustrer le fonctionnement de quelques activités de notre système.
+
+\subsubsection*{3.2.1 Architecture logique (MVC)}
+
+L’application \textbf{MarketPlace} est construite selon le modèle \textbf{MVC}, qui signifie \textit{Modèle – Vue – Contrôleur}. Ce modèle permet de structurer le code en trois parties bien distinctes :
+
+\begin{itemize}
+  \item \textbf{Modèle (Model)} : c’est la partie qui communique avec la base de données. Elle contient les schémas (schemas) et gère toutes les données du système.
+
+  \item \textbf{Contrôleur (Controller)} : il contient la logique du traitement. Chaque action faite par l’utilisateur passe par un contrôleur. Il appelle le modèle et renvoie une réponse.
+
+  \item \textbf{Vue (View)} : c’est l’interface visible par l’utilisateur. Dans ce projet, elle est développée avec \textbf{React.js et tailwindcss}.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.2\textwidth]{MVC.png}
+    \caption{Architecture MVC de l'application }
+    \label{fig:mvc-architecture}
+\end{figure}
+\subsubsection*{3.2.2. Architecture physique}
+
+Dans cette section, nous essayons de décrire l’architecture physique de notre système.  
+Nous avons adopté l’architecture trois tiers qui se compose de trois composants, ou plus précisément de trois couches distinctes :
+
+\begin{enumerate}
+  \item \textbf{La couche de présentation} : cette couche correspond à l’interface utilisateur.  
+  Elle est responsable de l’affichage des données et de l’interaction des utilisateurs avec l’application.  
+  Elle est développée avec \textbf{Vite}, \textbf{React.js} et \textbf{TailwindCSS}.
+
+  \item \textbf{La couche de traitement} : cette couche correspond à la partie fonctionnelle.  
+  Elle contient le serveur d’application développé en \textbf{Node.js} et \textbf{Express.js},  
+  et elle est responsable de la logique métier, du traitement des données et de l’exécution des actions demandées par l’utilisateur.
+
+  \item \textbf{La couche de données} : cette couche gère l’accès aux données du système.  
+  Elle utilise la base de données \textbf{MongoDB} pour la sauvegarde et la lecture des informations.
+\end{enumerate}
+
+\vspace{1em}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{ArchiPhy.png}
+  \caption{Architecture trois tiers de l'application}
+  \label{fig:archi3tiers}
+\end{figure}
+\subsection*{3.3. Environnement de travail}
+
+Dans cette section, nous exposons les différents outils matériels et logiciels indispensables pour le développement de notre application.
+
+\subsubsection*{3.3.1. Environnement matériel}
+
+Nous avons résumé dans le tableau 3.1 les caractéristiques d’ordinateur utilisé dans le développement de notre application :
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Pc Portable}           & Asus TUF F15                        \\
+\hline
+\textbf{Processeur}            & Intel Core i5 11\textsuperscript{e} génération \\
+\hline
+\textbf{Ram}                   & 16 GO                               \\
+\hline
+\textbf{Disque Dur}           & 512 GO SSD NVMe                     \\
+\hline
+\textbf{Carte Graphique}       & NVIDIA GeForce RTX 2050             \\
+\hline
+\textbf{Système d’exploitation} & Windows 11                          \\
+\hline
+\end{tabular}
+\caption{Tableau 3.1 : Les caractéristiques d’ordinateur}
+\end{table}
+\section*{3.3.2. Environnement logiciel}
+
+Cette section présente les outils utilisés pour la conception et le développement de l'application.
+
+\subsection*{Environnement de conception}
+\begin{minipage}{\textwidth}
+  \includegraphics[width=3cm]{staruml.png} \hfill
+  \parbox[b]{0.85\textwidth}{
+    \textbf{StarUML} : est un logiciel de modélisation UML (Unified Modeling Language) qui permet de créer des diagrammes (cas d’utilisation, classes, séquences) pour visualiser la structure de l’application.
+  }
+\end{minipage}
+\vspace{1em}
+
+\subsection*{Environnement de développement}
+
+\begin{minipage}{\textwidth}
+  \includegraphics[width=2.5cm]{vscode.png} \hfill
+  \parbox[b]{0.85\textwidth}{
+    \textbf{Visual Studio Code} : est un éditeur de code moderne et open source. Il offre des fonctionnalités comme la coloration syntaxique, l’auto-complétion, le débogage et l’intégration Git.
+  }
+\end{minipage}
+\vspace{1em}
+
+\begin{minipage}{\textwidth}
+  \includegraphics[width=2.5cm]{postman.png} \hfill
+  \parbox[b]{0.85\textwidth}{
+    \textbf{Postman} : est un outil utilisé pour tester les APIs. Il permet d’envoyer des requêtes HTTP au serveur afin de vérifier le bon fonctionnement du backend.
+  }
+\end{minipage}
+\vspace{1em}
+
+\begin{minipage}{\textwidth}
+  \includegraphics[width=2.5cm]{mongodb.png} \hfill
+  \parbox[b]{0.85\textwidth}{
+    \textbf{MongoDB Compass} : est un outil visuel qui permet de consulter, gérer et filtrer les données stockées dans la base MongoDB de manière intuitive.
+  }
+\end{minipage}
+\vspace{1em}
+
+\subsection*{Outil de gestion de version}
+\begin{minipage}{\textwidth}
+  \includegraphics[width=2.5cm]{github.png} \hfill
+  \parbox[b]{0.85\textwidth}{
+    \textbf{GitHub} : est une plateforme d’hébergement de code source qui permet de versionner, partager et collaborer sur des projets de développement. Elle est utilisée pour stocker le code du projet, suivre les modifications et travailler en équipe de manière organisée grâce à Git.
+  }
+\end{minipage}
+\section*{Langages de développement}
+
+\begin{minipage}{\textwidth}
+  \includegraphics[width=2.5cm]{html.png} \hfill
+  \parbox[b]{0.85\textwidth}{
+    \textbf{HTML5} : (HyperText Markup Language) est le langage de balisage utilisé pour structurer les pages web. Il permet d’organiser le contenu, comme le texte, les images, les liens, les formulaires .
+  }
+\end{minipage}
+\vspace{1em}
+
+\begin{minipage}{\textwidth}
+  \includegraphics[width=2.5cm]{css.png} \hfill
+  \parbox[b]{0.85\textwidth}{
+    \textbf{CSS3} : (Cascading Style Sheets) permet de styliser les pages HTML. Il gère les couleurs, la disposition, la taille des polices, les effets de survol et rend les interfaces plus modernes et visuelles.
+  }
+\end{minipage}
+\vspace{1em}
+
+\begin{minipage}{\textwidth}
+  \includegraphics[width=2.5cm]{js} \hfill
+  \parbox[b]{0.85\textwidth}{
+    \textbf{JavaScript} : est un langage de programmation qui permet de rendre les pages web interactives. Grâce à JavaScript, on peut manipuler le DOM, gérer des événements, afficher ou masquer des éléments, et communiquer avec le serveur.
+  }
+\end{minipage}
+\section*{Frameworks utilisés}
+\vspace{1.5em}
+
+\begin{minipage}{\textwidth}
+  \includegraphics[width=2.5cm]{téléchargement (6).jpeg} \hfill
+  \parbox[b]{0.85\textwidth}{
+    \textbf{Node.js} :\\
+    est un environnement JavaScript côté serveur.\\
+    Il m’a permis de construire toute la logique backend\\
+    (gestion des utilisateurs, produits, commandes...)\\
+    dans des fichiers comme \texttt{orderController.js} ou \texttt{server.js}.
+  }
+\end{minipage}
+\vspace{1.5em}
+
+\begin{minipage}{\textwidth}
+  \includegraphics[width=2.5cm]{exjs.png} \hfill
+  \parbox[b]{0.85\textwidth}{
+    \textbf{Express.js} :\\
+    est un framework rapide et léger pour Node.js.\\
+    Je l’ai utilisé pour créer toutes les routes REST API de mon backend.\\
+    Il structure bien le code backend et facilite les échanges\\
+    entre frontend et base de données.
+  }
+\end{minipage}
+\vspace{1.5em}
+
+\begin{minipage}{\textwidth}
+  \includegraphics[width=2.5cm]{téléchargement (2).png} \hfill
+  \parbox[b]{0.85\textwidth}{
+    \textbf{Tailwind CSS} :\\
+    est un framework CSS basé sur des classes utilitaires.\\
+    Il m’a permis de styliser rapidement les composants React.\\
+    Par exemple, dans \texttt{AcheteurProfil.jsx},\\
+    j’ai utilisé des classes comme \texttt{bg-white}, \texttt{rounded-lg}, \texttt{text-green-600}.
+  }
+\end{minipage}
+\vspace{1.5em}
+
+\begin{minipage}{\textwidth}
+  \includegraphics[width=2.5cm]{ReactVite.png} \hfill
+  \parbox[b]{0.85\textwidth}{
+    \textbf{React.js + Vite} :\\
+    \textbf{React} m’a servi à créer tous les composants de l’interface utilisateur\\
+    (comme \texttt{Navbar}, \texttt{EditProfile}, etc).\\
+    J’ai utilisé \textbf{Vite} pour accélérer le développement avec\\
+    un rechargement instantané et une structure optimisée.
+  }
+\end{minipage}
+\vspace{1.5em}
+
+\begin{minipage}{\textwidth}
+  \includegraphics[width=2.5cm]{socketio.png} \hfill
+  \parbox[b]{0.85\textwidth}{
+    \textbf{Socket.IO} :\\
+    est une bibliothèque JavaScript qui permet la communication en temps réel\\
+    entre le client et le serveur.\\
+    Je l’ai utilisée dans mon projet pour envoyer des notifications instantanées\\
+    aux utilisateurs (vendeur, livreur, acheteur) lors des actions sur les commandes.\\
+    Le fichier \texttt{socketServer.js} gère tous les événements WebSocket.\\
+   
+  }
+\end{minipage}
+\newpage
+\section{Présentation des interfaces de l'application}
+
+L’intérêt de cette partie est de présenter les principales interfaces de notre application, de vérifier que les cas réalisés sont conformes aux besoins des utilisateurs et de s’assurer que les interfaces sont ergonomiques et faciles à utiliser.
+
+\subsection{Interface « Accueil »}
+
+Cette interface représente la page d’accueil des visiteurs de la plateforme. Elle affiche tous les produits disponibles, avec leur image, nom et prix. L’utilisateur peut consulter librement sans être inscrit.
+
+\begin{center}
+  \includegraphics[width=0.9\textwidth]{inscription (2).png}
+  
+  \textit{Figure 3.1 : Interface d’accueil}
+\end{center}
+
+\vspace{2em}
+
+\subsection{Interface « Inscription »}
+
+L’interface d’inscription  permet aux nouveaux utilisateurs de créer un compte.
+
+\begin{center}
+  \includegraphics[width=0.65\textwidth]{inscription (1).png}
+  
+  \textit{Figure 3.2 : Interface d’inscription}
+\end{center}
+
+\subsection{Interface « Accueil Acheteur »}
+
+Cette interface représente la page d’accueil de l’acheteur connecté. Elle affiche la liste des produits disponibles, avec possibilité de les ajouter au panier. L’utilisateur peut aussi accéder à son profil ou à ses commandes via le menu supérieur.
+
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{AccueilAcheteur (2).png}
+  
+  \textit{Figure 3.3 : Interface d’accueil – Acheteur connecté}
+\end{center}
+
+\vspace{2em}
+
+
+
+
+
+\subsection{Interface « Détail d’un produit »}
+
+Cette interface permet à l’acheteur de consulter les détails d’un produit spécifique. Elle affiche l’image, le nom, la description, le prix et les boutons pour acheter, ajouter au panier ou sauvegarder. Elle est conçue pour être claire et agréable.
+
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{ProduitDetails.png}
+  
+  \textit{Figure 3.6 : Interface de détail produit – acheteur}
+\end{center}
+\vspace{2em}
+
+\subsection{Interface « Mes Commandes – Acheteur »}
+
+La figure suivante affiche toutes les commandes effectuées par l’acheteur, avec un statut clair : en attente, confirmée, en livraison, livrée ou annulée. Cela permet à l’utilisateur de suivre l’évolution de ses commandes facilement.
+
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{MesCMD.png}
+  
+  \textit{Figure 3.11 : Historique des commandes – Acheteur}
+\end{center}
+\vspace{2em}
+\subsection{Interface « Modifier le profil  »}
+
+
+Les utilisateurs peuvent mettre à jour leurs informations via cette interface. Ils ont la possibilité de modifier leur numéro de téléphone, leur date de naissance, leur adresse postale, et même de détecter automatiquement leur position géographique. Ils peuvent également désactiver leur compte s’ils le souhaitent.
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{EditProfileAcheteur.png}
+  
+  \textit{Figure 3.5 : Interface de modification du profil – Acheteur}
+\end{center}
+\subsection{Interface « Profil du vendeur »}
+
+Cette interface  affiche le profil public d’un vendeur vérifié. On y trouve ses coordonnées, son image de profil et la liste de ses produits visibles par tous les utilisateurs.
+
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{ProfileVendeur.png}
+  
+  \textit{Figure 3.7 : Interface du profil vendeur}
+\end{center}
+
+\vspace{2em}
+
+\subsection{Interface « Dashboard vendeur vérifié »}
+
+Après la validation de son compte, le vendeur accède à un tableau de bord complet . Il peut y gérer ses produits, les modifier, les supprimer et en ajouter via un formulaire complet à droite de l’écran.
+
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{DashbordVendeur.png}
+  
+  \textit{Figure 3.8 : Tableau de bord du vendeur vérifié}
+\end{center}
+
+\subsection{Interface « Mes Commandes – Vendeur »}
+
+Cette interface (Figure 3.12) est accessible uniquement aux vendeurs. Elle affiche toutes les commandes qui contiennent les produits du vendeur connecté, avec possibilité de confirmer ou annuler chaque commande directement via les boutons d’action.
+
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{VendeurCommandes.png}
+  
+  \textit{Figure 3.12 : Gestion des commandes – Vendeur}
+\end{center}
+\subsection{Interface « Tableau de bord du livreur »}
+
+Cette interface (Figure 3.9) est dédiée au rôle livreur. Une fois qu’il active sa disponibilité, il peut voir les commandes confirmées, accéder à une carte de livraison affichant la position du client et du vendeur, et télécharger les informations sous format PDF.
+
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{Capture d'écran 2025-05-30 201612.png}
+  
+  \textit{Figure 3.9 : Interface du livreur avec carte de livraison}
+\end{center}
+
+\vspace{2em}
+
+\subsection{Interface « Page de simulation de paiement »}
+
+La figure suivante (Figure 3.10) représente le formulaire de paiement en ligne. L'utilisateur remplit ses coordonnées (nom, adresse, email...) et les informations de sa carte bancaire. Un résumé de commande s’affiche à droite, avec le montant total à payer.
+
+\begin{center}
+  \includegraphics[width=0.75\textwidth]{PageSimulationDePaiment.png}
+  
+  \textit{Figure 3.10 : Interface de paiement en ligne}
+\end{center}
+
+
+
+\vspace{2em}
+
+\subsection{Interface « Connexion »}
+
+La figure  montre la page de connexion. Chaque utilisateur (admin, vendeur, livreur ou acheteur) doit entrer son adresse email et son mot de passe pour accéder à son espace personnel sécurisé.
+
+\begin{center}
+  \includegraphics[width=0.75\textwidth]{Login.png}
+  
+  \textit{Figure 3.13 : Interface de connexion}
+\end{center}
+
+\vspace{2em}
+
+\subsection{Interface « Tableau des utilisateurs (Admin) »}
+
+Cette interface est accessible uniquement à l’administrateur. Elle permet de visualiser tous les utilisateurs enregistrés dans la plateforme avec leur rôle, leur statut et les actions possibles : bloquer, supprimer ou modifier.
+
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{AdminAllUsers.png}
+  
+  \textit{Figure 3.14 : Gestion des utilisateurs – Admin}
+\end{center}
+
+\vspace{2em}
+
+\subsection{Interface « Liste des produits (Admin) »}
+
+Dans la figure 3.15, l’administrateur peut consulter tous les produits publiés par les vendeurs, avec leur image, nom, prix, catégorie, vendeur concerné et des actions de gestion (modifier ou supprimer).
+
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{AdminProduit.png}
+  
+  \textit{Figure 3.15 : Liste des produits – Admin}
+\end{center}
+
+\vspace{2em}
+
+\subsection{Interface « Vérification des vendeurs et livreurs »}
+
+Cette interface affiche les détails d’un vendeur ou Livreur en attente de validation. L’admin peut visualiser sa carte d’identité, son adresse, son email et ses coordonnées GPS avant de le vérifier ou le refuser.
+
+\begin{center}
+  \includegraphics[width=0.9\textwidth]{verfier.png}
+  
+  \textit{Figure 3.16 : Vérification manuelle du profil vendeur}
+\end{center}
+
+\vspace{2em}
+
+\subsection{Interface « Bon de livraison (PDF) »}
+
+Lorsqu’un livreur accepte une commande, un bon de livraison est généré automatiquement au format PDF. Il contient les informations du client, les détails de la commande, le montant total et un code QR à scanner pour confirmer la livraison.
+
+\begin{center}
+  \includegraphics[width=0.9\textwidth]{Bon de Livraision.png}
+  
+  \textit{Figure 3.17 : Bon de livraison avec QR code}
+\end{center}
+\section*{3.5. Conclusion}
+
+Ce dernier chapitre m’a permis de présenter la partie réalisation de mon projet. J’ai commencé par l’architecture générale de l’application, puis j’ai détaillé l’environnement de développement et les outils utilisés. Ensuite, j’ai montré les résultats de mon travail à travers différentes interfaces de l’application.
+
+\newpage
+\section*{Bibliographie}
+
+\begin{itemize}
+  % ---- Technologies principales ----
+  \item [1] ReactJS — https://react.dev
+  \item [2] ViteJS — https://vitejs.dev
+  \item [3] Tailwind CSS — https://tailwindcss.com
+  \item [4] Redux Toolkit — https://redux-toolkit.js.org
+  \item [5] Node.js — https://nodejs.org
+  \item [6] Express.js — https://expressjs.com
+  \item [7] MongoDB — https://www.mongodb.com
+  \item [8] Mongoose — https://mongoosejs.com
+  \item [9] Socket.IO — https://socket.io
+  \item [10] Leaflet.js (Map) — https://leafletjs.com
+  \item [11] Framer Motion — https://www.framer.com/motion/
+  \item [12] SweetAlert2 — https://sweetalert2.github.io
+  \item [13] React Icons — https://react-icons.github.io/react-icons/
+  \item [14] QRCode — https://github.com/soldair/node-qrcode
+  \item [15] PDFKit — https://pdfkit.org
+
+  % ---- Outils & plateformes utiles ----
+  \item [16] ChatGPT (OpenAI) — https://chat.openai.com
+  \item [17] Stack Overflow — https://stackoverflow.com
+  \item [18] GitHub — https://github.com
+  \item [19] npm (Node Package Manager) — https://www.npmjs.com
+  \item [20] Youtube  — https://www.youtube.com
+  \item [21] Google Fonts — https://fonts.google.com
+
+  % ---- Documentation & support ----
+  \item [22] MDN Web Docs — https://developer.mozilla.org/fr/
+  \item [23] DevDocs — https://devdocs.io
+  \item [24] JavaScript Info — https://javascript.info
+  \item [25] OpenAI Docs — https://platform.openai.com/docs
+\end{itemize}
+\section*{Conclusion Générale}
+
+Ce projet de fin d'études m’a permis de vivre une vraie expérience professionnelle dans le domaine du développement web. J’ai travaillé seul sur toute la réalisation de cette plateforme appelée \textbf{MarketPlace}, en partant d’un simple besoin : connecter de façon claire et efficace les vendeurs, les acheteurs et les livreurs, dans un seul espace organisé.
+
+Tout au long du projet, j’ai rencontré plusieurs défis : la gestion des rôles, l’authentification sécurisée, l’affichage dynamique des produits, la mise en place d’un système de commande, le tableau de bord des livreurs, le scan du QR code et même la vérification des utilisateurs par un administrateur. Ces défis m’ont aidé à améliorer mes compétences techniques et aussi mon autonomie.
+
+Ce travail m’a permis de mieux comprendre comment fonctionne une application moderne : j’ai utilisé React, Vite, Node.js, Express, MongoDB, Socket.IO, Leaflet, Tailwind, PDFKit, QRCode... J’ai appris à organiser un projet complet, du backend jusqu’au frontend, en respectant la logique MVC et l’architecture trois-tiers.
+
+Mais ce n’est qu’un début. Je vois encore plusieurs pistes d’amélioration pour l’avenir.  
+Par exemple, je pourrais :
+
+\begin{itemize}
+  \item Ajouter un système de chat en temps réel entre les utilisateurs (acheteurs, vendeurs, livreurs),
+  \item Intégrer une méthode de paiement officielle, sécurisée et pratique,
+  \item Ajouter un système de gains pour l’application (ex. commission par commande ou abonnement vendeur),
+  \item Créer une version mobile complète et responsive de la plateforme,
+  \item Mettre en place une interface de statistiques pour les administrateurs, afin de suivre les performances et calculer les revenus générés,
+  \item Développer un système de vérification automatique des vendeurs et livreurs grâce à l’intelligence artificielle : l’utilisateur ouvre sa caméra, prend une photo et le système compare automatiquement avec la pièce d’identité (CIN).
+\end{itemize}
+
+
+Pour conclure, je suis fier du chemin parcouru. Ce projet m’a permis de transformer une idée simple en une vraie application web fonctionnelle. Je suis convaincu que ce type de plateforme peut être utile, surtout dans un contexte local comme la Tunisie, où le e-commerce a encore beaucoup à offrir. Ce travail m’a motivé à aller encore plus loin dans le domaine du développement  b  .
+
+
+\end{document}

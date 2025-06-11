@@ -182,7 +182,7 @@ exports.generateDeliveryPDF = async (req, res) => {
     const livreurObjectId = new mongoose.Types.ObjectId(livreurId);
     const acheteurObjectId = new mongoose.Types.ObjectId(acheteurId);
 
-    // ✅ فقط آخر commande
+    // ✅فقط آخر commande
     const order = await Order.findOne({
       livreur: livreurObjectId,
       acheteurId: acheteurObjectId
@@ -238,7 +238,7 @@ exports.generateDeliveryPDF = async (req, res) => {
     doc.text(`Montant Total      : ${(totalProduits + fraisLivraison).toFixed(2)} dt`);
     doc.moveDown(0.5);
 
-    // 📦 QR Code
+    //  QR Code
     const qrContent = `http://localhost:5000/api/orders/confirm-delivery/${order._id}`;
     const qrDataUrl = await QRCode.toDataURL(qrContent);
     const base64Data = qrDataUrl.replace(/^data:image\/png;base64,/, "");
@@ -312,7 +312,7 @@ exports.updateLivreurProfile = async (req, res) => {
     res.status(500).json({ success: false, message: "Erreur serveur lors de la mise à jour" });
   }
 };
-// ✅ Ajouter dans livreurController.js
+//  Ajouter dans livreurController.js
 exports.toggleVerificationLivreur = async (req, res) => {
   try {
     const livreur = await Livreur.findOne({ user: req.params.id });

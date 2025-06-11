@@ -61,12 +61,12 @@ const u = JSON.parse(localStorage.getItem("user"));
         setFilteredProducts(filtered);
       }
     } else {
-      // المستخدم كتب شيء → نبدأ نفلتر بالاسم
+      // filtrage par nom
       const filtered = allProducts.filter((product) => {
         return product.name.toLowerCase().includes(searchTerm.toLowerCase());
       });
   
-      // ثم نفلتر حسب الكاتيجوري إذا لازم
+      // filtrage par category
       if (selectedCategory === "all") {
         setFilteredProducts(filtered);
       } else {

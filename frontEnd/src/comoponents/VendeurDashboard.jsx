@@ -9,6 +9,9 @@ import VendeurProductModifcations from "./VendeurProductModifcations";
 
 const VendeurDashboard = () => {
   const [vendeurData, setVendeurData] = useState(null); // ⬅️ في أعلى الملف
+
+
+
   const handleDelete = async (productId) => {
   const result = await Swal.fire({
     title: "Supprimer le produit ?",
@@ -24,7 +27,7 @@ const VendeurDashboard = () => {
   if (result.isConfirmed) {
     try {
       await axios.delete(`http://localhost:5000/api/products/${productId}`);
-      Swal.fire("Supprimé !", "Le produit a été supprimé.", "success");
+      Swal.fire("supprimé !", "Le produit a été supprimé.", "success");
       fetchProducts(vendeurId); // Refresh la liste
     } catch (error) {
       Swal.fire("Erreur", "Impossible de supprimer le produit.", "error");
@@ -51,16 +54,16 @@ const [selectedProductId, setSelectedProductId] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [vendeurId, setVendeurId] = useState(null); //  mettre vendeurId dans le state Reac
 
-  // 1️⃣ Lire vendeurId au chargement
+  //  Lire vendeurId au chargement
   useEffect(() => {
     const storedId = localStorage.getItem("vendeurId");
     if (!storedId) {
-      console.warn("⚠️ vendeurId manquant dans localStorage");
+      console.warn("vendeurId manquant dans localStorage");
       return;
     }
     setVendeurId(storedId);
     setCategories(categoriesData);
-     // ✅ Charger vendeur vérification
+     // Charger vendeur vérification
   const fetchVendeurData = async () => {
     try {
       const res = await axios.get(`http://localhost:5000/api/vendeurs/profile/${storedId}`);
@@ -72,7 +75,7 @@ const [selectedProductId, setSelectedProductId] = useState(null);
   fetchVendeurData();
   }, []);
 
-  // 2️⃣ Charger les produits dès que vendeurId est dispo
+  // Charger les produits dès que vendeurId est dispo
    const fetchProducts = async (id) => {
     try {
       const response = await axios.get(`http://localhost:5000/api/products/vendeur/${id}`);
@@ -93,7 +96,8 @@ const [selectedProductId, setSelectedProductId] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setNewProduct({ ...newProduct, [name]: value });
+    setNewProduct({ ...newProduct, [name]: value }); 
+    //JavaScript dynamic object keys
   };
 
 const handleSubmit = async (e) => {
@@ -105,7 +109,7 @@ const handleSubmit = async (e) => {
     return;
   }
 
-  // ✅ Vérification du profil vendeur
+  //  Vérification du profil vendeur
   try {
     const profileRes = await axios.get(`http://localhost:5000/api/vendeurs/profile/${vendeurId}`);
     const { user: u, vendeur } = profileRes.data;
@@ -128,7 +132,7 @@ const handleSubmit = async (e) => {
   confirmButtonText: "Aller au profil"
 }).then((result) => {
   if (result.isConfirmed) {
-    navigate("/vendeur/profile/edit"); // ✅ Redirection SPA
+    navigate("/vendeur/profile/edit"); //  Redirection SPA
   }
 });
 

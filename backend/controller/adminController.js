@@ -4,7 +4,7 @@ const User = require("../models/User");
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}, "-password"); // نحذف كلمة السر من النتيجة
+    const users = await User.find({}, "-password");     
     res.json({ user: users });
   } catch (error) {
     res.status(500).json({ message: "Erreur chargement utilisateurs" });
@@ -16,16 +16,16 @@ exports.createUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
-    // 🔎 Vérifie si l'email existe déjà
+    //  Vérifie si l'email existe déjà
     const existing = await User.findOne({ email });
     if (existing) {
       return res.json({ success: false, message: "Email already exists" });
     }
 
-    // 🔐 Hasher le mot de passe
+    //  Hasher le mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ✅ Créer l'utilisateur
+    //  Créer l'utilisateur
     const newUser = new User({
       name,
       email,
