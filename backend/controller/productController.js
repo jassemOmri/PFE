@@ -159,7 +159,7 @@ exports.adminAddProduct = async (req, res) => {
       return res.status(400).json({ success: false, message: "Image requise" });
     }
 
-    // 🔍 Recherche du vendeur par son email
+    //  Recherche du vendeur par son email
     const vendeur = await User.findOne({  email, role: "vendeur" });
     if (!vendeur) {
       return res.status(404).json({ success: false, message: "Vendeur introuvable avec cet email" });

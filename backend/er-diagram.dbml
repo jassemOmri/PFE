@@ -1,0 +1,88 @@
+Table admin {
+  _id ObjectId [pk]
+  name string
+  email string
+  password string
+  role string
+}
+
+Table cart {
+  _id ObjectId [pk]
+  acheteurId ObjectId [ref: > user._id]
+  products string
+}
+
+Table livreur {
+  _id ObjectId [pk]
+  user ObjectId [ref: > user._id]
+  numTele string
+  imCin string
+  verified boolean
+  disponible boolean
+}
+
+Table order {
+  _id ObjectId [pk]
+  acheteurId ObjectId [ref: > user._id]
+  clientName string
+  clientLat int
+  clientLng int
+  paymentMethod string
+  status string
+  livreur ObjectId [ref: > livreur._id]
+  products string
+}
+
+Table payment {
+  _id ObjectId [pk]
+  acheteurId ObjectId [ref: > user._id]
+  fullName string
+  email string
+  phone string
+  address string
+  country string
+  amount int
+  paymentMethod string
+  status string
+  createdAt datetime
+}
+
+Table product {
+  _id ObjectId [pk]
+  name string
+  image string
+  description string
+  vendeurId ObjectId [ref: > user._id]
+  regularPrice int
+  salePrice int
+  category string
+}
+
+Table user {
+  _id ObjectId [pk]
+  name string
+  email string
+  password string
+  numTele string
+  imProfile string
+  dateNaissance datetime
+  addPostale string
+  dateCreation datetime
+  dateDesactivation datetime
+  lat int
+  lng int
+  isActive boolean
+  role string
+}
+
+Table vendeur {
+  _id ObjectId [pk]
+  user ObjectId [ref: > user._id]
+  numTele string
+  imCin string
+  verified boolean
+  lat int
+  lng int
+  status string
+}
+

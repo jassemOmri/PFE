@@ -2,7 +2,7 @@ const Vendeur = require("../models/vendeur");
 const User = require("../models/User");
 const Product = require("../models/product");
 
-// 🔍 Récupérer les infos du profil vendeur
+// Récupérer les infos du profil vendeur
 exports.getVendeurProfile = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -25,7 +25,7 @@ exports.getVendeurProfile = async (req, res) => {
       products,
     });
   } catch (error) {
-    console.error("❌ Erreur récupération profil vendeur:", error);
+    console.error("Erreur récupération profil vendeur:", error);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
@@ -98,7 +98,7 @@ exports.toggleVerificationVendeur = async (req, res) => {
 };
 exports.getAllVendeursWithUser = async (req, res) => {
   try {
-    const vendeurs = await Vendeur.find().populate("user"); // ⚠️ لازم ref في schema
+    const vendeurs = await Vendeur.find().populate("user"); //  لازم ref في schema
     res.json(vendeurs);
   } catch (err) {
     console.error("Erreur getAllVendeurs:", err);

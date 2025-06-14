@@ -182,7 +182,7 @@ exports.generateDeliveryPDF = async (req, res) => {
     const livreurObjectId = new mongoose.Types.ObjectId(livreurId);
     const acheteurObjectId = new mongoose.Types.ObjectId(acheteurId);
 
-    // ✅فقط آخر commande
+    // فقط آخر commande
     const order = await Order.findOne({
       livreur: livreurObjectId,
       acheteurId: acheteurObjectId
@@ -332,7 +332,7 @@ exports.toggleVerificationLivreur = async (req, res) => {
 };
 exports.getAllLivreursWithUser = async (req, res) => {
   try {
-    const livreurs = await Livreur.find().populate("user"); // ⚠️ ref = "User"
+    const livreurs = await Livreur.find().populate("user"); //  ref = "User"
     res.json(livreurs);
   } catch (err) {
     console.error("Erreur getAllLivreurs:", err);

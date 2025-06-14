@@ -1,6 +1,6 @@
 const User = require("../models/User");
 
-// 🔍 Récupérer les infos du profil acheteur
+//  Récupérer les infos du profil acheteur
 exports.getAcheteurProfile = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -15,12 +15,12 @@ exports.getAcheteurProfile = async (req, res) => {
       user,
     });
   } catch (error) {
-    console.error("❌ Erreur récupération profil acheteur:", error);
+    console.error(" Erreur récupération profil acheteur:", error);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
 
-// 🛠️ Mettre à jour le profil acheteur
+//  Mettre à jour le profil acheteur
 exports.updateAcheteurProfile = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -40,8 +40,8 @@ exports.updateAcheteurProfile = async (req, res) => {
         numTele,
         dateNaissance,
         addPostale: addPostaleParsed,
-        lat: lat || null,     // ✅ حفظ الإحداثيات
-        lng: lng || null,     // ✅ حفظ الإحداثيات
+        lat: lat || null,     
+        lng: lng || null,    
         ...(imProfile && { imProfile }),
       },
       { new: true }
@@ -53,7 +53,7 @@ exports.updateAcheteurProfile = async (req, res) => {
       user: updatedUser,
     });
   } catch (error) {
-    console.error("❌ Erreur update acheteur :", error);
+    console.error(" Erreur update acheteur :", error);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };

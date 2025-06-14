@@ -58,10 +58,10 @@ exports.updateUser = async (req, res) => {
       const hashedPassword = await bcrypt.hash(password, 10);
       updateFields.password = hashedPassword;
     }
-    console.log("🧾 Nouveau nom :", name);
+    console.log(" Nouveau nom :", name);
 
     await User.findByIdAndUpdate(id, updateFields);
-    console.log("🧠 Champs à mettre à jour :", updateFields);
+    console.log(" Champs à mettre à jour :", updateFields);
 
     res.json({ success: true });
   } catch (err) {
